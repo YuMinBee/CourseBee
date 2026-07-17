@@ -69,5 +69,6 @@ jobs:
           done
           curl --fail --silent http://127.0.0.1:8000/health | grep -q '"status":"ok"'
           curl --fail --silent http://127.0.0.1:8000/ready | grep -q '"status":"ready"'
-          curl --fail --silent http://127.0.0.1:8000/demo | grep -q '<title>CourseBee</title>'
+          curl --fail --silent http://127.0.0.1:8000/demo --output /tmp/coursebee-demo.html
+          grep -q '<title>CourseBee</title>' /tmp/coursebee-demo.html
           test "$(docker exec coursebee-ci id -u)" = "10001"
