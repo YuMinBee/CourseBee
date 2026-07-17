@@ -196,18 +196,40 @@ class SourceGroundedGenerationTest(unittest.TestCase):
 
         self.assertEqual(script["llm"]["target_minutes"], 8)
         self.assertEqual(mocked.call_args.kwargs["minutes"], 8)
+
     def test_audio_script_ollama_uses_target_chars(self) -> None:
-        with patch("v2.audio_script.OllamaProvider.generate_script", return_value="HOST: 안녕하세요.\nGUEST: 6000자 대본입니다.") as mocked:
+        llm_text = "HOST: 안녕하세요.\nGUEST: 핵심 내용을 설명했습니다.\nHOST: 이제 마무리할게요."
+        with patch("v2.audio_script.OllamaProvider.generate_script", return_value=llm_text) as mocked:
             script = generate_audio_script(
                 self._chunks(),
                 mode="podcast",
                 llm_provider="ollama",
                 llm_model="qwen3:8b",
-                target_chars=6000,
+                target_chars=2200,
             )
 
-        self.assertEqual(script["llm"]["target_chars"], 6000)
-        self.assertEqual(mocked.call_args.kwargs["target_chars"], 6000)
+        self.assertEqual(script["llm"]["target_chars"], 2200)
+        self.assertEqual(mocked.call_args.kwargs["target_chars"], 2200)
+        self.assertLess(script["llm"]["raw_script_char_count"], 1980)
+        self.assertEqual(script["llm"]["minimum_target_chars"], 1980)
+        self.assertEqual(script["llm"]["length_status"], "source_expanded")
+        self.assertGreaterEqual(script["script_char_count"], 1980)
+        self.assertEqual(script["script"][-1]["text"], "이제 마무리할게요.")
+        self.assertTrue(any("source-grounded expansion" in warning for warning in script["warnings"]))
+
+    def test_audio_script_qwen3_alias_uses_ollama_provider(self) -> None:
+        with patch("v2.audio_script.OllamaProvider.generate_script", return_value="HOST: 시작합니다.\nGUEST: 설명합니다."):
+            script = generate_audio_script(
+                self._chunks(),
+                mode="podcast",
+                llm_provider="qwen3",
+                llm_model="qwen3:8b",
+            )
+
+        self.assertEqual(script["llm"]["provider"], "ollama")
+        self.assertEqual(script["llm"]["model"], "qwen3:8b")
+        self.assertEqual(script["llm"]["status"], "used")
+
     def test_audio_script_ollama_podcast_preserves_speakers(self) -> None:
         llm_text = "HOST: 오늘은 BPE가 왜 필요한지 이야기해볼게요.\nGUEST: BPE는 OOV 문제를 줄이기 위해 단어를 subword로 나눕니다."
         with patch("v2.audio_script.OllamaProvider.generate_script", return_value=llm_text):
@@ -251,6 +273,19 @@ class SourceGroundedGenerationTest(unittest.TestCase):
         self.assertEqual(script["script"][1]["text"], "Longer explanation.")
         self.assertTrue(all(segment["sources"] for segment in script["script"]))
 
+    def test_audio_script_ollama_removes_spoken_speaker_labels(self) -> None:
+        llm_text = "HOST: 반가워요, GUEST.\nGUEST: 감사합니다, HOST!"
+        with patch("v2.audio_script.OllamaProvider.generate_script", return_value=llm_text):
+            script = generate_audio_script(
+                self._chunks(),
+                mode="podcast",
+                llm_provider="ollama",
+                llm_model="qwen3:8b",
+            )
+
+        self.assertEqual(script["script"][0]["text"], "반가워요.")
+        self.assertEqual(script["script"][1]["text"], "감사합니다!")
+
     def test_audio_script_ollama_provider_falls_back_when_unavailable(self) -> None:
         from v2.providers.ollama import OllamaProviderError
 
@@ -263,4 +298,3 @@ class SourceGroundedGenerationTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

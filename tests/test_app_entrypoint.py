@@ -40,7 +40,7 @@ class FastAPIEntrypointTest(unittest.TestCase):
         self.assertIn('CHAT_LLM_MODEL = "qwen3:14b"', demo_html)
         self.assertIn("llm_provider: CHAT_LLM_PROVIDER", demo_html)
         self.assertIn("llm_model: CHAT_LLM_MODEL", demo_html)
-        self.assertIn("target_chars: 2200", demo_html)
+        self.assertIn("target_chars: 2000", demo_html)
         self.assertIn('guest_voice: "ko-KR-InJoonNeural"', demo_html)
         self.assertIn("addAudioArtifact(data, true)", demo_html)
         self.assertIn('data-action="audio"', demo_html)
@@ -99,6 +99,5 @@ class FastAPIEntrypointTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
 
 

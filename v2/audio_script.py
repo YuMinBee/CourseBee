@@ -52,13 +52,42 @@ def generate_audio_script(
 
     selected = chunks[: MODE_LIMITS[mode]]
     minutes = target_minutes if target_minutes and target_minutes > 0 else MODE_MINUTES[mode]
-    if llm_provider in {"ollama", "qwen"}:
+    if llm_provider in {"ollama", "qwen", "qwen3"}:
         llm_payload = _ollama_script(selected, mode=mode, model=llm_model, grounding=grounding, minutes=minutes, target_chars=target_chars)
         warnings.extend(llm_payload["warnings"])
         if llm_payload["script"]:
+            raw_char_count = _script_char_count(llm_payload["script"])
+            minimum_chars = int(target_chars * 0.9) if target_chars else None
+            script = _expand_script_to_target_chars(
+                llm_payload["script"],
+                selected,
+                mode=mode,
+                target_chars=target_chars,
+            )
+            final_char_count = _script_char_count(script)
+            if minimum_chars is not None:
+                llm_payload["llm"].update(
+                    {
+                        "raw_script_char_count": raw_char_count,
+                        "minimum_target_chars": minimum_chars,
+                        "length_status": "met" if raw_char_count >= minimum_chars else "source_expanded",
+                    }
+                )
+                if raw_char_count < minimum_chars:
+                    if final_char_count >= minimum_chars:
+                        warnings.append(
+                            f"Ollama script was {raw_char_count} characters, below the {minimum_chars} minimum; "
+                            f"source-grounded expansion produced {final_char_count} characters."
+                        )
+                    else:
+                        llm_payload["llm"]["length_status"] = "short"
+                        warnings.append(
+                            f"Ollama script remained short after source-grounded expansion: "
+                            f"{final_char_count} / {minimum_chars} characters."
+                        )
             return _audio_payload(
                 mode=mode,
-                script=llm_payload["script"],
+                script=script,
                 llm=llm_payload["llm"],
                 grounding=grounding,
                 warnings=warnings,
@@ -147,12 +176,20 @@ def _podcast_segments_from_llm_text(text: str, chunks: list[Chunk]) -> list[dict
     segments: list[dict] = []
     source_pool = chunks or []
     for index, (speaker, turn_text) in enumerate(turns[:40]):
+        turn_text = _remove_spoken_speaker_labels(turn_text)
         if not turn_text:
             continue
         source_chunk = _source_chunk_for_text(turn_text, source_pool, fallback_index=index // 2)
         sources = [source.to_dict() for source in _sources_from_chunks([source_chunk])] if source_chunk else []
         segments.append({"speaker": speaker, "text": turn_text, "sources": sources})
     return segments
+
+
+def _remove_spoken_speaker_labels(text: str) -> str:
+    cleaned = re.sub(r"(?i)(?:,\s*)?\b(?:HOST|GUEST)\b(?=[\s,.!?，。！？]|$)", "", text)
+    cleaned = re.sub(r"\s+([,.!?，。！？])", r"\1", cleaned)
+    return re.sub(r"\s{2,}", " ", cleaned).strip()
+
 
 def _single_speaker_script(chunks: list[Chunk], mode: str) -> list[dict]:
     opening = {
@@ -280,13 +317,24 @@ def _expand_script_to_target_chars(script: list[dict], chunks: list[Chunk], mode
         return script
 
     expanded = list(script)
-    podcast_templates = [
-        "여기서 {terms}를 한 번 더 풀어보면, 자료는 {sentence} 라고 설명합니다. 용어만 외우기보다 이 설명이 어떤 질문에 답하는지 함께 확인하면 핵심을 더 정확히 잡을 수 있습니다.",
-        "조금 더 구체적으로 살펴보죠. {sentence} 이 대목에서 중요한 것은 자료가 제시한 조건과 결과를 구분하는 일입니다. 두 요소를 나눠 읽으면 설명의 구조가 선명해집니다.",
-        "학습자가 자주 놓치는 부분은 {terms}를 독립된 암기 항목처럼 보는 것입니다. 앞에서 다룬 내용과 비교하고 다음 설명으로 이어지는 지점을 찾으면 전체 흐름을 이해하는 데 도움이 됩니다.",
-        "다시 말해 이번 근거의 중심 문장은 {sentence} 입니다. 이 문장을 자신의 말로 바꾸어 설명해보면 개념의 의미와 역할을 제대로 이해했는지 확인할 수 있습니다.",
-        "복습할 때는 {terms}의 정의, 등장 배경, 관련 개념을 차례로 정리해보세요. 자료에 나온 표현을 기준으로 답을 구성하면 불필요한 추측을 줄일 수 있습니다.",
-        "마지막으로 현재 부분을 요약하면 {sentence} 입니다. 이 근거가 앞뒤 강의 내용과 어떻게 연결되는지 한 문장으로 덧붙여보면 좋은 복습이 됩니다.",
+    closing: list[dict] = []
+    if mode == "podcast" and len(expanded) > 1:
+        closing = [expanded.pop()]
+    host_podcast_templates = [
+        "여기서 앞 내용을 연결해보면 좋겠네요. 자료의 핵심 문장은 “{sentence}”입니다. 이 지점을 기억하면 다음 개념도 훨씬 자연스럽게 이어집니다.",
+        "잠깐 정리해볼게요. “{sentence}”라는 설명이 중요한 연결점이었어요. 이 부분을 자신의 말로 바꿔보면 이해한 범위도 확인할 수 있겠네요.",
+        "용어를 따로 외우기보다 흐름을 보는 게 중요하겠어요. “{sentence}”라는 근거를 중심에 두고 앞뒤 개념의 역할을 비교해보죠.",
+        "이 대목에서 한 번 멈춰볼까요. 자료의 “{sentence}”라는 설명을 기준으로 보면 왜 이 개념이 필요한지 더 분명해집니다.",
+        "앞의 내용과 이어서 들으니 구조가 보이네요. “{sentence}”라는 설명이 다음 단계로 넘어가는 단서라고 볼 수 있겠습니다.",
+        "학습자 입장에서는 이 연결을 놓치기 쉬울 것 같아요. “{sentence}”를 기억해두고 비슷한 개념과 차이를 확인해보죠.",
+    ]
+    guest_podcast_templates = [
+        "맞아요. 자료에서는 “{sentence}”라고 설명합니다. 정의와 함께 등장 배경과 결과를 나눠 보면 개념의 역할을 더 정확하게 이해할 수 있어요.",
+        "조금 더 풀어보면 “{sentence}”가 핵심입니다. 이 설명이 어떤 문제에 답하는지 생각하면 단순 암기보다 오래 기억할 수 있어요.",
+        "복습할 때도 “{sentence}”를 기준으로 정리해보세요. 관련 개념과의 차이까지 한 문장으로 덧붙이면 전체 구조가 선명해집니다.",
+        "그렇습니다. 자료의 표현을 따라가면 “{sentence}”가 중심 내용이에요. 원인과 결과를 나눠 말해보면 이해가 더 단단해집니다.",
+        "이 부분은 “{sentence}”로 요약할 수 있습니다. 앞서 본 개념이 실제 처리 과정에서 어떤 역할을 하는지 연결해서 보면 좋아요.",
+        "핵심 근거는 “{sentence}”입니다. 이 문장을 출발점으로 정의, 필요한 이유, 다음 개념과의 관계를 차례대로 복습해보세요.",
     ]
     narrator_templates = [
         "다음 포인트는 {terms}입니다. {sentence} 이 내용은 앞뒤 개념과 함께 이해해야 하며, 단독 정의보다 학습 흐름 속 역할을 보는 것이 중요합니다.",
@@ -294,29 +342,59 @@ def _expand_script_to_target_chars(script: list[dict], chunks: list[Chunk], mode
     ]
 
     index = 0
-    while _script_char_count(expanded) < minimum_chars and index < 40:
+    while _script_char_count([*expanded, *closing]) < minimum_chars and index < 40:
         chunk = chunks[index % len(chunks)]
-        sentence = _script_sentence(chunk)
-        terms = _terms_for_audio(chunk)
+        sentence = _concise_source_sentence(chunk, variant=index // len(chunks), max_chars=150)
         if mode == "podcast":
-            speaker = "guest" if index % 2 else "host"
-            template_index = ((index // len(chunks)) + (index % len(chunks))) % len(podcast_templates)
-            template = podcast_templates[template_index]
+            previous_speaker = str(expanded[-1].get("speaker") or "guest").lower() if expanded else "guest"
+            speaker = "guest" if previous_speaker == "host" else "host"
+            templates = guest_podcast_templates if speaker == "guest" else host_podcast_templates
+            template_index = ((index // len(chunks)) + (index % len(chunks))) % len(templates)
+            template = templates[template_index]
         else:
             speaker = "narrator"
             template_index = ((index // len(chunks)) + (index % len(chunks))) % len(narrator_templates)
             template = narrator_templates[template_index]
+        rendered = template.format(sentence=sentence)
+        existing_texts = {str(item.get("text") or "") for item in expanded}
+        if mode == "podcast" and rendered in existing_texts:
+            for offset in range(1, len(templates)):
+                candidate = templates[(template_index + offset) % len(templates)].format(sentence=sentence)
+                if candidate not in existing_texts:
+                    rendered = candidate
+                    break
+        expanded.append({"speaker": speaker, "text": rendered, "sources": _source_dicts(chunk)})
+        index += 1
+
+    if closing and expanded and expanded[-1].get("speaker") == closing[0].get("speaker"):
+        closing_speaker = str(closing[0].get("speaker") or "guest").lower()
+        bridge_speaker = "host" if closing_speaker == "guest" else "guest"
         expanded.append(
             {
-                "speaker": speaker,
-                "text": template.format(terms=terms, sentence=sentence),
-                "sources": _source_dicts(chunk),
+                "speaker": bridge_speaker,
+                "text": "좋아요. 지금까지 연결한 핵심을 기억하면서 마지막 정리로 넘어가 보죠.",
+                "sources": closing[0].get("sources", []),
             }
         )
-        index += 1
-    return expanded
+    return [*expanded, *closing]
 
 
-def _script_sentence(chunk: Chunk) -> str:
+def _script_sentence(chunk: Chunk, max_chars: int = 320) -> str:
     terms = _keyword_terms(chunk.text)
-    return _best_sentence(chunk.text, terms)[:320]
+    sentence = _best_sentence(chunk.text, terms)
+    if len(sentence) <= max_chars:
+        return sentence
+    shortened = sentence[:max_chars].rsplit(" ", 1)[0].rstrip(" ,.;:")
+    return shortened or sentence[:max_chars].rstrip()
+
+
+def _concise_source_sentence(chunk: Chunk, variant: int = 0, max_chars: int = 150) -> str:
+    text = " ".join(chunk.text.split())
+    text = re.sub(r"^[^.!?。！？]{0,80}:\s*", "", text)
+    candidates = [part.strip() for part in re.split(r"(?<=[.!?。！？])\s+", text) if part.strip()]
+    if not candidates:
+        return _script_sentence(chunk, max_chars=max_chars).rstrip(" .")
+    sentence = candidates[variant % len(candidates)]
+    if len(sentence) > max_chars:
+        sentence = sentence[:max_chars].rsplit(" ", 1)[0].rstrip(" ,.;:")
+    return sentence.rstrip(" .")

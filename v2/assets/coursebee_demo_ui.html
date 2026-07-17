@@ -1127,7 +1127,7 @@
       closeMediaPanels();
       try {
         if (action === "audio") {
-          const data = await api("/course-packs/tts", { method: "POST", body: packPayload({ question: questionInput.value || "이 Course Pack의 핵심 흐름을 자연스러운 2인 학습 팟캐스트로 설명해줘", mode: "podcast", llm_provider: CHAT_LLM_PROVIDER, llm_model: CHAT_LLM_MODEL, grounding: "creative", knowledge_scope: "course_pack", top_k: 10, target_minutes: 5, target_chars: 2200, voice: "ko-KR-SunHiNeural", guest_voice: "ko-KR-InJoonNeural", reuse_existing: false }) });
+          const data = await api("/course-packs/tts", { method: "POST", body: packPayload({ question: questionInput.value || "이 Course Pack의 핵심 흐름을 자연스러운 2인 학습 팟캐스트로 설명해줘", mode: "podcast", llm_provider: CHAT_LLM_PROVIDER, llm_model: CHAT_LLM_MODEL, grounding: "creative", knowledge_scope: "course_pack", top_k: 10, target_minutes: 5, target_chars: 2000, voice: "ko-KR-SunHiNeural", guest_voice: "ko-KR-InJoonNeural", reuse_existing: false }) });
           const audioItem = addAudioArtifact(data, true);
           if (!audioItem) renderAudio(data);
         }

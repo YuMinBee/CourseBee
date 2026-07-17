@@ -12,7 +12,7 @@ CourseBee는 단일 PDF 처리 도구였던 BeePDF를 다중 문서 학습 서�
 | 검색 | Local hybrid, multilingual E5, RRF, Cross-Encoder reranking, concept graph-assisted retrieval |
 | 백엔드 | FastAPI, Pydantic, SSE, background jobs, file-backed artifacts |
 | 운영 기반 | Docker, GitHub Actions, health/readiness checks, request trace, atomic writes |
-| 검증 | 자동화 테스트 118개 및 검색·일반화·견고성 평가 스위트 |
+| 검증 | 자동화 테스트 121개 및 검색·일반화·견고성 평가 스위트 |
 | 현재 상태 | Local-first portfolio demo, production-shaped architecture |
 
 기술 선택 기준은 명확한 문제와 검증 가능한 효과입니다. 각 검색 단계에 비교 가능한 baseline과 fallback을 두고, 정확도·지연시간·실패 경로를 evaluation과 trace로 확인합니다.
@@ -57,7 +57,7 @@ CourseBee는 검색 품질뿐 아니라 출처 보존, 실패 처리, 관측 가
 | Concept graph-assisted retrieval | 선수 개념과 개념 간 관계는 유사한 문장 검색만으로 설명하기 어렵습니다. | concept edge와 evidence chunk를 함께 반환해 관계형 질문의 근거를 보강합니다. | 전체 GraphRAG 제품을 표방하지 않고 Course Pack 내부의 설명 가능한 관계 검색으로 범위를 제한했습니다. |
 | Source grounding and citation check | LLM이 자료에 없는 내용을 강의 근거처럼 답하는 문제를 막아야 했습니다. | 답변에 문장별 citation을 연결하고, API로 보정한 summary가 grounding check에 실패하면 source-grounded rule output으로 복구합니다. | Source recall `9/9`, citation coverage `0.90`, no-context abstention `1/1`입니다. |
 | Web RAG + explicit general fallback | 자료에 없는 질문을 무조건 거절하면 학습 흐름이 끊깁니다. | Course Pack → cited web evidence → labeled general knowledge 순서로 시도합니다. | `answer_scope`와 `grounding_status`로 근거 범위를 구분하고 일반지식 답변에는 자료 citation을 만들지 않습니다. |
-| Ollama / managed LLM providers | 로컬 재현성과 외부 모델의 생성 품질을 모두 지원하기 위해 생성 로직과 공급자를 분리했습니다. | provider interface 뒤에서 local Ollama와 optional OpenAI-compatible API를 교체합니다. | API key 없이도 전체 흐름을 실행할 수 있고 provider 실패는 응답 metadata에 드러납니다. |
+| Ollama / managed LLM providers | 로컬 재현성과 외부 모델의 생성 품질을 모두 지원하기 위해 생성 로직과 공급자를 분리했습니다. | provider interface 뒤에서 local Ollama와 optional OpenAI-compatible API를 교체합니다. | API key 없이도 실행할 수 있으며 오디오 응답에 원본 글자 수, 최소 목표, 길이 보정 상태를 기록합니다. |
 | Edge TTS | 검색 결과를 읽는 데서 끝내지 않고 실제 학습 산출물까지 연결하고자 했습니다. | grounded dialogue script를 두 화자의 mp3 artifact로 생성합니다. | 현재 UI에서 완성된 Studio 기능인 AI Audio Overview만 노출합니다. |
 
 검색 수치는 한국어 의역과 영문 질문이 포함된 6개 synthetic case의 단일 프로세스 warm benchmark이며, 모델 다운로드와 외부 LLM 응답 시간은 제외합니다.

@@ -93,37 +93,63 @@ class OllamaProvider:
         grounding: str = "creative",
         target_chars: int | None = None,
     ) -> str:
-        target_words = f"{target_chars} Korean characters" if target_chars else ("3000-4500" if minutes >= 8 else ("1200-1600" if minutes >= 5 else "450-700"))
+        target_words = (
+            f"{target_chars}-{round(target_chars * 1.15)} Korean characters excluding speaker labels"
+            if target_chars
+            else ("3000-4500 Korean characters" if minutes >= 8 else ("1200-1600 Korean characters" if minutes >= 5 else "450-700 Korean characters"))
+        )
+        minimum_chars = int(target_chars * 0.9) if target_chars else None
         grounding = grounding if grounding in {"creative", "strict"} else "creative"
         if style == "podcast":
             if target_chars and target_chars >= 5000:
                 return self._generate_podcast_by_scenes(chunks, minutes=minutes, grounding=grounding, target_chars=target_chars)
             template = _load_prompt_template(PODCAST_TEMPLATE_PATH)
+            length_requirement = (
+                f"- The spoken dialogue excluding HOST/GUEST labels must contain at least {minimum_chars} characters.\n"
+                "- Expand explanations, contrasts, and source-supported examples before writing the closing.\n"
+                if minimum_chars is not None
+                else "- Follow the requested minute range without ending early.\n"
+            )
             grounding_instruction = (
                 "Use the source chunks as the main content. You may add natural host transitions, light analogies, "
                 "listener-friendly explanations, and simple examples when they help the podcast flow. Keep them consistent with the sources."
                 if grounding == "creative"
                 else "Use only facts, examples, numbers, lecture weeks, and terms that appear in the source chunks. Do not add outside examples."
             )
+            source_boundary = (
+                "Light conversational transitions are allowed, but every technical claim and concrete example must remain supported by the source chunks."
+                if grounding == "creative"
+                else "Do not add any fact, analogy, or example that is absent from the source chunks."
+            )
             prompt = (
                 "You write Korean study podcasts for CourseBee. Write the entire output in Korean only. "
                 "Make it sound like a relaxed two-person podcast, not a summary note, interview checklist, quiz, or flashcard drill. "
                 "Use exactly these speaker labels at the start of each turn: HOST: and GUEST:. "
+                "Use HOST and GUEST only as line labels; never address the other speaker as HOST or GUEST inside spoken dialogue. "
                 "Follow the timing and flow of the provided 5-minute podcast template: opening, problem framing, core point 1, core point 2, applied example, recap, and closing question. "
                 "Do not copy the template placeholders literally. Fill the template using the source chunks and output only the final podcast script. "
-                "If a target character count is provided, prioritize that count over the minute estimate. For 6000 Korean characters, write 24 to 34 rich turns. For 8 minutes or more, write 22 to 30 rich turns. Otherwise write 14 to 20 rich turns. Do not write one-sentence turns. "
+                "If a target character count is provided, prioritize that count over the minute estimate. For 6000 Korean characters, write 28 to 36 rich turns. For 2000 characters or more, write 20 to 28 rich turns. For 8 minutes or more, write 22 to 30 rich turns. Otherwise write 14 to 20 rich turns. Do not write one-sentence turns. "
                 "The HOST must not simply ask question after question. At least half of HOST turns should be reactions, paraphrases, listener-empathy comments, or bridges to the next idea instead of direct questions. Keep direct HOST questions rare and purposeful. "
                 "Each HOST turn should usually have 2 to 3 complete spoken sentences. Each GUEST turn must have 4 to 7 complete spoken sentences with explanation, example, contrast, or recap. "
                 "The conversation should have a clear arc: opening problem, concept explanation, why learners get confused, applied example, recap, and closing study question. "
                 "The GUEST should explain the lecture content slowly with examples, contrasts, common misunderstandings, and short recaps. For long podcasts, expand each source point by explaining why it matters, what learners often miss, and how it connects to the next concept. "
                 "Avoid repeated definitions. Once a concept is defined, build on it instead of defining it again. "
+                "Use source examples for precise strings, token splits, numbers, and technical steps instead of inventing them. "
                 f"Grounding mode: {grounding}. {grounding_instruction} "
                 "English is allowed only for source terms such as BPE, OOV, RNN, LSTM, CNN, subword, n-gram, or token. "
                 f"Target length: {target_words}. Do not end early. If target_chars is provided, write at least 90 percent of that many Korean characters before the closing. Minute estimate: about {minutes} minutes.\n\n"
                 "PODCAST TEMPLATE:\n"
                 f"{template}\n\n"
+                "FINAL LENGTH REQUIREMENT - this overrides any character-count guidance inside the template:\n"
+                f"- Write {target_words}.\n"
+                f"{length_requirement}"
+                "- Keep each turn conversational and complete; do not satisfy the target with repetition or filler.\n\n"
                 "SOURCE CHUNKS:\n"
-                f"{_context_block(chunks, max_chars_per_chunk=1200)}"
+                f"{_context_block(chunks, max_chars_per_chunk=1200)}\n\n"
+                "FINAL SOURCE BOUNDARY - this is mandatory:\n"
+                f"- {source_boundary}\n"
+                "- If the sources do not contain a concrete example, explain the concept without inventing one.\n"
+                "- Never invent token splits, example words, example sentences, measurements, or numbers."
             )
         else:
             prompt = (

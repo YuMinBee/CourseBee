@@ -118,6 +118,27 @@ class ProviderStructureTest(unittest.TestCase):
 
         self.assertEqual(tokens, ["첫 토큰"])
 
+    def test_ollama_podcast_prompt_prioritizes_requested_length(self) -> None:
+        from v2.rag.chunking import chunk_pages
+        from v2.schemas import PageMarkdown
+
+        chunks = chunk_pages(
+            [PageMarkdown(page_number=1, markdown="BPE reduces OOV with subword tokenization.", parser="txt")],
+            max_chars=100,
+            filename="sample.txt",
+        )
+        provider = OllamaProvider(model="test-model")
+
+        with patch.object(provider, "_generate", return_value="HOST: 시작합니다.\nGUEST: 설명합니다.") as generate:
+            provider.generate_script(chunks, minutes=5, style="podcast", target_chars=2200)
+
+        prompt = generate.call_args.args[0]
+        self.assertIn("2200-2530 Korean characters", prompt)
+        self.assertIn("at least 1980 characters", prompt)
+        self.assertGreater(prompt.index("FINAL LENGTH REQUIREMENT"), prompt.index("PODCAST TEMPLATE"))
+        self.assertGreater(prompt.index("FINAL SOURCE BOUNDARY"), prompt.index("SOURCE CHUNKS"))
+        self.assertIn("explain the concept without inventing one", prompt)
+
 
 if __name__ == "__main__":
     unittest.main()
