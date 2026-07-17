@@ -31,7 +31,7 @@ class MockDocumentParser(ParserProvider):
             PageMarkdown(
                 page_number=1,
                 markdown=(
-                    "# BeePDF\n"
+                    "# CourseBee\n"
                     "sha256 cache reduces repeated processing cost. "
                     "request_id enables failure tracking. "
                     "OCR fallback handles scanned PDFs."
@@ -42,7 +42,7 @@ class MockDocumentParser(ParserProvider):
 
 class MockLLMProvider:
     def summarize(self, chunks: list[Chunk]) -> str:
-        return "BeePDF focuses on cost reduction, failure tracking, and source-grounded Q&A."
+        return "CourseBee focuses on reliable ingestion, source-grounded Q&A, and learning artifacts."
 
     def answer(self, question: str, chunks: list[Chunk], graph_context: list[RelationTriple]) -> AnswerWithSources:
         if not chunks:
@@ -63,7 +63,7 @@ class MockLLMProvider:
         ]
 
     def generate_script(self, chunks: list[Chunk], minutes: int) -> str:
-        return f"BeePDF v2 presentation script. Target length: {minutes} minutes."
+        return f"CourseBee presentation script. Target length: {minutes} minutes."
 
 
 class MockTTSProvider:

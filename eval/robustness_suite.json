@@ -1,0 +1,94 @@
+{
+  "scenarios": [
+    {
+      "id": "ocr_noise",
+      "documents": {
+        "scanned_operations.txt": "Distributed systems reliability guide. A cir-\ncuit breaker prevents cascad\u00ading fail-\nures by stopping repeated calls to an unhealthy dependency. After a recovery window, a limited probe checks whether the dependency can receive traffic again.",
+        "release_calendar.txt": "The release calendar lists maintenance windows, code freeze dates, and team ownership rotations.",
+        "database_notes.txt": "Database indexes speed up selective reads but add write amplification and storage overhead."
+      },
+      "cases": [
+        {
+          "id": "ocr_hyphenated_terms",
+          "question": "What does a circuit breaker prevent?",
+          "expected_route": "vector",
+          "required_sources": ["scanned_operations.txt"],
+          "forbidden_sources": ["release_calendar.txt", "database_notes.txt"],
+          "expected_terms": ["circuit breaker", "cascading failures"],
+          "min_source_precision": 1.0,
+          "max_latency_ms": 1000
+        },
+        {
+          "id": "unsupported_question_abstains",
+          "question": "양자 얽힘에서 벨 부등식은 무엇인가요?",
+          "expected_route": "vector",
+          "expected_abstention": true,
+          "max_latency_ms": 1000
+        }
+      ]
+    },
+    {
+      "id": "version_conflict",
+      "documents": {
+        "checkout_policy_2024.txt": "Checkout API timeout policy version 2024. The checkout API timeout is 30 seconds. This value remained active for the 2024 release line.",
+        "checkout_policy_2025.txt": "Checkout API timeout policy version 2025 supersedes the previous policy. The checkout API timeout is 60 seconds for the 2025 release line. Rollback documentation must retain both version values.",
+        "media_upload_policy.txt": "Media uploads allow files up to 25 MB. Image thumbnails are generated asynchronously."
+      },
+      "cases": [
+        {
+          "id": "conflicting_versions_keep_both_sources",
+          "question": "2024와 2025 checkout API timeout 값을 비교해줘",
+          "expected_route": "local_graph",
+          "required_sources": ["checkout_policy_2024.txt", "checkout_policy_2025.txt"],
+          "forbidden_sources": ["media_upload_policy.txt"],
+          "expected_terms": ["30 seconds", "60 seconds"],
+          "min_source_precision": 1.0,
+          "require_graph_evidence": true,
+          "max_latency_ms": 1000
+        }
+      ]
+    },
+    {
+      "id": "cross_document_trace",
+      "documents": {
+        "ci_gate.txt": "A release candidate is promoted only after CI integration tests pass. The CI gate publishes an immutable artifact digest for the verified build.",
+        "rollback_runbook.txt": "Rollback redeploys the last verified artifact digest when production health checks fail. The digest connects the rollback target to the build that passed CI.",
+        "analytics_guide.txt": "Analytics dashboards aggregate daily active users, conversion funnels, and retention cohorts."
+      },
+      "cases": [
+        {
+          "id": "ci_to_rollback_relation",
+          "question": "CI 검증과 rollback은 artifact digest를 통해 어떻게 연결되나요?",
+          "expected_route": "local_graph",
+          "required_sources": ["ci_gate.txt", "rollback_runbook.txt"],
+          "forbidden_sources": ["analytics_guide.txt"],
+          "expected_terms": ["artifact digest", "CI", "rollback"],
+          "min_source_precision": 1.0,
+          "require_graph_evidence": true,
+          "max_latency_ms": 1000
+        }
+      ]
+    },
+    {
+      "id": "long_distractors",
+      "documents": {
+        "deployment_strategy.txt": "Deployment handbook. Blue-green deployment keeps the previous environment available while the new environment receives verification traffic. If health checks fail, rollback switches traffic to the previous blue environment without rebuilding the artifact. The rollback target is therefore the previously verified environment.",
+        "team_handbook.txt": "The team handbook covers meeting etiquette, vacation requests, onboarding checklists, and office access procedures. Quarterly planning uses written proposals and decision records.",
+        "data_retention.txt": "Data retention rules define deletion schedules for audit logs, user exports, and temporary processing files. Backups follow a separate recovery policy.",
+        "frontend_style.txt": "The frontend style guide defines typography, spacing, keyboard focus, responsive breakpoints, and accessible color contrast."
+      },
+      "cases": [
+        {
+          "id": "relevant_source_among_distractors",
+          "question": "Blue-green deployment에서 health check 실패 시 rollback target은 무엇인가요?",
+          "expected_route": "vector",
+          "required_sources": ["deployment_strategy.txt"],
+          "forbidden_sources": ["team_handbook.txt", "data_retention.txt", "frontend_style.txt"],
+          "expected_terms": ["previous blue environment", "without rebuilding"],
+          "min_source_precision": 1.0,
+          "max_latency_ms": 1000
+        }
+      ]
+    }
+  ]
+}

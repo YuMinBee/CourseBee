@@ -1,13 +1,13 @@
 # Cloud-ready Plan
 
-BeePDF v2 keeps local execution as the default path because the project was built under cost and time constraints. The architecture still separates cloud-facing concerns behind provider interfaces so the same workflow can move to managed infrastructure later.
+CourseBee v2 keeps local execution as the default path for reproducibility and zero-cost review. Cloud-facing concerns remain behind provider and storage boundaries so the same workflow can move to managed infrastructure later.
 
 ## Current Implementation Target
 
 - FastAPI API layer
 - Local file storage for inputs and generated outputs
-- Local FAISS-compatible vector index path
-- Local GraphRAG-lite graph artifact
+- Local TF-IDF and Korean character-feature hybrid retrieval
+- Local evidence-backed concept graph artifact
 - In-process workflow execution
 - JSON artifacts under `outputs/{doc_id}/`
 
@@ -16,7 +16,7 @@ BeePDF v2 keeps local execution as the default path because the project was buil
 | Current | Cloud-ready replacement |
 | --- | --- |
 | `LocalStorageProvider` | Object Storage provider such as NCP Object Storage or S3-compatible storage |
-| `LocalFAISSProvider` | Managed vector DB or hosted Chroma collection |
+| In-memory hybrid retrieval | Managed vector DB, pgvector, or hosted Chroma collection |
 | In-process workflow | Queue-based worker execution |
 | Local JSON metadata | Managed DB such as Cloud DB for MySQL |
 | Local logs | Centralized logging and request tracing |

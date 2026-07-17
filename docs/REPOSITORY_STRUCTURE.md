@@ -24,7 +24,7 @@ multiple lecture PDFs
 -> Course Pack
 -> source-grounded RAG
 -> Study Kit / Q&A / Audio Script
--> GraphRAG-lite Concept Map
+-> Concept Graph-assisted Retrieval / Mind Map
 ```
 
 Because the product direction changed, v2 has a separate package and FastAPI entrypoint instead of being mixed into `v1/app/main.py`.

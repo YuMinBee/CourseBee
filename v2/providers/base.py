@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
+from v2.providers.web_search import WebSearchResult
 from v2.schemas import AnswerWithSources, Chunk, PageMarkdown, RelationTriple
 
 
@@ -35,6 +36,11 @@ class TTSProvider(Protocol):
 class RetrieverProvider(Protocol):
     def search(self, question: str, chunks: list[Chunk], top_k: int = 4) -> list[Chunk]:
         """Return relevant chunks while preserving source metadata."""
+
+
+class WebSearchProvider(Protocol):
+    def search(self, query: str, top_k: int = 3) -> list[WebSearchResult]:
+        """Return trusted external documents for Web RAG."""
 
 
 class IndexProvider(RetrieverProvider, Protocol):

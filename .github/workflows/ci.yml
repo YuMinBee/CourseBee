@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install
+        run: python -m pip install --upgrade pip && pip install -e ".[pdf,dev]"
+      - name: Static checks
+        run: python -m compileall -q v2 eval tests && ruff check v2 eval tests
+      - name: Unit and HTTP tests
+        run: python -m unittest discover -s tests -v
+      - name: NLP evaluation
+        run: python eval/run_eval.py --results-path outputs/ci_nlp_eval.md
+      - name: Multi-domain evaluation
+        run: python eval/run_generalization_eval.py --results-path outputs/ci_generalization_eval.md
+      - name: Retrieval robustness evaluation
+        run: python eval/run_robustness_eval.py --results-path outputs/ci_robustness_eval.md
+
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Build wheel
+        run: python -m pip install --upgrade pip build && python -m build --wheel
+      - name: Install wheel in isolation
+        shell: bash
+        run: |
+          python -m venv "$RUNNER_TEMP/coursebee-wheel"
+          "$RUNNER_TEMP/coursebee-wheel/bin/python" -m pip install dist/*.whl
+          cd "$RUNNER_TEMP"
+          "$RUNNER_TEMP/coursebee-wheel/bin/python" -c "from importlib.resources import files; from v2.main import app; assert app.title == 'CourseBee'; assert files('v2').joinpath('assets', 'coursebee_demo_ui.html').is_file(); assert len(list(files('v2').joinpath('assets', 'demo_fixtures').iterdir())) == 3"
+
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t coursebee-v2:ci .
+      - name: Smoke test image
+        shell: bash
+        run: |
+          docker run --name coursebee-ci -d -p 8000:8000 coursebee-v2:ci
+          trap 'docker rm -f coursebee-ci >/dev/null 2>&1 || true' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8000/health >/dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:8000/health | grep -q '"status":"ok"'
+          curl --fail --silent http://127.0.0.1:8000/ready | grep -q '"status":"ready"'
+          curl --fail --silent http://127.0.0.1:8000/demo --output /tmp/coursebee-demo.html
+          grep -q '<title>CourseBee</title>' /tmp/coursebee-demo.html
+          test "$(docker exec coursebee-ci id -u)" = "10001"

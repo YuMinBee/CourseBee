@@ -10,10 +10,8 @@ try:
 except ImportError:  # pragma: no cover
     HTTPException = None  # type: ignore[assignment]
 
-from v2.api.schemas import AudioScriptRequest, ConceptMapRequest, IngestRequest, QueryRequest, StudyKitRequest
 from v2.api import routes
-from v2.documents import document_dir
-
+from v2.api.schemas import AudioScriptRequest, ConceptMapRequest, IngestRequest, QueryRequest, StudyKitRequest
 
 TEST_OUTPUT_ROOT = Path.cwd() / "outputs" / "_test_v2_endpoints"
 

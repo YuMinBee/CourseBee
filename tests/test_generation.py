@@ -7,9 +7,9 @@ from v2.audio_script import generate_audio_script
 from v2.graph.concept_map import build_concept_map
 from v2.providers.mock import MockIndexProvider, MockLLMProvider
 from v2.rag.answering import NO_CONTEXT_WARNING, generate_source_grounded_answer
-from v2.rag.citations import check_text_grounding
 from v2.rag.chunking import chunk_pages
-from v2.schemas import PageMarkdown
+from v2.rag.citations import check_text_grounding
+from v2.schemas import AnswerWithSources, PageMarkdown
 from v2.study_kit import generate_study_kit
 
 
@@ -49,6 +49,9 @@ class SourceGroundedGenerationTest(unittest.TestCase):
         self.assertEqual(payload["sources"][0]["page"], 1)
         self.assertEqual(payload["sources"][0]["chunk_id"], "p1_c1")
         self.assertEqual(payload["warnings"], [])
+        self.assertEqual(payload["answer_scope"], "course_pack")
+        self.assertEqual(payload["grounding_status"], "grounded")
+        self.assertFalse(payload["general_knowledge_used"])
 
     def test_source_grounded_answer_skips_when_no_context(self) -> None:
         result = generate_source_grounded_answer(
@@ -61,6 +64,28 @@ class SourceGroundedGenerationTest(unittest.TestCase):
         self.assertEqual(result.answer, "")
         self.assertEqual(result.sources, [])
         self.assertEqual(result.warnings, [NO_CONTEXT_WARNING])
+        self.assertEqual(result.answer_scope, "none")
+        self.assertEqual(result.grounding_status, "not_answered")
+        self.assertFalse(result.general_knowledge_used)
+
+    def test_general_knowledge_fallback_is_explicitly_ungrounded(self) -> None:
+        class GeneralKnowledgeProvider:
+            def answer(self, question, chunks, graph_context):
+                return AnswerWithSources(answer="자료에서는 확인되지 않지만 일반지식으로 설명합니다.")
+
+        result = generate_source_grounded_answer(
+            query="unrelated reinforcement learning",
+            chunks=self._chunks(),
+            index_provider=MockIndexProvider(),
+            llm_provider=GeneralKnowledgeProvider(),
+            allow_general_fallback=True,
+        )
+
+        self.assertTrue(result.answer)
+        self.assertEqual(result.sources, [])
+        self.assertEqual(result.answer_scope, "general_knowledge")
+        self.assertEqual(result.grounding_status, "ungrounded")
+        self.assertTrue(result.general_knowledge_used)
 
     def test_citation_check_passes_grounded_text(self) -> None:
         result = check_text_grounding(
@@ -112,6 +137,20 @@ class SourceGroundedGenerationTest(unittest.TestCase):
             self.assertIsNone(script["audio_path"])
             self.assertTrue(all(segment["sources"] for segment in script["script"]))
             self.assertEqual(script["warnings"], [])
+
+    def test_rule_based_podcast_is_domain_neutral_and_reports_quality_metadata(self) -> None:
+        script = generate_audio_script(self._chunks(), mode="podcast", target_chars=2200)
+        text = " ".join(segment["text"] for segment in script["script"])
+
+        self.assertNotIn("11주차", text)
+        self.assertNotIn("BPE", text)
+        self.assertNotIn("RNN", text)
+        self.assertNotIn("CNN", text)
+        self.assertGreaterEqual(script["script_char_count"], 1900)
+        self.assertEqual(script["segment_count"], len(script["script"]))
+        self.assertEqual(script["source_count"], 2)
+        self.assertEqual(len({segment["text"] for segment in script["script"]}), len(script["script"]))
+        self.assertGreater(script["estimated_duration_seconds"], 0)
 
     def test_concept_map_edges_have_evidence(self) -> None:
         graph = build_concept_map(self._chunks())
@@ -183,6 +222,20 @@ class SourceGroundedGenerationTest(unittest.TestCase):
         self.assertEqual(script["script"][1]["speaker"], "guest")
         self.assertIn("BPE", script["script"][0]["text"])
         self.assertTrue(script["script"][1]["sources"])
+
+    def test_audio_script_ollama_maps_each_turn_to_matching_source(self) -> None:
+        llm_text = "HOST: OCR fallback handles scanned PDFs.\nGUEST: PDF page citations ground RAG answers."
+        with patch("v2.audio_script.OllamaProvider.generate_script", return_value=llm_text):
+            script = generate_audio_script(
+                self._chunks(),
+                mode="podcast",
+                llm_provider="ollama",
+                llm_model="qwen3:14b",
+            )
+
+        self.assertEqual(script["script"][0]["sources"][0]["page"], 2)
+        self.assertEqual(script["script"][1]["sources"][0]["page"], 1)
+        self.assertEqual(script["source_count"], 2)
 
     def test_audio_script_ollama_podcast_splits_inline_speakers(self) -> None:
         llm_text = "HOST: Opening context. GUEST: Longer explanation. HOST: Smooth bridge. GUEST: Final recap."

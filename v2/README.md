@@ -1,24 +1,28 @@
-﻿# BeePDF v2
+# CourseBee v2
 
-This directory contains the v2 local demo for document ingest, PPTX lecture ingest, Course Pack aggregation, page-level chunking, lightweight retrieval, source-grounded answering, study-kit generation, audio-script generation, GraphRAG-lite concept maps, LangGraph-style workflow orchestration, and cloud-ready provider adapters.
+This directory contains the current CourseBee application: multi-document Course Pack ingest, source-grounded retrieval, study artifacts, concept graph-assisted retrieval, and local-first provider adapters.
 
-The default implementation is intentionally local and lightweight. Heavy components such as Docling, sentence-transformers, FAISS, Chroma, external LLMs, and TTS APIs can be added through providers without changing the workflow contract. `OpenAIProvider` is available as an optional API-backed LLM provider and falls back to rule/mock behavior when `OPENAI_API_KEY` is not configured. API-refined summaries are accepted only when `citation_check` confirms they are grounded in retrieved source chunks.
+The default implementation is intentionally local and lightweight. Sentence Transformers is implemented as an explicit optional semantic profile, while heavier components such as Docling, FAISS, Chroma, external LLMs, and TTS APIs remain replaceable through providers without changing the workflow contract. `OpenAIProvider` is available as an optional API-backed LLM provider and falls back to rule/mock behavior when `OPENAI_API_KEY` is not configured. API-refined summaries are accepted only when `citation_check` confirms they are grounded in retrieved source chunks.
 
 ## Modules
 
 - `ingest.py`: local `.pdf`, `.pptx`, `.txt`, and `.md` document ingest
 - `documents.py`: local document/chunk loading helpers
 - `course_packs.py`: multi-document Course Pack ingest and pack-level generation helpers
+- `course_pack_store.py`: Course Pack metadata and chunk persistence
+- `course_pack_artifacts.py`: artifact previews and Mermaid/HTML export
+- `course_pack_jobs.py`: file-backed ingestion job lifecycle
 - `course_summary.py`: Course Pack summary generation with source-preserving rule output and optional OpenAI refinement
 - `schemas.py`: shared serializable models
 - `api/schemas.py`: Pydantic request and response models
-- `providers/`: storage, LLM, TTS, OCR, parser, and index provider contracts
+- `providers/`: storage, LLM, TTS, OCR, parser, index, and optional semantic retrieval providers
+- `providers/semantic.py`: multilingual dense retrieval, RRF fusion, Cross-Encoder reranking, and model caches
 - `rag/chunking.py`: page-level chunking with `page`, `chunk_id`, char offsets, `doc_id`, and `filename`
-- `rag/retrieval.py`: lightweight keyword/TF-IDF style retrieval
+- `rag/retrieval.py`: local hybrid retrieval with lexical and Korean character-level signals
 - `rag/answering.py`: source-grounded answer generation
 - `study_kit.py`: rule/template based study-kit generation with sources
 - `audio_script.py`: source-grounded audio script generation
-- `graph/concept_map.py`: heuristic GraphRAG-lite concept map builder
+- `graph/concept_map.py`: evidence-backed concept graph builder
 - `workflows/`: state and node functions
 - `api/routes.py`: FastAPI routes wired to local service functions
 
@@ -37,7 +41,7 @@ outputs/{doc_id}/
 - audio_script.json
 ```
 
-PDF ingest tries `pymupdf4llm` first and `PyMuPDF` second. If the text layer is empty, BeePDF tries local Tesseract OCR. PPTX ingest reads slide text from the `.pptx` zip/XML package with the Python standard library and maps each slide to the existing `page` field. If optional PDF libraries are unavailable, the app returns warnings instead of crashing. Text, Markdown, and PPTX ingest do not require extra dependencies.
+PDF ingest tries `pymupdf4llm` first and `PyMuPDF` second. If the text layer is empty, CourseBee tries local Tesseract OCR. PPTX ingest reads slide text from the `.pptx` zip/XML package with the Python standard library and maps each slide to the existing `page` field. If optional PDF libraries are unavailable, the app returns warnings instead of crashing. Text, Markdown, and PPTX ingest do not require extra dependencies.
 
 ## Chunk Schema
 
@@ -88,9 +92,23 @@ Pack-level Q&A, Summary, Study Kit, Audio Script, Concept Map, artifact preview,
 
 ## Local Retrieval
 
-The first retrieval implementation avoids embedding models and uses a simple keyword/TF-IDF style scorer. It returns only matched contexts.
+The local retrieval path avoids embedding downloads and combines a TF-IDF-style lexical score with Korean suffix normalization, character features, and OCR line-break normalization. It returns only matched contexts.
 
 Source-grounded answer generation returns an answer only when retrieval provides at least one source chunk. If no context is found, the answer is empty and a warning is returned.
+
+## Optional Semantic Retrieval
+
+Install the optional model dependency and select a semantic mode explicitly:
+
+```bash
+pip install -e ".[semantic]"
+```
+
+- `semantic`: multilingual E5 dense retrieval
+- `semantic_hybrid`: local hybrid and dense retrieval combined with Reciprocal Rank Fusion
+- `semantic_rerank`: fused candidates reordered by a multilingual Cross-Encoder
+
+The default models can be changed with `COURSEBEE_EMBEDDING_MODEL` and `COURSEBEE_RERANKER_MODEL`. CourseBee adds the E5 `query:` and `passage:` prefixes, caches loaded models and document embeddings in memory, and returns a visible local fallback when a semantic stage fails.
 
 ## OCR Fallback
 
@@ -128,11 +146,11 @@ The response keeps sources on every script segment and uses mock TTS by default:
 }
 ```
 
-## GraphRAG-lite Concept Map
+## Concept Graph-assisted Retrieval
 
 `build_concept_map()` creates heuristic nodes and edges from chunk text. Every edge includes source evidence from the chunk that produced it. For Course Packs, document nodes and `appears_in` edges make cross-document concept links visible. If no graph can be built, it returns empty `nodes` and `edges` with a warning.
 
-GraphRAG-lite remains a helper feature and is not required for answer generation. Course Pack concept maps can also be exported to `concept_map.mmd` and `concept_map.html` for easier visual review.
+The concept graph remains a helper path and is not required for answer generation. Relation questions combine graph evidence with balanced lexical evidence so conflicting or cross-document sources are not dropped. Course Pack concept maps can also be exported to `concept_map.mmd` and `concept_map.html` for visual review.
 
 ## FastAPI v2 Endpoints
 
@@ -148,6 +166,7 @@ The route skeleton uses Pydantic request and response models for the main v2 API
 - `GET /v2/course-packs/{pack_id}`
 - `GET /v2/course-packs/{pack_id}/artifacts`
 - `POST /v2/course-packs/ask`
+- `POST /v2/course-packs/ask/stream`
 - `POST /v2/course-packs/study-kit`
 - `POST /v2/course-packs/summary`
 - `POST /v2/course-packs/audio-script`
@@ -156,9 +175,13 @@ The route skeleton uses Pydantic request and response models for the main v2 API
 
 Compatibility aliases remain for `/v2/ingest`, `/v2/retrieve`, and `/v2/answer`.
 
+`conversation_history` accepts up to 12 recent `user`/`assistant` messages. CourseBee uses that history only for follow-up language such as `그럼`, `그건`, or `예시는?`, preserving independent-question retrieval. The streaming endpoint emits `status`, `token`, and final `result` SSE events; disconnecting the client signals local Ollama generation to stop.
+
+`allow_web_fallback: true` inserts a cited Wikipedia Web RAG stage after a Course Pack miss. `web_provider` defaults to `wikipedia` and `web_top_k` accepts 1-5 results. Successful web answers return `answer_scope: "external_web"`, `grounding_status: "web_grounded"`, `web_search` metadata, and source objects containing `title`, `url`, and `excerpt`. `allow_general_fallback` runs only if this stage fails or returns no usable results.
+
 ## Resource Policy
 
-The scaffold does not run embedding models or paid LLM APIs by default. To try API refinement, set `OPENAI_API_KEY` and send `llm_provider: "openai"`; otherwise summary generation uses source-grounded rule/mock output. If citation validation fails, BeePDF returns the rule-based summary with a warning instead of using unsupported LLM text. It is safe to inspect and extend on a small local machine while GPU workloads are running elsewhere.
+CourseBee does not run embedding models or paid LLM APIs by default. Generic API requests still default to source-grounded rule/mock output with external fallback disabled. The packaged demo chat explicitly requests local Ollama `qwen3:14b` and enables the no-key Wikipedia Web RAG layer; if both Course Pack and web evidence are unavailable, it returns a labeled general-knowledge answer with no citations. To try managed API refinement, set `OPENAI_API_KEY` and send `llm_provider: "openai"`; if citation validation fails, CourseBee returns the rule-based summary with a warning instead of using unsupported LLM text.
 
 
 

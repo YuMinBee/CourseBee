@@ -1,6 +1,6 @@
 ﻿# Workflow
 
-BeePDF v2 uses a LangGraph-style state machine. The first implementation can run as plain local functions, while preserving node boundaries that can later become queue workers.
+CourseBee v2 keeps LangGraph-style workflow node boundaries while running the current local path as plain functions. Those boundaries can later move behind queue workers without changing the Course Pack API contract.
 
 ## State
 

@@ -1,0 +1,25 @@
+services:
+  coursebee:
+    build:
+      context: .
+      args:
+        COURSEBEE_INSTALL_SEMANTIC: ${COURSEBEE_INSTALL_SEMANTIC:-false}
+    ports:
+      - "8000:8000"
+    environment:
+      COURSEBEE_DATA_ROOT: /app/outputs
+      COURSEBEE_OCR_LANG: ${COURSEBEE_OCR_LANG:-eng+kor}
+      COURSEBEE_API_KEY: ${COURSEBEE_API_KEY:-}
+      COURSEBEE_MAX_UPLOAD_BYTES: ${COURSEBEE_MAX_UPLOAD_BYTES:-26214400}
+      COURSEBEE_MAX_UPLOAD_BATCH_BYTES: ${COURSEBEE_MAX_UPLOAD_BATCH_BYTES:-104857600}
+      COURSEBEE_MAX_UPLOAD_FILES: ${COURSEBEE_MAX_UPLOAD_FILES:-20}
+      COURSEBEE_EMBEDDING_MODEL: ${COURSEBEE_EMBEDDING_MODEL:-intfloat/multilingual-e5-small}
+      COURSEBEE_RERANKER_MODEL: ${COURSEBEE_RERANKER_MODEL:-cross-encoder/mmarco-mMiniLMv2-L12-H384-v1}
+      COURSEBEE_EMBEDDING_CACHE_SIZE: ${COURSEBEE_EMBEDDING_CACHE_SIZE:-4096}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5.4-mini}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-gemma2:2b}
+    volumes:
+      - ./outputs:/app/outputs
+    restart: unless-stopped

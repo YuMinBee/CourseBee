@@ -1,6 +1,6 @@
 ﻿# Course Pack Demo
 
-This demo shows the main BeePDF v2 direction: multiple lecture files are grouped into one Course Pack, then Q&A, Summary, Study Kit, Audio Script, and Concept Map outputs are generated with source metadata.
+This demo shows the CourseBee v2 direction: multiple lecture files are grouped into one Course Pack, then Q&A, Summary, Study Kit, Audio Script, and Concept Map outputs are generated with source metadata.
 
 ## Demo Dataset
 
@@ -97,7 +97,7 @@ Verified local result:
 }
 ```
 
-If `llm_provider` is `openai`, BeePDF uses `OpenAIProvider` only when `OPENAI_API_KEY` is configured. API-refined text must pass `citation_check`; otherwise BeePDF falls back to the rule-based source-grounded summary.
+If `llm_provider` is `openai`, CourseBee uses `OpenAIProvider` only when `OPENAI_API_KEY` is configured. API-refined text must pass `citation_check`; otherwise CourseBee falls back to the rule-based source-grounded summary.
 
 ## 3. Course Pack Q&A
 
@@ -249,7 +249,7 @@ outputs/manual_course_pack_11week_api/course_packs/pack_d49edce9d8c487cd/
 
 ## Portfolio Point
 
-BeePDF v2 is not positioned as a generic GraphRAG clone. The main product is Course Pack based learning AI:
+CourseBee v2 is not positioned as a generic GraphRAG clone. The main product is Course Pack based learning AI:
 
 ```text
 multiple lecture files

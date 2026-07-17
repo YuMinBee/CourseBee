@@ -6,7 +6,7 @@ CourseBee v2 is currently a local-first portfolio demo with clear production upg
 
 Implemented locally:
 
-- Local lexical retrieval
+- Korean-aware local hybrid retrieval with lexical and character-level signals
 - Mock/rule LLM fallback
 - Optional OpenAI summary refinement when `OPENAI_API_KEY` is set
 - File-system artifact store
@@ -14,23 +14,30 @@ Implemented locally:
 - Local Course Pack metadata JSON
 - Concept graph-assisted retrieval over Course Pack concept edges
 - Hierarchical summary retrieval over course structure
-- Evaluation harness for route/source/graph/fallback behavior
+- Evaluation harnesses for route, source recall/precision, graph evidence, OCR noise, conflicts, distractors, and abstention
 - File-backed Course Pack job API for ingestion status
+- Browser upload API with extension, signature, per-file size, batch size, count, identifier, and path validation
+- Atomic JSON/artifact writes and in-process duplicate job protection
+- Optional `X-API-Key` boundary plus HTTP request-id and timing headers
 - Answer trace with request id, stage latency, and retrieval debug
+- Separate liveness (`/health`) and storage/asset readiness (`/ready`) checks
+- GitHub Actions checks for tests, three evaluation suites, isolated wheel install, and container smoke tests
+- Package-owned demo UI and fixtures verified from a built wheel
+- Dockerfile and Compose runtime with a non-root user and readiness health check
 
 ## Production Upgrade Path
 
 Planned production replacements:
 
 - Embedding retriever plus vector DB
-- Hybrid lexical + embedding retrieval
+- Persisted hybrid lexical + embedding retrieval and reranking
 - Optional reranker with cross-encoder or LLM judge
-- Async ingestion job queue / worker process
+- Async ingestion job queue / worker process for distributed production workloads
 - Object storage for artifacts
 - DB-backed Course Pack metadata
-- Observability: request id, latency, token usage, retrieval trace
-- Auth, quota, and file validation
-- CI/CD and deployment automation
+- Centralized observability: structured logs, metrics, traces, and token usage
+- User identity, per-tenant authorization, quota/rate limits, and malware scanning
+- Environment-specific deployment automation and secret management
 
 ## Status
 
@@ -45,13 +52,16 @@ Status
 - Hierarchical summary retrieval: implemented
 - Query-type retrieval router: implemented
 - Retrieval evaluation harness: implemented
+- Multi-domain biology/economics/software evaluation: implemented
+- Retrieval robustness evaluation: implemented for OCR noise, conflicts, cross-document evidence, distractors, and abstention
 - Production vector DB: planned
-- Async ingestion worker: planned
+- Async ingestion background task: implemented locally
 - Object storage: planned
 - DB-backed metadata: planned
-- Observability: planned
-- Auth / quota / file validation: planned
-- CI/CD: planned
+- Observability: partially implemented through request headers, answer trace, and job state
+- API key / upload signature, batch limit, and path validation: implemented locally
+- User auth / quota / malware scanning: planned
+- CI, isolated wheel install, and container runtime smoke checks: implemented
 ```
 
 ## Why This Is Not Hidden
@@ -105,7 +115,7 @@ This makes router decisions and retrieval failures inspectable without adding a 
 
 | Local component | Production replacement |
 | --- | --- |
-| `LexicalRetriever` | `EmbeddingRetriever`, `HybridRetriever`, vector DB retriever |
+| local `HybridRetriever` | persisted embedding/vector DB retriever plus reranker |
 | `MockLLMProvider` | OpenAI-compatible provider, Clova Studio, hosted local model |
 | `MockTTSProvider` | Clova Voice, Edge TTS service wrapper, local TTS service |
 | local file system artifacts | object storage |

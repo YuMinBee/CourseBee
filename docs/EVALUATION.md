@@ -10,7 +10,16 @@ eval/
 - expected_routes.json
 - expected_sources.json
 - run_eval.py
+- generalization_suite.json
+- run_generalization_eval.py
+- robustness_suite.json
+- run_robustness_eval.py
+- semantic_retrieval_suite.json
+- run_semantic_retrieval_eval.py
 - results/latest_eval.md
+- results/latest_generalization_eval.md
+- results/latest_robustness_eval.md
+- results/latest_semantic_retrieval_eval.md
 ```
 
 The fixture used by `run_eval.py` is synthetic and public. It does not depend on private lecture materials.
@@ -19,9 +28,13 @@ The fixture used by `run_eval.py` is synthetic and public. It does not depend on
 
 ```bash
 python eval/run_eval.py
+python eval/run_generalization_eval.py
+python eval/run_robustness_eval.py
+pip install -e ".[semantic]"
+python eval/run_semantic_retrieval_eval.py
 ```
 
-The command creates a temporary synthetic Course Pack under `outputs/_eval_runtime`, runs the golden questions through the same v2 API/service path used by the app, and writes the latest Markdown report to `eval/results/latest_eval.md`.
+The first command creates a synthetic NLP Course Pack under `outputs/_eval_runtime`, runs the golden questions through the same v2 service path used by the app, and writes `eval/results/latest_eval.md`. The second command repeats fact and relation checks across biology, economics, and software engineering. The robustness suite adds OCR line-break noise, conflicting source versions, cross-document relations, unrelated distractors, and explicit abstention checks. The optional semantic suite downloads real Sentence Transformers models and compares local, dense+RRF, and Cross-Encoder rankings on paraphrased and cross-lingual questions, so it is intentionally excluded from the lightweight default CI job.
 
 ## Citation Quality
 
@@ -44,10 +57,40 @@ See [Citation and Grounding](CITATION_GROUNDING.md) for the source metadata flow
 | --- | --- |
 | Overall pass rate | 10 / 10 |
 | Router accuracy | 10 / 10 |
-| Source recall@5 | 10 / 10 |
+| Source recall@5 | 9 / 9 required-source cases |
 | Citation coverage | 0.90 |
 | No-context fallback pass | 1 / 1 |
 | Graph route useful cases | 4 / 4 |
+
+Multi-domain snapshot:
+
+| Metric | Result |
+| --- | --- |
+| Overall pass rate | 6 / 6 |
+| Router accuracy | 6 / 6 |
+| Required source recall | 6 / 6 |
+| Citation coverage | 6 / 6 |
+| Graph evidence usefulness | 3 / 3 |
+
+Robustness snapshot:
+
+| Metric | Result |
+| --- | --- |
+| Overall pass rate | 5 / 5 |
+| Source recall and precision checks | 5 / 5 |
+| Graph evidence checks | 2 / 2 |
+| Abstention checks | 1 / 1 |
+| Local ask latency p50 / p95 | 9.97 ms / 13.51 ms |
+
+Semantic retrieval snapshot:
+
+| Mode | Recall@3 | MRR | Mean warm latency | Fallbacks |
+| --- | ---: | ---: | ---: | ---: |
+| Local hybrid | 0.17 | 0.167 | 2.29 ms | 0 |
+| E5 + RRF | 1.00 | 0.917 | 9.09 ms | 0 |
+| E5 + RRF + Cross-Encoder | 1.00 | 1.000 | 12.03 ms | 0 |
+
+The semantic snapshot uses six public synthetic cases. It tests retrieval ranking only and does not claim the same gain for generated answers or production lecture data. All local latency values are environment-dependent snapshots; the versioned result files are authoritative for the latest run.
 
 ## Metrics
 
@@ -56,6 +99,10 @@ See [Citation and Grounding](CITATION_GROUNDING.md) for the source metadata flow
 - Citation coverage: measures whether each answer returns at least one source-like evidence reference.
 - Graph route useful cases: checks that graph-routed questions return graph context or graph paths and required concepts.
 - No-context fallback pass: checks that relation questions without matching course graph evidence fall back with a warning instead of silently pretending graph evidence exists.
+- Source precision: verifies unrelated distractor filenames do not appear in returned evidence.
+- Conflict coverage: requires both versioned sources when the question compares conflicting values.
+- Local ask latency: records deterministic local retrieval and composition time; it is not a hosted LLM or network latency benchmark.
+- Semantic Recall@k and MRR: compare expected-source ranking for Korean paraphrases and cross-lingual questions after model warm-up.
 
 ## Example Golden Case
 

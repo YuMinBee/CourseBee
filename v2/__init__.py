@@ -1,1 +1,1 @@
-"""BeePDF v2 source-grounded RAG and GraphRAG-lite scaffold."""
+"""CourseBee source-grounded Course Pack learning system."""

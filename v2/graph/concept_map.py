@@ -1,9 +1,10 @@
 ﻿from __future__ import annotations
 
-import json
 import re
+from collections import Counter
 from pathlib import Path
 
+from v2.io_utils import atomic_write_json
 from v2.rag.answering import _sources_from_chunks
 from v2.schemas import Chunk
 
@@ -16,6 +17,7 @@ KNOWN_CONCEPTS = [
     "failure tracking",
     "GraphRAG",
     "GraphRAG-lite",
+    "concept map",
     "RAG",
     "chunk",
     "page",
@@ -55,6 +57,19 @@ RELATION_HINTS: dict[str, list[tuple[str, str]]] = {
 }
 
 STRUCTURAL_RELATIONS = {"contains", "mentions", "introduces", "appears_in", "evidence_in"}
+KOREAN_STOPWORDS = {
+    "그리고", "그러나", "하지만", "따라서", "때문", "통해", "대한", "위한", "있는", "없는",
+    "한다", "된다", "있다", "없다", "같다", "사용", "설명", "내용", "자료", "문서", "강의",
+    "이번", "해당", "여러", "하나", "부분", "경우", "정도", "기반", "중심", "과정이며",
+}
+ENGLISH_STOPWORDS = {
+    "the", "and", "for", "with", "from", "into", "that", "this", "are", "was", "were",
+    "has", "have", "using", "used", "course", "lecture", "week", "text", "data",
+}
+TECHNICAL_HEADS = {
+    "모델", "학습", "처리", "관계", "에너지", "과정", "알고리즘", "데이터", "정보", "구조",
+    "함수", "시스템", "이론", "법칙", "효과", "네트워크", "토큰", "분류", "분석", "표현",
+}
 
 
 def build_concept_map(chunks: list[Chunk], output_dir: str | None = None) -> dict:
@@ -144,22 +159,26 @@ def build_concept_map(chunks: list[Chunk], output_dir: str | None = None) -> dic
             if doc_node_id:
                 _append_edge(edges, seen_edges, concept, doc_node_id, "appears_in", chunk, doc_id)
 
-        for source, target, relation in _edges_from_concepts(concepts):
+        for source, target, relation in _edges_from_concepts(concepts, chunk.text):
             source_node = nodes.setdefault(source, {"id": source, "label": source, "type": "concept", "documents": []})
             target_node = nodes.setdefault(target, {"id": target, "label": target, "type": "concept", "documents": []})
             _add_document_to_node(source_node, doc_id=doc_id, filename=filename)
             _add_document_to_node(target_node, doc_id=doc_id, filename=filename)
             _append_edge(edges, seen_edges, source, target, relation, chunk, doc_id)
 
-    if not nodes or not edges:
+    concept_node_count = sum(1 for node in nodes.values() if node.get("type") == "concept")
+    if concept_node_count == 0:
         warnings.append("No course graph could be built from the provided chunks.")
 
     graph = {"nodes": list(nodes.values()), "edges": edges, "warnings": warnings}
     if output_dir:
         path = Path(output_dir) / "graph.json"
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(graph, ensure_ascii=False, indent=2), encoding="utf-8")
+        atomic_write_json(path, graph)
     return graph
+
+
+def extract_concepts(text: str, limit: int = 14) -> list[str]:
+    return _concepts_from_text(text)[: max(0, limit)]
 
 
 def _append_edge(
@@ -238,16 +257,172 @@ def _concepts_from_text(text: str) -> list[str]:
         if len(phrase) >= 3 and phrase not in concepts:
             concepts.append(phrase)
 
-    return concepts[:10]
+    raw_tokens = re.findall(r"[A-Za-z][A-Za-z0-9_-]{1,}|[가-힣]+", text)
+    normalized_tokens = [_normalize_candidate(token) for token in raw_tokens]
+    tokens = [token for token in normalized_tokens if _useful_candidate(token)]
+    counts = Counter(tokens)
+    positions = {token: tokens.index(token) for token in counts}
+
+    bigrams: list[str] = []
+    for left, right in zip(normalized_tokens, normalized_tokens[1:]):
+        if _useful_modifier(left) and right in TECHNICAL_HEADS:
+            phrase = f"{left} {right}"
+            if phrase not in bigrams:
+                bigrams.append(phrase)
+        if _useful_english_phrase_pair(left, right):
+            phrase = f"{left.lower()} {right.lower()}"
+            if phrase not in bigrams:
+                bigrams.append(phrase)
+
+    ranked = sorted(
+        counts,
+        key=lambda token: (
+            counts[token],
+            1 if token in TECHNICAL_HEADS else 0,
+            min(len(token), 12),
+            -positions[token],
+        ),
+        reverse=True,
+    )
+    for candidate in [*bigrams, *ranked]:
+        if candidate not in concepts:
+            concepts.append(candidate)
+        if len(concepts) >= 14:
+            break
+    return concepts[:14]
 
 
-def _edges_from_concepts(concepts: list[str]) -> list[tuple[str, str, str]]:
+def _edges_from_concepts(concepts: list[str], text: str) -> list[tuple[str, str, str]]:
     edges: list[tuple[str, str, str]] = []
     for source in concepts:
         for target, relation in RELATION_HINTS.get(source, []):
-            if source != target and (source, target, relation) not in edges:
+            if target in concepts and source != target and (source, target, relation) not in edges:
                 edges.append((source, target, relation))
-    for left, right in zip(concepts, concepts[1:]):
-        if left != right and (left, right, "related_to") not in edges:
-            edges.append((left, right, "related_to"))
+
+    for sentence in re.split(r"(?<=[.!?。！？])\s+|\n+", text):
+        present = _ordered_sentence_concepts(concepts, sentence)
+        inferred = _inferred_relation_edge(present, sentence)
+        if inferred and inferred not in edges:
+            edges.append(inferred)
+        for left, right in zip(present, present[1:]):
+            edge = (left, right, "related_in_context")
+            if left != right and edge not in edges:
+                edges.append(edge)
     return edges
+
+
+def _normalize_candidate(token: str) -> str:
+    value = token.strip("_- ")
+    if not _contains_hangul(value):
+        return value
+    for suffix in (
+        "에서는", "으로", "에서", "에게", "이다", "이며", "하고", "하는", "되는", "한다", "된다",
+        "은", "는", "이", "가", "을", "를", "의", "에", "로", "와", "과", "도", "만",
+    ):
+        if value.endswith(suffix) and len(value) - len(suffix) >= 2:
+            value = value[: -len(suffix)]
+            break
+    return value
+
+
+def _useful_candidate(token: str) -> bool:
+    if len(token) < 2:
+        return False
+    lowered = token.lower()
+    if lowered in ENGLISH_STOPWORDS or token in KOREAN_STOPWORDS:
+        return False
+    if token.isdigit():
+        return False
+    if token.endswith(("한다", "된다", "했다", "하는", "되는", "이다", "이며", "난다", "인다")):
+        return False
+    return not bool(re.fullmatch(r"(?:하|되|있|없|같|바꾸|일어나)[가-힣]*", token))
+
+
+def _useful_modifier(token: str) -> bool:
+    if not token or token in KOREAN_STOPWORDS:
+        return False
+    if len(token) == 1:
+        return _contains_hangul(token)
+    return _useful_candidate(token)
+
+
+def _useful_english_phrase_pair(left: str, right: str) -> bool:
+    predicate_words = {
+        "affects", "allows", "builds", "causes", "creates", "explains", "generates",
+        "handles", "improves", "includes", "increases", "lowers", "makes", "prevents",
+        "reduces", "supports", "transforms", "uses",
+    }
+    if not left.isascii() or not right.isascii():
+        return False
+    if not _useful_candidate(left) or not _useful_candidate(right):
+        return False
+    return left.lower() not in predicate_words and right.lower() not in predicate_words
+
+
+def _contains_hangul(text: str) -> bool:
+    return any("가" <= char <= "힣" for char in text)
+
+
+def _concept_appears(concept: str, sentence: str) -> bool:
+    compact_concept = re.sub(r"\s+", "", concept).lower()
+    compact_sentence = re.sub(r"\s+", "", sentence).lower()
+    return compact_concept in compact_sentence
+
+
+def _ordered_sentence_concepts(concepts: list[str], sentence: str) -> list[str]:
+    compact_sentence = re.sub(r"\s+", "", sentence).lower()
+    matches: list[tuple[int, int, str]] = []
+    for concept in concepts:
+        compact = re.sub(r"\s+", "", concept).lower()
+        if not compact:
+            continue
+        start = compact_sentence.find(compact)
+        if start >= 0:
+            matches.append((start, start + len(compact), concept))
+    matches.sort(key=lambda item: (item[0], -(item[1] - item[0])))
+    ordered: list[str] = []
+    occupied: list[tuple[int, int]] = []
+    for start, end, concept in matches:
+        if any(start < used_end and end > used_start for used_start, used_end in occupied):
+            continue
+        ordered.append(concept)
+        occupied.append((start, end))
+    return ordered
+
+
+def _inferred_relation_edge(concepts: list[str], sentence: str) -> tuple[str, str, str] | None:
+    relation = _relation_from_sentence(sentence)
+    if relation == "related_in_context" or len(concepts) < 2:
+        return None
+    compact_sentence = re.sub(r"\s+", "", sentence).lower()
+    marker_positions = [
+        compact_sentence.find(marker)
+        for marker in ("줄", "감소", "완화", "바꾸", "변환", "사용", "이용", "영향", "필요", "비교", "차이")
+        if marker in compact_sentence
+    ]
+    marker = min(marker_positions) if marker_positions else len(compact_sentence)
+    before = [
+        concept
+        for concept in concepts
+        if compact_sentence.find(re.sub(r"\s+", "", concept).lower()) < marker
+    ]
+    selected = before[-2:] if len(before) >= 2 else concepts[:2]
+    return (selected[0], selected[1], relation) if len(selected) == 2 else None
+
+
+def _relation_from_sentence(sentence: str) -> str:
+    lowered = sentence.lower()
+    relation_patterns = [
+        ({"줄인다", "감소", "완화", "reduces"}, "reduces"),
+        ({"변환", "바꾼", "바꾸", "convert", "transform"}, "transforms"),
+        ({"사용", "이용", "uses", "using"}, "uses"),
+        ({"구성", "포함", "contains", "consists"}, "contains_concept"),
+        ({"영향", "affect"}, "affects"),
+        ({"필요", "선수", "prerequisite", "전에"}, "prerequisite_of"),
+        ({"비교", "차이", "반면", "whereas"}, "contrasts_with"),
+        ({"분류", "예측", "classif"}, "supports_task"),
+    ]
+    for terms, relation in relation_patterns:
+        if any(term in lowered for term in terms):
+            return relation
+    return "related_in_context"

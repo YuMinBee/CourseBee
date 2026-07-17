@@ -1,14 +1,15 @@
-﻿# BeePDF v2 optional dependencies
+# CourseBee v2 runtime dependencies
 # Install only when running the real local API or optional local pipeline.
-fastapi>=0.111
-uvicorn>=0.30
-pydantic>=2.7
-networkx>=3.2
-numpy>=1.26
+fastapi>=0.111,<1
+uvicorn>=0.30,<1
+pydantic>=2.7,<3
+python-dotenv>=1.0,<2
+python-multipart>=0.0.9,<1
 
 # Optional PDF/text extraction and local OCR fallback:
-PyMuPDF>=1.27
-pytesseract>=0.3.13
+PyMuPDF>=1.27,<2
+Pillow>=10,<13
+pytesseract>=0.3.13,<1
 # Tesseract OCR engine must also be installed on the OS.
 # Windows example: winget install --id tesseract-ocr.tesseract -e
 
@@ -28,4 +29,4 @@ pytesseract>=0.3.13
 
 
 # Optional local demo TTS for CourseBee audio overview artifacts.
-edge-tts>=7.0
+edge-tts>=7.0,<8

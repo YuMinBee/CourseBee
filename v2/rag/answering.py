@@ -3,6 +3,7 @@
 import re
 
 from v2.providers.base import IndexProvider, LLMProvider
+from v2.rag.retrieval import normalize_retrieval_text
 from v2.schemas import Chunk, SourceGroundedAnswer, SourceRef
 
 NO_CONTEXT_WARNING = "No relevant context was found in the document. Answer generation was skipped."
@@ -27,8 +28,21 @@ def generate_source_grounded_answer(
                 warnings.append(f"LLM general fallback failed: {exc}")
             else:
                 if answer:
-                    return SourceGroundedAnswer(answer=answer, sources=[], warnings=[GENERAL_FALLBACK_WARNING, *warnings])
-        return SourceGroundedAnswer(answer="", sources=[], warnings=[NO_CONTEXT_WARNING, *warnings])
+                    return SourceGroundedAnswer(
+                        answer=answer,
+                        sources=[],
+                        warnings=[GENERAL_FALLBACK_WARNING, *warnings],
+                        answer_scope="general_knowledge",
+                        grounding_status="ungrounded",
+                        general_knowledge_used=True,
+                    )
+        return SourceGroundedAnswer(
+            answer="",
+            sources=[],
+            warnings=[NO_CONTEXT_WARNING, *warnings],
+            answer_scope="none",
+            grounding_status="not_answered",
+        )
 
     sources = _sources_from_chunks(selected_chunks)
     answer = ""
@@ -40,7 +54,13 @@ def generate_source_grounded_answer(
     if not answer:
         answer = _compose_grounded_answer(query, selected_chunks)
     if not answer.strip():
-        return SourceGroundedAnswer(answer="", sources=[], warnings=[NO_CONTEXT_WARNING])
+        return SourceGroundedAnswer(
+            answer="",
+            sources=[],
+            warnings=[NO_CONTEXT_WARNING],
+            answer_scope="none",
+            grounding_status="not_answered",
+        )
     return SourceGroundedAnswer(answer=answer, sources=sources, warnings=warnings)
 
 
@@ -137,6 +157,10 @@ def _sources_from_chunks(chunks: list[Chunk]) -> list[SourceRef]:
         filename = chunk.metadata.get("filename") if chunk.metadata else None
         week = chunk.metadata.get("week") if chunk.metadata else None
         lecture_no = chunk.metadata.get("lecture_no") if chunk.metadata else None
+        title = chunk.metadata.get("title") if chunk.metadata else None
+        url = chunk.metadata.get("url") if chunk.metadata else None
+        source_type = chunk.metadata.get("source_type") if chunk.metadata else None
+        provider = chunk.metadata.get("web_provider") if chunk.metadata else None
         key = (doc_id, filename, chunk.page, chunk.chunk_id)
         if key in seen:
             continue
@@ -148,6 +172,13 @@ def _sources_from_chunks(chunks: list[Chunk]) -> list[SourceRef]:
                 filename=filename,
                 week=week,
                 lecture_no=lecture_no,
+                excerpt=_clean_text(chunk.text, max_chars=700),
+                char_start=chunk.char_start,
+                char_end=chunk.char_end,
+                title=title,
+                url=url,
+                source_type=source_type,
+                provider=provider,
             )
         )
         seen.add(key)
@@ -160,7 +191,7 @@ def _split_sentences(text: str) -> list[str]:
 
 
 def _clean_text(text: str, max_chars: int = 260) -> str:
-    cleaned = " ".join(text.split())
+    cleaned = " ".join(normalize_retrieval_text(text).split())
     if len(cleaned) <= max_chars:
         return cleaned
     return cleaned[: max_chars - 1].rstrip() + "..."

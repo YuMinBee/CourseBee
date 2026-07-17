@@ -4,8 +4,8 @@ from dataclasses import asdict
 
 from v2.graph.concept_map import build_concept_map
 from v2.providers.base import DocumentParser, IndexProvider, LLMProvider, StorageProvider
-from v2.rag.citations import check_text_grounding
 from v2.rag.chunking import chunk_pages
+from v2.rag.citations import check_text_grounding
 from v2.rag.vector_rag import answer_with_sources
 from v2.workflows.state import BeePDFState
 

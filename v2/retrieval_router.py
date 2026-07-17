@@ -1,4 +1,6 @@
-﻿from __future__ import annotations
+from __future__ import annotations
+
+import re
 
 LEARNING_PATH_TERMS = {
     "먼저",
@@ -9,6 +11,11 @@ LEARNING_PATH_TERMS = {
     "prerequisite",
     "before",
     "learning path",
+    "배우기 전",
+    "알아야",
+    "선행",
+    "사전에",
+    "전에",
 }
 OVERVIEW_TERMS = {
     "전체",
@@ -21,6 +28,10 @@ OVERVIEW_TERMS = {
     "overview",
     "summary",
     "summarize",
+    "한눈에",
+    "전반",
+    "종합",
+    "무엇을 배웠",
 }
 RELATION_TERMS = {
     "관계",
@@ -33,9 +44,16 @@ RELATION_TERMS = {
     "pipeline",
     "connect",
     "relationship",
+    "related",
     "relation",
     "contrast",
     "compare",
+    "영향",
+    "미치는",
+    "연관",
+    "연계",
+    "상호작용",
+    "연결고리",
 }
 FACT_TERMS = {
     "정의",
@@ -52,8 +70,11 @@ FACT_TERMS = {
 def classify_course_pack_question(question: str) -> dict:
     normalized = _normalize(question)
     has_learning_path = _has_any(normalized, LEARNING_PATH_TERMS)
-    has_overview = _has_any(normalized, OVERVIEW_TERMS)
-    has_relation = _has_any(normalized, RELATION_TERMS)
+    has_overview = _has_any(normalized, OVERVIEW_TERMS) or _looks_like_week_overview(normalized)
+    entity_count = len(set(re.findall(r"\b[A-Z][A-Z0-9_-]{1,}\b", question or "")))
+    has_relation = _has_any(normalized, RELATION_TERMS) or (
+        entity_count >= 2 and _has_any(normalized, {"어떻게", "왜", "같이"})
+    )
     has_fact = _has_any(normalized, FACT_TERMS)
 
     if has_learning_path:
@@ -86,10 +107,10 @@ def classify_course_pack_question(question: str) -> dict:
             _plan("low", "evidence_chunks", "Use evidence chunks attached to graph edges."),
         ]
     else:
-        question_type = "fact_question" if has_fact or normalized else "fact_question"
+        question_type = "fact_question"
         selected_mode = "vector"
         plan = [
-            _plan("low", "vector", "Question can be answered from local chunk-level evidence."),
+            _plan("low", "vector", "Question uses the local hybrid lexical and character-level implementation."),
         ]
 
     return {
@@ -97,6 +118,8 @@ def classify_course_pack_question(question: str) -> dict:
         "selected_mode": selected_mode,
         "selected_retrievers": [item["strategy"] for item in plan],
         "retrieval_plan": plan,
+        "retrieval_implementation": "hybrid" if selected_mode == "vector" else selected_mode,
+        "confidence": _route_confidence(has_learning_path, has_overview, has_relation, has_fact, normalized),
     }
 
 
@@ -108,5 +131,17 @@ def _has_any(text: str, terms: set[str]) -> bool:
     return any(term in text for term in terms)
 
 
+def _looks_like_week_overview(text: str) -> bool:
+    return bool(re.search(r"\d+\s*주(?:차| 동안)", text)) and _has_any(text, {"배웠", "내용", "다룬", "보여"})
+
+
 def _normalize(text: str) -> str:
     return " ".join((text or "").lower().split())
+
+
+def _route_confidence(*signals) -> float:
+    normalized = signals[-1]
+    matched = sum(bool(signal) for signal in signals[:-1])
+    if not normalized:
+        return 0.0
+    return round(min(0.98, 0.55 + (0.12 * matched)), 2)

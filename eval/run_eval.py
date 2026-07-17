@@ -16,7 +16,6 @@ if str(REPO_ROOT) not in sys.path:
 from v2.api import routes  # noqa: E402
 from v2.api.schemas import CoursePackIngestRequest, CoursePackQueryRequest  # noqa: E402
 
-
 PACK_ID = "pack_eval_nlp_11week"
 DEFAULT_RESULTS_PATH = REPO_ROOT / "eval" / "results" / "latest_eval.md"
 DEFAULT_RUNTIME_DIR = REPO_ROOT / "outputs" / "_eval_runtime"
@@ -56,6 +55,7 @@ class EvalCaseResult:
     expected_retrieval_mode: str | None
     actual_retrieval_mode: str | None
     route_pass: bool
+    source_required: bool
     source_pass: bool
     concept_pass: bool
     citation_present: bool
@@ -68,6 +68,8 @@ class EvalCaseResult:
     @property
     def passed(self) -> bool:
         checks = [self.route_pass, self.source_pass, self.concept_pass]
+        if self.source_required:
+            checks.append(self.citation_present)
         if self.fallback_pass is not None:
             checks.append(self.fallback_pass)
         if self.graph_useful is not None:
@@ -182,6 +184,7 @@ def _run_case(
         expected_retrieval_mode=expected_retrieval_mode,
         actual_retrieval_mode=actual_retrieval_mode,
         route_pass=route_pass,
+        source_required=bool(required_sources),
         source_pass=source_pass,
         concept_pass=concept_pass,
         citation_present=citation_present,
@@ -196,8 +199,9 @@ def _run_case(
 def _summarize(results: list[EvalCaseResult]) -> dict[str, Any]:
     router_total = len([result for result in results if result.expected_route])
     router_hits = sum(1 for result in results if result.expected_route and result.route_pass)
-    source_total = len([result for result in results if result.sources or result.source_pass])
-    source_hits = sum(1 for result in results if result.source_pass)
+    source_cases = [result for result in results if result.source_required]
+    source_total = len(source_cases)
+    source_hits = sum(1 for result in source_cases if result.source_pass)
     citation_coverage = sum(1 for result in results if result.citation_present) / len(results) if results else 0.0
     fallback_cases = [result for result in results if result.fallback_pass is not None]
     graph_cases = [result for result in results if result.graph_useful is not None]

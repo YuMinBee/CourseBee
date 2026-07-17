@@ -3,7 +3,13 @@ from __future__ import annotations
 import unittest
 
 from v2.api.routes import router
-from v2.api.schemas import AudioScriptRequest, CoursePackJobRequest, CoursePackSummaryRequest, IngestRequest, QueryRequest
+from v2.api.schemas import (
+    AudioScriptRequest,
+    CoursePackJobRequest,
+    CoursePackSummaryRequest,
+    IngestRequest,
+    QueryRequest,
+)
 
 
 class ApiSchemaTest(unittest.TestCase):
@@ -26,6 +32,8 @@ class ApiSchemaTest(unittest.TestCase):
         self.assertEqual(summary.llm_model, None)
         self.assertEqual(job.output_root, "outputs")
         self.assertEqual(job.max_chunk_chars, 900)
+        self.assertFalse(job.run_async)
+        self.assertTrue(CoursePackJobRequest(paths=["week1.txt"], run_async=True).run_async)
 
     def test_router_is_defined_when_fastapi_is_available(self) -> None:
         if router is not None:

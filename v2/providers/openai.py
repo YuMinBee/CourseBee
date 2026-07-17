@@ -35,7 +35,7 @@ class OpenAIProvider:
 
     def summarize(self, chunks: list[Chunk]) -> str:
         instructions = (
-            "You generate Korean course-pack summaries for BeePDF. "
+            "You generate Korean Course Pack summaries for CourseBee. "
             "Use only the provided source chunks. Do not add unsupported facts. "
             "Keep the summary concise and useful for study."
         )
