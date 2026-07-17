@@ -36,6 +36,13 @@ class SourceRef:
     filename: str | None = None
     week: int | None = None
     lecture_no: int | None = None
+    excerpt: str | None = None
+    char_start: int | None = None
+    char_end: int | None = None
+    title: str | None = None
+    url: str | None = None
+    source_type: str | None = None
+    provider: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {key: value for key, value in asdict(self).items() if value is not None}
@@ -74,12 +81,18 @@ class SourceGroundedAnswer:
     answer: str
     sources: list[SourceRef] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
+    answer_scope: str = "course_pack"
+    grounding_status: str = "grounded"
+    general_knowledge_used: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "answer": self.answer,
             "sources": [source.to_dict() for source in self.sources],
             "warnings": self.warnings,
+            "answer_scope": self.answer_scope,
+            "grounding_status": self.grounding_status,
+            "general_knowledge_used": self.general_knowledge_used,
         }
 
 

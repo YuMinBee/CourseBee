@@ -3,9 +3,10 @@
 import re
 from collections import Counter, OrderedDict
 
+from v2.graph.concept_map import build_concept_map, extract_concepts
 from v2.providers.openai import OpenAIProvider, OpenAIProviderError
-from v2.rag.citations import check_text_grounding, skipped_citation_check
 from v2.rag.answering import _best_sentence, _keyword_terms, _sources_from_chunks
+from v2.rag.citations import check_text_grounding, skipped_citation_check
 from v2.schemas import Chunk
 from v2.study_kit import KNOWN_TERMS
 
@@ -101,7 +102,8 @@ def _representative_chunk(chunks: list[Chunk]) -> Chunk | None:
     if not chunks:
         return None
     meaningful = [chunk for chunk in chunks if len(chunk.text.strip()) >= 30]
-    return meaningful[0] if meaningful else chunks[0]
+    candidates = meaningful or chunks
+    return max(candidates, key=lambda chunk: (len(_keyword_terms(chunk.text)), min(len(chunk.text), 1200)))
 
 
 def _lecture_summary(chunks: list[Chunk]) -> dict:
@@ -110,12 +112,18 @@ def _lecture_summary(chunks: list[Chunk]) -> dict:
         return {"filename": None, "doc_id": None, "text": "", "sources": []}
     metadata = chunk.metadata or {}
     filename = metadata.get("filename")
-    sentence = _best_sentence(chunk.text, _keyword_terms(chunk.text))
+    source_chunks = chunks[:3]
+    sentences: list[str] = []
+    for source_chunk in source_chunks:
+        sentence = _best_sentence(source_chunk.text, _keyword_terms(source_chunk.text))
+        if sentence and sentence not in sentences:
+            sentences.append(sentence)
+    summary_text = " ".join(sentences)[:900]
     return {
         "filename": filename,
         "doc_id": metadata.get("doc_id"),
-        "text": f"{filename or '이 강의자료'}는 {sentence}를 중심으로 다룹니다.",
-        "sources": _source_dicts([chunk]),
+        "text": f"{filename or '이 강의자료'}의 핵심 내용은 다음과 같습니다. {summary_text}",
+        "sources": _source_dicts(source_chunks),
     }
 
 
@@ -144,11 +152,23 @@ def _key_concepts(chunks: list[Chunk], limit: int) -> list[dict]:
     seen: set[str] = set()
     for chunk in chunks:
         lowered = chunk.text.lower()
-        for term, definition in KNOWN_TERMS.items():
+        candidates = [
+            *[term for term in KNOWN_TERMS if term.lower() in lowered],
+            *extract_concepts(chunk.text, limit=max(limit * 2, 10)),
+        ]
+        for term in candidates:
             normalized = term.lower()
-            if normalized not in lowered or normalized in seen:
+            if normalized in seen:
                 continue
-            items.append({"term": term, "description": definition, "sources": _source_dicts([chunk])})
+            sentence = _sentence_for_term(term, chunk.text)
+            items.append(
+                {
+                    "term": term,
+                    "description": sentence or KNOWN_TERMS.get(term) or f"Course Pack에서 확인된 주요 개념입니다: {term}.",
+                    "source_quote": sentence,
+                    "sources": _source_dicts([chunk]),
+                }
+            )
             seen.add(normalized)
             if len(items) >= limit:
                 return items
@@ -175,26 +195,24 @@ def _key_concepts(chunks: list[Chunk], limit: int) -> list[dict]:
 
 
 def _connections_from_concepts(chunks: list[Chunk], key_concepts: list[dict], limit: int) -> list[dict]:
-    terms = [item["term"] for item in key_concepts]
+    terms = {item["term"] for item in key_concepts}
+    graph = build_concept_map(chunks)
     connections: list[dict] = []
-    seen: set[tuple[str, str]] = set()
-    for chunk in chunks:
-        present = [term for term in terms if term.lower() in chunk.text.lower()]
-        for left, right in zip(present, present[1:]):
-            key = (left, right)
-            if left == right or key in seen:
-                continue
-            seen.add(key)
-            connections.append(
-                {
-                    "source": left,
-                    "target": right,
-                    "relation": "related_in_course_pack",
-                    "evidence": _source_dicts([chunk]),
-                }
-            )
-            if len(connections) >= limit:
-                return connections
+    for edge in graph.get("edges", []):
+        if edge.get("edge_type") != "conceptual":
+            continue
+        if edge.get("source") not in terms and edge.get("target") not in terms:
+            continue
+        connections.append(
+            {
+                "source": edge.get("source"),
+                "target": edge.get("target"),
+                "relation": edge.get("relation", "related_in_context"),
+                "evidence": edge.get("evidence", []),
+            }
+        )
+        if len(connections) >= limit:
+            return connections
     return connections
 
 
@@ -234,6 +252,15 @@ def _tokens(text: str) -> list[str]:
     }
     tokens = re.findall(r"[A-Za-z0-9가-힣_-]{3,}", text)
     return [token for token in tokens if token.lower() not in stopwords]
+
+
+def _sentence_for_term(term: str, text: str) -> str:
+    compact_term = re.sub(r"\s+", "", term).lower()
+    for sentence in re.split(r"(?<=[.!?。！？])\s+|\n+", text):
+        sentence = sentence.strip()
+        if sentence and compact_term in re.sub(r"\s+", "", sentence).lower():
+            return sentence[:360]
+    return _best_sentence(text, _keyword_terms(term))[:360]
 
 
 def _source_dicts(chunks: list[Chunk]) -> list[dict]:

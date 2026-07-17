@@ -1,0 +1,1344 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CourseBee</title>
+  <style>
+    :root{--bg:#14171b;--top:#181c21;--panel:#20262c;--soft:#252b32;--deep:#1b2026;--line:#343c45;--text:#f2f6f8;--muted:#a8b3bd;--sub:#7e8994;--teal:#4cc9b0;--blue:#7aa7ff;--violet:#b293ff;--amber:#eec66d;--green:#9bd67c;--rose:#ff9ab0;--red:#ff6b68;--r:8px}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:"Segoe UI Rounded","Segoe UI Variable Text","Pretendard","SUIT","Nunito","Arial Rounded MT Bold","Malgun Gothic",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input{font:inherit;color:inherit}.app{min-height:100vh;display:grid;grid-template-rows:54px 1fr}.top{display:flex;align-items:center;gap:14px;padding:0 18px;background:var(--top);border-bottom:1px solid #222930}.logo{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#f7fbfa;color:#101418;font-weight:900}.title{flex:1;min-width:0;display:flex;align-items:center;gap:10px}.title h1{margin:0;font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.badge,.btn{min-height:28px;display:inline-flex;align-items:center;border:1px solid #39434d;border-radius:999px;padding:0 10px;color:var(--muted);font-size:12px;font-weight:700;white-space:nowrap}.actions{display:flex;gap:9px}.btn{min-height:34px;background:transparent;color:#edf4f6;cursor:pointer}.btn.primary{border:0;background:#f5f7f8;color:#151a1f}.layout{min-height:0;display:grid;grid-template-columns:minmax(250px,25vw) minmax(520px,1fr) minmax(320px,25vw);gap:14px;padding:14px 16px 18px}.panel{min-height:0;display:flex;flex-direction:column;overflow:hidden;border-radius:var(--r);background:var(--panel);box-shadow:0 18px 40px rgba(0,0,0,.28)}.head{min-height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--line)}.head h2{margin:0;font-size:15px}.body{min-height:0;overflow:auto}.source-tools{padding:12px 16px 8px;display:grid;gap:14px}.add-source{height:34px;border:1px solid #38434c;border-radius:999px;background:#20262c;color:#e8f2f6;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px}.search-box{border:1px solid #333d47;border-radius:16px;background:#1a1f25;padding:14px}.search-title{margin:0 0 12px;color:#b9c5cc;font-size:13px;font-weight:720}.search-controls{display:grid;grid-template-columns:auto auto 36px;gap:8px;align-items:center}.control-pill{min-height:34px;border:1px solid #3c4650;border-radius:999px;background:#252b32;color:#e4ecef;padding:0 11px;display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:760}.search-action{width:36px;height:36px;border:0;border-radius:50%;background:#313942;color:#9faab4;display:grid;place-items:center;font-size:18px}.select-line{display:grid;grid-template-columns:24px 1fr auto 22px;align-items:center;gap:10px;padding:0 16px 8px;color:#edf4f6;font-size:13px;font-weight:760}.select-line .select-left{color:#cbd6dc;font-size:18px}.sources{display:grid;gap:6px;padding:2px 14px 16px}.src{min-height:43px;display:grid;grid-template-columns:24px minmax(0,1fr) 22px;gap:10px;align-items:center;border:1px solid transparent;border-radius:7px;padding:6px 10px}.src:hover,.src.on{background:var(--soft);border-color:#35404a}.fileicon{height:18px;min-width:18px;border-radius:2px;display:inline-grid;place-items:center;font-size:9px;font-weight:900;color:#fff;line-height:1}.fileicon.pdf{background:#f13632}.fileicon.md{border:1px solid #2e82ff;background:#12365d;color:#6db2ff}.fileicon.doc{background:#29323a;color:#7f8d99}.src b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.src span{display:block;margin-top:2px;color:var(--sub);font-size:11px}.check{width:18px;height:18px;border:2px solid #69737d;border-radius:3px;display:grid;place-items:center;color:#f5f8fa;font-size:11px}.check.on{background:#5f666d}.job{display:none}.jobtop,.progress,.jobgrid,.tile{display:none}.chat{position:relative}.chatbody{padding:26px 22px 104px;display:flex;flex-direction:column;gap:18px}.msg{max-width:78%;border-radius:20px;padding:14px 18px;line-height:1.58;font-size:15px}.msg.user{align-self:flex-end;background:#151a20}.answer{max-width:880px;color:#dfe8ed;line-height:1.72}.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 15px}.chip{min-height:24px;display:inline-flex;align-items:center;border:1px solid #38434c;border-radius:999px;background:var(--deep);padding:0 8px;color:#c5d0d8;font-size:12px;font-weight:720}.teal{color:#bdf1e6;border-color:rgba(76,201,176,.35)}.blue{color:#d4e1ff;border-color:rgba(122,167,255,.35)}.violet{color:#e2d8ff;border-color:rgba(178,147,255,.35)}.amber{color:#ffe4a3;border-color:rgba(238,198,109,.35)}.answer h3{margin:0 0 10px;font-size:17px}.answer p{margin:0 0 14px}.answer ul{margin:0 0 14px 21px;padding:0}.answer li{margin:8px 0;line-height:1.65}.cite{width:19px;height:19px;border:0;border-radius:50%;background:#151a20;color:#d6dee4;display:inline-grid;place-items:center;font-size:11px;font-weight:850;margin:0 3px;vertical-align:middle;cursor:pointer}.cite:hover,.cite:focus-visible{outline:1px solid #7aa7ff;color:#fff}.source-meta{display:grid;gap:8px;margin:12px 0 0}.source-pill{border:1px solid #303944;border-radius:999px;background:#1b2026;padding:7px 10px;color:#dbe6eb;font-size:12px}.source-pill b{color:#fff}.source-summary{margin-bottom:4px}.status-line{color:var(--muted);font-size:12px}.error-box{border:1px solid rgba(255,107,104,.45);border-radius:7px;background:rgba(255,107,104,.08);padding:12px;color:#ffd4d2}.answer-line{white-space:pre-wrap}.result-grid{display:grid;gap:10px;margin:10px 0 14px}.result-card{border:1px solid #303944;border-radius:7px;background:#1b2026;padding:11px}.result-card b{display:block;margin-bottom:5px;color:#fff}.result-card span,.result-card p{color:#d7e1e6;font-size:13px;line-height:1.55}.mini-json{max-height:180px;overflow:auto;border:1px solid #303944;border-radius:7px;background:#11161b;padding:10px;color:#d7e1e6;font-size:12px;white-space:pre-wrap}.data-table{width:100%;border-collapse:collapse;margin:10px 0 14px;background:#1b2026;border-radius:7px;overflow:hidden;font-size:13px}.data-table th,.data-table td{border-bottom:1px solid #303944;padding:9px 10px;text-align:left;vertical-align:top}.data-table th{color:#fff;background:#222932}.data-table td{color:#d7e1e6}.data-table tr:last-child td{border-bottom:0}.studio-card{color:inherit;text-align:left;cursor:pointer}.studio-card.is-loading{opacity:.62}.artifact button{border:0;background:transparent;color:inherit;text-align:left;padding:0;cursor:pointer}.artifact small{display:block;color:var(--sub);font-size:11px;margin-top:3px}.answer-actions{display:flex;gap:8px;margin-top:2px}.source-btn{min-height:34px;border:1px solid #3b4650;border-radius:999px;background:#20262c;color:#edf4f6;padding:0 13px;font-weight:800;cursor:pointer}.source-modal[hidden]{display:none}.source-modal{position:fixed;inset:0;background:rgba(0,0,0,.58);display:grid;place-items:center;z-index:20;padding:24px}.source-sheet{width:min(560px,92vw);max-height:min(720px,86vh);overflow:hidden;border:1px solid #38424c;border-radius:10px;background:#14181d;box-shadow:0 24px 64px rgba(0,0,0,.45)}.source-sheet-head{min-height:58px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid #303944;padding:0 16px}.source-sheet-head b{display:block;font-size:14px}.source-sheet-head span{display:block;margin-top:3px;color:var(--muted);font-size:12px}.source-close{border:1px solid #3b4650;border-radius:999px;background:#20262c;color:#edf4f6;min-height:32px;padding:0 12px;cursor:pointer}.source-sheet-body{max-height:calc(min(720px,86vh) - 58px);overflow:auto;padding:20px 16px 18px}.source-kicker{margin:0 0 12px;color:var(--muted);font-size:13px}.source-sheet-body h3{margin:0 0 10px;font-size:20px}.source-sheet-body p{line-height:1.7;color:#dfe8ed}.source-evidence{border-top:1px solid #303944;margin-top:18px;padding-top:14px}.source-evidence b{display:block;margin-bottom:8px}.source-evidence code{display:block;margin-top:8px;border:1px solid #303944;border-radius:7px;background:#1b2026;padding:10px;color:#eaf3f6;white-space:pre-wrap}.composer{position:absolute;left:16px;right:16px;bottom:16px;min-height:74px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;border:1px solid #39434d;border-radius:18px;background:var(--panel);padding:0 14px 0 20px}.composer input{min-width:0;border:0;outline:0;background:transparent;color:#e9f1f4;font-size:15px}.send{width:46px;height:46px;border:0;border-radius:50%;background:#3a444d;cursor:pointer}.studio-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:14px 14px 12px}.studio-card{min-height:58px;border:1px solid #3a434c;border-radius:var(--r);display:grid;grid-template-columns:28px 1fr 20px;align-items:center;gap:8px;padding:8px 10px;background:#293038}.studio-card:nth-child(2){background:#333328}.studio-card:nth-child(3){background:#312936}.studio-card:nth-child(4){background:#30342c}.studio-card:nth-child(5){background:#26333a}.studio-card:nth-child(6){background:#352b2f}.studio-card b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.studio-card span{display:block;margin-top:2px;color:#bdc8d0;font-size:11px}.artifacts{border-top:1px solid var(--line);margin-top:14px;padding:12px;display:grid;gap:8px}.artifact{display:grid;grid-template-columns:32px minmax(0,1fr) 24px;align-items:center;gap:10px;min-height:64px;border-radius:var(--r);padding:8px 10px}.artifact:hover,.artifact.on{background:var(--soft)}.artifact b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.artifact span{display:block;margin-top:3px;color:var(--sub);font-size:11px}.artifact-icon{width:22px;height:22px;border:1px solid currentColor;border-radius:4px;display:grid;place-items:center;font-size:12px;font-weight:900}.artifact-menu{border:0;background:transparent;color:#cbd6dc;font-size:20px;cursor:pointer}.playbar{height:4px;width:92px;border-radius:999px;background:#313943;overflow:hidden;margin-top:8px}.playbar span{display:block;height:100%;width:42%;background:var(--blue)}.studio{position:relative}.audio-player[hidden]{display:none}.audio-player{position:sticky;bottom:0;z-index:5;margin:12px;border-top:1px solid var(--line);border-radius:var(--r);background:#1b2026;padding:14px;box-shadow:0 -16px 40px rgba(0,0,0,.28)}.audio-player-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.audio-player-title b{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}.audio-close{width:30px;height:30px;border:0;border-radius:50%;background:#252c34;color:#d9e3e8;cursor:pointer;font-size:18px}.audio-range{width:100%;accent-color:#516bff}.audio-controls{display:flex;align-items:center;gap:12px;margin-top:12px}.audio-play{width:46px;height:46px;border:0;border-radius:50%;background:#5364ff;color:#fff;font-weight:900;cursor:pointer}.audio-time{color:#dce6eb;font-size:13px}.audio-link{margin-left:auto;color:#9eb7ff;text-decoration:none;font-size:12px;font-weight:800}.artifact[data-audio-index]{cursor:pointer}.mindmap-viewer[hidden]{display:none}.mindmap-viewer{margin:12px;border:1px solid var(--line);border-radius:var(--r);background:#1b2026;padding:14px}.mindmap-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.mindmap-head b{font-size:14px}.mindmap-close{width:30px;height:30px;border:0;border-radius:50%;background:#252c34;color:#d9e3e8;cursor:pointer;font-size:16px}.mindmap-canvas{min-height:220px;border:1px solid #303944;border-radius:var(--r);background:#161b21;overflow:hidden}.mindmap-canvas svg{display:block;width:100%;height:260px}.mindmap-node{filter:drop-shadow(0 8px 16px rgba(0,0,0,.24))}.mindmap-label{font-size:11px;font-weight:800;fill:#f2f6f8;text-anchor:middle;dominant-baseline:central}.mindmap-edge{stroke:#5f6b78;stroke-width:1.5}.mindmap-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.mindmap-meta span{border:1px solid #38434c;border-radius:999px;padding:4px 8px;color:#c8d3db;font-size:11px}.mindmap-open{color:#c9d7ff;text-decoration:none;font-weight:800;font-size:12px}.studio-artifact-viewer[hidden]{display:none}.studio-artifact-viewer{margin:12px;border:1px solid var(--line);border-radius:var(--r);background:#1b2026;padding:14px}.studio-artifact-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.studio-artifact-head b{font-size:14px}.studio-artifact-close{width:30px;height:30px;border:0;border-radius:50%;background:#252c34;color:#d9e3e8;cursor:pointer;font-size:16px}.studio-artifact-body{display:grid;gap:10px;max-height:360px;overflow:auto}.studio-mini-card{border:1px solid #303944;border-radius:var(--r);background:#171d23;padding:11px}.studio-mini-card b{display:block;font-size:13px;margin-bottom:6px}.studio-mini-card p{margin:0;color:#d5dee5;font-size:12px;line-height:1.55}.studio-mini-table{width:100%;border-collapse:collapse;font-size:12px}.studio-mini-table th,.studio-mini-table td{border-bottom:1px solid #303944;padding:7px 8px;text-align:left}.studio-mini-table th{color:#fff;background:#222932}.studio-artifact-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.studio-artifact-meta span{border:1px solid #38434c;border-radius:999px;padding:4px 8px;color:#c8d3db;font-size:11px}.mindmap-tree{padding:14px;display:grid;gap:14px}.mindmap-root{margin:auto;min-height:48px;display:grid;place-items:center;border:1px solid rgba(122,167,255,.45);border-radius:999px;background:#26364d;color:#f3f8ff;font-weight:900;padding:0 18px}.mindmap-branches{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.mindmap-branch{border:1px solid #303944;border-radius:var(--r);background:#171d23;padding:10px;min-width:0}.mindmap-branch b{display:block;margin-bottom:4px;font-size:12px}.mindmap-branch p{margin:0 0 9px;color:#aeb9c2;font-size:11px;line-height:1.4}.mindmap-chip{display:block;margin:6px 0;border:1px solid #3c4650;border-radius:999px;background:#222a32;padding:6px 8px;color:#edf4f6;font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mindmap-chip.dim{color:#7f8b95;border-color:#2c343c}.mindmap-relations{display:grid;gap:6px}.mindmap-relation{border:1px solid #303944;border-radius:999px;background:#151a20;padding:6px 9px;color:#d8e2e8;font-size:11px}.mindmap-relation.dim{color:#7f8b95}.mindmap-relation em{font-style:normal;color:#ffe2a1}@media(max-width:1250px){.mindmap-branches{grid-template-columns:1fr}}@media(max-width:1250px){.layout{grid-template-columns:280px 1fr}.studio{grid-column:1/-1}.studio-grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:820px){.top{flex-wrap:wrap;height:auto;padding:10px 12px}.actions{width:100%;overflow:auto}.layout{grid-template-columns:1fr;padding:10px}.msg{max-width:100%}.composer{position:static;margin:0 14px 14px}.chatbody{padding-bottom:20px}.studio-grid{grid-template-columns:1fr 1fr}}
+  </style>
+  <style>
+    .upload-input{display:none}.upload-status{display:grid;gap:8px;border:1px solid #38434c;border-radius:7px;background:#1a1f25;padding:10px}.upload-status[hidden]{display:none}.upload-status-line{display:flex;justify-content:space-between;gap:10px;color:#dbe5ea;font-size:12px}.upload-progress{height:5px;overflow:hidden;border-radius:5px;background:#303841}.upload-progress span{display:block;height:100%;width:0;background:var(--teal);transition:width .2s ease}.add-source:disabled{cursor:wait;opacity:.6}.chat-head-actions{display:flex;align-items:center;gap:8px;min-width:0}.mode-select{height:30px;max-width:112px;border:1px solid #39434d;border-radius:6px;background:#1b2026;color:#dce6eb;padding:0 8px;font-family:inherit;font-size:12px;font-weight:700}.mode-select:focus-visible{outline:1px solid var(--blue);outline-offset:1px}.no-answer{border-left:3px solid var(--amber);padding:2px 0 2px 12px;color:#dfe8ed}.no-answer b{display:block;margin-bottom:5px;color:#fff}.no-answer p{margin:0;color:var(--muted);font-size:13px}
+  </style>
+  <style>
+    .chat{position:relative;min-height:620px}.chat .head{flex:0 0 auto}.chat-head-title{display:flex;align-items:center;gap:9px;min-width:0}.chat-policy{color:#a9dcd2;font-size:11px;font-weight:800}.chat-head-actions{gap:6px}.icon-btn,.message-action{display:inline-grid;place-items:center;border:1px solid #3b4650;background:transparent;color:#dce6eb;cursor:pointer}.icon-btn{width:32px;height:32px;border-radius:50%;font-size:18px}.icon-btn:hover,.message-action:hover{background:#293139;color:#fff}.icon-btn:focus-visible,.message-action:focus-visible,.suggestion:focus-visible,.send:focus-visible,.stop:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.chat-advanced{display:flex;align-items:center;gap:9px;min-height:46px;padding:7px 14px;border-bottom:1px solid var(--line);background:#1b2026}.chat-advanced[hidden]{display:none}.advanced-label{color:var(--muted);font-size:11px;font-weight:800}.chatbody{flex:1;padding:24px 22px 124px;display:block;scroll-behavior:smooth}.chat-empty{min-height:100%;display:grid;place-content:center;justify-items:center;gap:14px;text-align:center;padding:32px 12px}.chat-empty-mark{width:38px;height:38px;display:grid;place-items:center;border:1px solid #46525d;border-radius:8px;background:#171c21;color:#eaf2f5;font-weight:900}.chat-empty h3{margin:0;font-size:18px}.chat-empty p{max-width:420px;margin:0;color:var(--muted);font-size:13px;line-height:1.6}.suggestions{width:min(520px,100%);display:grid;gap:8px}.suggestion{width:100%;min-height:40px;border:1px solid #39434d;border-radius:7px;background:#1b2026;color:#dce6eb;padding:9px 12px;text-align:left;cursor:pointer;font-size:13px}.suggestion:hover{border-color:#566574;background:#242b32}.chat-turn{display:grid;gap:14px;margin:0 0 28px}.message-row{display:flex}.message-row.user{justify-content:flex-end}.msg.user{max-width:min(76%,680px);border-radius:18px 18px 4px 18px;padding:11px 15px;background:#151a20;white-space:pre-wrap;overflow-wrap:anywhere}.assistant-message{max-width:880px}.assistant-head{display:flex;align-items:center;gap:9px;margin-bottom:11px}.assistant-avatar{width:28px;height:28px;border-radius:7px;display:grid;place-items:center;background:#eef4f4;color:#13181d;font-size:10px;font-weight:900}.assistant-name{font-size:13px;font-weight:850;color:#fff}.scope-badge{display:inline-flex;align-items:center;min-height:22px;border:1px solid #3b4650;border-radius:999px;padding:0 8px;font-size:11px;font-weight:800}.scope-grounded{color:#bdf1e6;border-color:rgba(76,201,176,.35)}.scope-general{color:#ffe4a3;border-color:rgba(238,198,109,.38)}.scope-error{color:#ffd1cf;border-color:rgba(255,107,104,.4)}.assistant-body{color:#dfe8ed;line-height:1.72;overflow-wrap:anywhere}.assistant-body p{margin:0 0 12px}.assistant-body ul,.assistant-body ol{margin:0 0 13px;padding-left:22px}.assistant-body li{margin:6px 0}.assistant-body h3,.assistant-body h4{margin:16px 0 8px;font-size:15px}.assistant-body code{border-radius:4px;background:#12171c;padding:2px 5px;color:#f1f5f7}.assistant-body pre{overflow:auto;border:1px solid #303944;border-radius:7px;background:#11161b;padding:12px}.assistant-body pre code{padding:0;background:transparent;white-space:pre}.stream-cursor::after{content:"";display:inline-block;width:7px;height:16px;margin-left:3px;background:#9bd8cc;vertical-align:-2px;animation:cursorBlink .8s steps(1) infinite}@keyframes cursorBlink{50%{opacity:0}}.loading-status{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:13px}.loading-dots{display:inline-flex;gap:4px}.loading-dots i{width:5px;height:5px;border-radius:50%;background:#84919b;animation:loadingDot 1.1s infinite}.loading-dots i:nth-child(2){animation-delay:.16s}.loading-dots i:nth-child(3){animation-delay:.32s}@keyframes loadingDot{0%,70%,100%{opacity:.3;transform:translateY(0)}35%{opacity:1;transform:translateY(-3px)}}.message-actions{display:flex;align-items:center;gap:5px;margin-top:10px}.message-action{width:31px;height:31px;border-radius:50%;font-size:14px}.message-action.is-active{border-color:#7aa7ff;background:#28364b;color:#fff}.source-link{width:auto;min-width:31px;border-radius:999px;padding:0 10px;font-size:11px;font-weight:800}.answer-details{margin-top:9px;border-top:1px solid #303944;padding-top:8px}.answer-details summary{width:max-content;color:var(--muted);cursor:pointer;font-size:11px;font-weight:800}.answer-details .chips{margin:9px 0 0}.technical-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.technical-grid span{border:1px solid #303944;border-radius:999px;padding:4px 8px;color:#aeb9c2;font-size:11px}.composer{min-height:82px;grid-template-columns:minmax(0,1fr) auto;align-items:end;border-radius:16px;padding:13px 12px 12px 16px;box-shadow:0 12px 30px rgba(0,0,0,.26)}.composer textarea{width:100%;max-height:150px;min-height:42px;resize:none;overflow-y:auto;border:0;outline:0;background:transparent;color:#e9f1f4;font:inherit;font-size:15px;line-height:1.5;padding:9px 2px}.composer textarea::placeholder{color:#7f8b95}.composer-actions{height:46px;display:flex;align-items:center;gap:7px}.send,.stop{width:44px;height:44px;border:0;border-radius:50%;display:grid;place-items:center;cursor:pointer;font-size:20px}.send{background:#edf3f3;color:#12171b}.send:disabled{cursor:not-allowed;opacity:.35}.stop{background:#3a444d;color:#fff;font-size:14px}.stop[hidden]{display:none}.chat.is-busy .composer{border-color:#4b5964}.source-highlight{border-color:rgba(122,167,255,.75)!important;background:#293544!important;box-shadow:inset 3px 0 0 #7aa7ff}.source-sheet-body code{font-family:inherit;line-height:1.65}.source-sheet-body .source-evidence:first-of-type code{font-size:14px}.retry-box{display:grid;gap:9px;border-left:3px solid var(--red);padding-left:12px}.retry-box p{margin:0;color:#ffd4d2}.retry-button{width:max-content;min-height:32px;border:1px solid #4a5661;border-radius:999px;background:#252c33;color:#fff;padding:0 12px;cursor:pointer;font-size:12px;font-weight:800}@media(max-width:820px){.chat{min-height:560px}.chatbody{padding:18px 14px 20px}.composer{position:static;margin:0 12px 12px;min-height:76px}.msg.user{max-width:90%}.chat-advanced{align-items:flex-start;flex-wrap:wrap}.assistant-message{max-width:100%}}
+  </style>
+  <style>
+    .web-toggle{margin-left:auto;display:inline-flex;align-items:center;gap:8px;color:#c8d3da;font-size:12px;font-weight:800;cursor:pointer}.web-toggle input{width:34px;height:20px;margin:0;appearance:none;border:1px solid #4a5660;border-radius:999px;background:#252d34;position:relative;cursor:pointer;transition:background .18s,border-color .18s}.web-toggle input::after{content:"";position:absolute;width:14px;height:14px;left:2px;top:2px;border-radius:50%;background:#9ca8b1;transition:transform .18s,background .18s}.web-toggle input:checked{border-color:rgba(76,201,176,.65);background:#24483f}.web-toggle input:checked::after{transform:translateX(14px);background:#bdf1e6}.web-toggle input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.source-open-url{display:inline-flex;align-items:center;min-height:32px;margin:10px 0 2px;border:1px solid rgba(122,167,255,.45);border-radius:999px;padding:0 12px;color:#cdddff;text-decoration:none;font-size:12px;font-weight:800}.source-open-url[hidden]{display:none}@media(max-width:820px){.web-toggle{margin-left:0}}
+  </style>
+  <style>.scope-web{color:#d4e1ff;border-color:rgba(122,167,255,.45)}</style>
+  <style>
+    .sources-panel>.body{flex:1;display:flex;min-height:0;flex-direction:column;overflow:hidden}.sources-panel .source-tools,.sources-panel .select-line{flex:0 0 auto}.sources-panel .sources{min-height:0;overflow-y:auto}.studio>.body{flex:1}
+    .sources-panel .sources,.chatbody,.studio>.body{overscroll-behavior:contain;scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:#56616b transparent}
+    .sources-panel .sources::-webkit-scrollbar,.chatbody::-webkit-scrollbar,.studio>.body::-webkit-scrollbar{width:8px}
+    .sources-panel .sources::-webkit-scrollbar-thumb,.chatbody::-webkit-scrollbar-thumb,.studio>.body::-webkit-scrollbar-thumb{border-radius:8px;background:#56616b}
+    @media(min-width:1251px){html,body{height:100%;overflow:hidden}.app{height:100vh;height:100dvh;min-height:0;overflow:hidden}.layout{height:100%;overflow:hidden;align-items:stretch}.panel,.chat{height:100%;min-height:0}}
+    @media(min-width:821px) and (max-width:1250px){html,body{min-height:100%;overflow:auto}.app{height:auto;min-height:100vh;min-height:100dvh;overflow:visible}.layout{height:auto;grid-template-rows:max(520px,calc(100vh - 86px)) max(520px,calc(100vh - 86px));grid-template-rows:max(520px,calc(100dvh - 86px)) max(520px,calc(100dvh - 86px));align-items:stretch;overflow:visible}.sources-panel,.chat,.studio{height:100%;min-height:0}}
+    @media(max-width:820px){html,body{overflow:auto}.app{height:auto;min-height:100vh;min-height:100dvh}.layout{height:auto;overflow:visible}.sources-panel{height:min(560px,65vh);height:min(560px,65dvh);min-height:360px}.chat{height:min(720px,78vh);height:min(720px,78dvh);min-height:520px}.studio{max-height:720px}.panel{min-width:0}.sources-panel .sources,.chatbody,.studio>.body{min-height:0;overflow-y:auto}}
+  </style>
+  <style>
+    .studio-grid.audio-only{grid-template-columns:minmax(0,1fr)}.studio-card[hidden]{display:none}.studio-card:disabled{cursor:wait}.studio-card[aria-busy="true"]{border-color:#697680}.artifact[data-action],.artifact[data-audio-index],.artifact[data-mindmap-index],.artifact[data-studio-index]{cursor:pointer}.artifact[data-action]:focus-visible,.artifact[data-audio-index]:focus-visible,.artifact[data-mindmap-index]:focus-visible,.artifact[data-studio-index]:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.artifact.is-loading{opacity:.62;cursor:wait}.studio-section-title{margin:4px 0 0;color:#f2f6f8;font-size:12px;font-weight:850}.studio-card-grid{display:grid;gap:8px}.studio-source-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}.studio-source-chip{min-height:25px;border:1px solid #3b4650;border-radius:999px;background:#20272e;color:#dbe5eb;padding:0 9px;cursor:pointer;font-size:11px;font-weight:800}.flashcard-item,.quiz-item{border:1px solid #303944;border-radius:var(--r);background:#171d23;padding:12px}.flashcard-count{display:block;margin-bottom:8px;color:var(--sub);font-size:11px;font-weight:800}.flashcard-face{min-height:88px;display:grid;align-content:center;gap:7px}.flashcard-face[hidden],.quiz-answer[hidden]{display:none}.flashcard-face span{color:var(--rose);font-size:11px;font-weight:850}.flashcard-face p{margin:0;color:#eef3f6;font-size:14px;line-height:1.55}.flashcard-flip,.quiz-reveal{min-height:32px;margin-top:10px;border:1px solid #46515c;border-radius:6px;background:#252d35;color:#f1f5f7;padding:0 11px;cursor:pointer;font-size:12px;font-weight:800}.quiz-item>b{display:block;margin-bottom:9px;font-size:13px;line-height:1.5}.quiz-choices{display:grid;gap:6px}.quiz-choice{display:block;border:1px solid #303944;border-radius:6px;background:#1d242b;padding:7px 9px;color:#d9e3e8;font-size:12px;line-height:1.45}.quiz-answer{margin-top:10px;border-left:3px solid var(--teal);padding:8px 0 8px 10px;color:#dfe8ed;font-size:12px;line-height:1.55}.quiz-answer b{color:#fff}.studio-mini-table{table-layout:auto}.studio-mini-table td{overflow-wrap:anywhere}.artifact-status{font-weight:800}.artifact-status.ok{color:#bdf1e6}.artifact-status.missing{color:#ffc7c5}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="top"><div class="logo">CB</div><div class="title"><h1>CourseBee</h1><span id="packBadge" class="badge">pack_static_nlp_11week_demo</span></div><div class="actions"><button class="btn primary">Course Pack</button><button class="btn">Analyze</button><button class="btn">Share</button><button class="btn">Source info</button></div></header>
+    <main class="layout">
+      <aside class="panel sources-panel"><div class="head"><h2>Sources</h2><span id="sourceCount" class="badge">loading</span></div><div class="body">
+        <div class="source-tools">
+          <button id="addSource" class="add-source" type="button"><span>+</span><span>자료 추가</span></button>
+          <input id="fileInput" class="upload-input" type="file" accept=".pdf,.pptx,.txt,.md" multiple />
+          <div id="uploadStatus" class="upload-status" hidden><div class="upload-status-line"><span id="uploadLabel">업로드 준비 중</span><span id="uploadPercent">0%</span></div><div class="upload-progress"><span id="uploadProgress"></span></div></div>
+        </div>
+        <div class="select-line"><span class="select-left">+</span><span></span><span>Select all</span><span class="check"></span></div>
+        <div id="sourceList" class="sources">
+          <div class="src"><span class="fileicon doc">...</span><div><b>Course Pack 불러오는 중</b><span>실제 source metadata를 기다리고 있습니다.</span></div><span class="check"></span></div>
+        </div>
+      </div></aside>
+      <section class="panel chat" id="chatPanel">
+        <div class="head">
+          <div class="chat-head-title"><h2>Chat</h2><span class="chat-policy">자료 우선</span></div>
+          <div class="chat-head-actions"><button id="chatAdvancedToggle" class="icon-btn" type="button" aria-label="검색 설정" title="검색 설정" aria-expanded="false">&#8942;</button></div>
+        </div>
+        <div id="chatAdvanced" class="chat-advanced" hidden>
+          <span class="advanced-label">검색 방식</span>
+          <select id="retrievalMode" class="mode-select" aria-label="Retrieval mode" title="Retrieval mode"><option value="auto">Auto</option><option value="vector">Local</option><option value="semantic_hybrid">Semantic</option><option value="semantic_rerank">Rerank</option></select>
+          <span id="routeBadge" class="badge">ready</span>
+          <label class="web-toggle"><input id="externalSearch" type="checkbox" checked /><span>외부 검색</span></label>
+        </div>
+        <div id="chatBody" class="body chatbody" aria-live="polite"></div>
+        <form id="chatForm" class="composer">
+          <textarea id="questionInput" rows="1" maxlength="8000" placeholder="강의 자료에 대해 질문하세요" aria-label="질문"></textarea>
+          <div class="composer-actions">
+            <button id="stopAnswer" class="stop" type="button" aria-label="답변 생성 중지" title="답변 생성 중지" hidden>&#9632;</button>
+            <button id="sendQuestion" class="send" type="submit" aria-label="질문 보내기" title="질문 보내기" disabled>&#8593;</button>
+          </div>
+        </form>
+      </section>
+      <aside class="panel studio"><div class="head"><h2>Studio</h2><span class="badge">6 actions</span></div><div class="body"><div class="studio-grid"><button class="studio-card" type="button" data-action="audio"><span style="color:var(--blue)">A</span><div><b>AI 오디오 오버뷰</b><span>audio overview</span></div><span>&gt;</span></button><button class="studio-card" type="button" data-action="mindmap"><span style="color:var(--violet)">M</span><div><b>마인드맵</b><span>concept graph</span></div><span>&gt;</span></button><button class="studio-card" type="button" data-action="report"><span style="color:var(--amber)">R</span><div><b>보고서</b><span>summary report</span></div><span>&gt;</span></button><button class="studio-card" type="button" data-action="flashcards"><span style="color:var(--rose)">F</span><div><b>플래시카드</b><span>study cards</span></div><span>&gt;</span></button><button class="studio-card" type="button" data-action="quiz"><span style="color:var(--teal)">Q</span><div><b>퀴즈</b><span>review quiz</span></div><span>&gt;</span></button><button class="studio-card" type="button" data-action="table"><span style="color:var(--green)">T</span><div><b>데이터표</b><span>metadata table</span></div><span>&gt;</span></button></div><div id="artifactList" class="artifacts"><div class="artifact"><span class="artifact-icon">...</span><div><b>Artifact 불러오는 중</b><span>실제 생성 상태를 확인하고 있습니다.</span></div></div></div><section id="audioPlayer" class="audio-player" hidden><div class="audio-player-title"><b id="audioTitle">AI 오디오 오버뷰</b><button id="audioClose" class="audio-close" type="button" aria-label="close audio player">x</button></div><audio id="audioElement" preload="metadata"></audio><input id="audioRange" class="audio-range" type="range" min="0" max="100" value="0"><div class="audio-controls"><button id="audioPlay" class="audio-play" type="button" aria-label="play audio">Play</button><span id="audioTime" class="audio-time">0:00 / 0:00</span><a id="audioOpen" class="audio-link" href="#" target="_blank" rel="noreferrer">mp3 열기</a></div></section><section id="mindmapViewer" class="mindmap-viewer" hidden><div class="mindmap-head"><b id="mindmapTitle">마인드맵</b><button id="mindmapClose" class="mindmap-close" type="button" aria-label="close mindmap">x</button></div><div id="mindmapCanvas" class="mindmap-canvas"></div><div id="mindmapMeta" class="mindmap-meta"></div></section><section id="studioArtifactViewer" class="studio-artifact-viewer" hidden><div class="studio-artifact-head"><b id="studioArtifactTitle">Artifact</b><button id="studioArtifactClose" class="studio-artifact-close" type="button" aria-label="close artifact">x</button></div><div id="studioArtifactBody" class="studio-artifact-body"></div><div id="studioArtifactMeta" class="studio-artifact-meta"></div></section></div></aside>
+    </main>
+  </div>
+  <div id="sourceModal" class="source-modal" hidden>
+    <section class="source-sheet" role="dialog" aria-modal="true" aria-labelledby="sourceTitle">
+      <div class="source-sheet-head"><div><b id="sourceTitle">Source</b><span id="sourcePath">API source metadata</span></div><button id="closeSource" class="source-close" type="button">닫기</button></div>
+      <div class="source-sheet-body">
+        <p id="sourceKicker" class="source-kicker">API-backed provenance</p>
+        <h3 id="sourceHeading">Source metadata</h3>
+        <p id="sourceSummary" class="source-summary">답변이 반환되면 실제 source metadata가 여기에 표시됩니다.</p>
+        <a id="sourceOpenUrl" class="source-open-url" href="#" target="_blank" rel="noopener noreferrer" hidden>원문 열기</a>
+        <div class="source-evidence"><b>Selected source evidence</b><code id="sourceEvidence">No response loaded.</code></div>
+        <div class="source-evidence"><b>Retrieved chunks</b><code id="sourceChunks">No source metadata loaded.</code></div>
+      </div>
+    </section>
+  </div>
+  <script>
+    const DEFAULT_PACK_ID = "pack_static_nlp_11week_demo";
+    const ACTIVE_PACK_STORAGE_KEY = "coursebee.activePackId";
+    let PACK_ID = DEFAULT_PACK_ID;
+    const OUTPUT_ROOT = "outputs";
+    const API_BASE = "/v2";
+    const CHAT_LLM_PROVIDER = "ollama";
+    const CHAT_LLM_MODEL = "qwen3:14b";
+    const ENABLED_STUDIO_ACTIONS = new Set(["audio"]);
+    const STUDIO_ACTION_STATUS = Object.freeze({
+      audio: "오디오 생성 중",
+      mindmap: "마인드맵 생성 중",
+      report: "보고서 생성 중",
+      flashcards: "플래시카드 생성 중",
+      quiz: "퀴즈 생성 중",
+      table: "데이터표 불러오는 중",
+    });
+    const state = {
+      sources: {},
+      sourceGroups: {},
+      currentPayload: null,
+      messages: [],
+      activeController: null,
+      activeAssistantId: null,
+      lastRequest: null,
+      audioArtifacts: [],
+      mindmapArtifacts: [],
+      studioArtifacts: [],
+    };
+
+    const chatPanel = document.getElementById("chatPanel");
+    const chatBody = document.getElementById("chatBody");
+    const chatForm = document.getElementById("chatForm");
+    const questionInput = document.getElementById("questionInput");
+    const sendQuestion = document.getElementById("sendQuestion");
+    const stopAnswer = document.getElementById("stopAnswer");
+    const chatAdvanced = document.getElementById("chatAdvanced");
+    const chatAdvancedToggle = document.getElementById("chatAdvancedToggle");
+    const retrievalMode = document.getElementById("retrievalMode");
+    const externalSearch = document.getElementById("externalSearch");
+    const routeBadge = document.getElementById("routeBadge");
+    const sourceModal = document.getElementById("sourceModal");
+    const sourceTitle = document.getElementById("sourceTitle");
+    const sourcePath = document.getElementById("sourcePath");
+    const sourceKicker = document.getElementById("sourceKicker");
+    const sourceHeading = document.getElementById("sourceHeading");
+    const sourceSummary = document.getElementById("sourceSummary");
+    const sourceOpenUrl = document.getElementById("sourceOpenUrl");
+    const sourceEvidence = document.getElementById("sourceEvidence");
+    const sourceChunks = document.getElementById("sourceChunks");
+    const audioPlayer = document.getElementById("audioPlayer");
+    const audioElement = document.getElementById("audioElement");
+    const audioTitle = document.getElementById("audioTitle");
+    const audioPlay = document.getElementById("audioPlay");
+    const audioClose = document.getElementById("audioClose");
+    const audioRange = document.getElementById("audioRange");
+    const audioTime = document.getElementById("audioTime");
+    const audioOpen = document.getElementById("audioOpen");
+    const mindmapViewer = document.getElementById("mindmapViewer");
+    const mindmapTitle = document.getElementById("mindmapTitle");
+    const mindmapCanvas = document.getElementById("mindmapCanvas");
+    const mindmapMeta = document.getElementById("mindmapMeta");
+    const mindmapClose = document.getElementById("mindmapClose");
+    const studioArtifactViewer = document.getElementById("studioArtifactViewer");
+    const studioArtifactTitle = document.getElementById("studioArtifactTitle");
+    const studioArtifactBody = document.getElementById("studioArtifactBody");
+    const studioArtifactMeta = document.getElementById("studioArtifactMeta");
+    const studioArtifactClose = document.getElementById("studioArtifactClose");
+    const packBadge = document.getElementById("packBadge");
+    const addSource = document.getElementById("addSource");
+    const fileInput = document.getElementById("fileInput");
+    const uploadStatus = document.getElementById("uploadStatus");
+    const uploadLabel = document.getElementById("uploadLabel");
+    const uploadPercent = document.getElementById("uploadPercent");
+    const uploadProgress = document.getElementById("uploadProgress");
+
+    function configureStudioActions() {
+      const grid = document.querySelector(".studio-grid");
+      grid?.classList.toggle("audio-only", ENABLED_STUDIO_ACTIONS.size === 1 && ENABLED_STUDIO_ACTIONS.has("audio"));
+      grid?.querySelectorAll(".studio-card[data-action]").forEach((button) => {
+        button.hidden = !ENABLED_STUDIO_ACTIONS.has(button.dataset.action);
+      });
+      const badge = document.querySelector(".studio .head .badge");
+      if (badge) badge.textContent = `${ENABLED_STUDIO_ACTIONS.size} action${ENABLED_STUDIO_ACTIONS.size === 1 ? "" : "s"}`;
+    }
+
+    configureStudioActions();
+
+    const emptySource = {
+      title: "Source unavailable",
+      path: "API source metadata",
+      kicker: "no source selected",
+      heading: "아직 선택된 출처가 없습니다.",
+      summary: "실제 API 응답에 source metadata가 포함되면 이 화면에서 확인할 수 있습니다.",
+      evidence: "No source evidence loaded.",
+      chunks: "No source metadata loaded.",
+    };
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
+    }
+
+    async function api(path, options = {}) {
+      const response = await fetch(`${API_BASE}${path}`, {
+        method: options.method || "GET",
+        headers: options.body ? { "Content-Type": "application/json" } : undefined,
+        body: options.body ? JSON.stringify(options.body) : undefined,
+      });
+      if (!response.ok) {
+        let detail = await response.text();
+        try { detail = JSON.parse(detail).detail?.error || JSON.parse(detail).detail || detail; } catch (_) {}
+        throw new Error(`${response.status} ${response.statusText}: ${detail}`);
+      }
+      return response.json();
+    }
+
+    function rememberActivePack(packId) {
+      if (!/^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$/.test(packId || "")) return;
+      PACK_ID = packId;
+      packBadge.textContent = packId;
+      try { localStorage.setItem(ACTIVE_PACK_STORAGE_KEY, packId); } catch (_) {}
+      const url = new URL(location.href);
+      url.searchParams.set("pack", packId);
+      history.replaceState(null, "", url);
+    }
+
+    async function restoreActivePack() {
+      const requested = new URLSearchParams(location.search).get("pack");
+      let stored = null;
+      try { stored = localStorage.getItem(ACTIVE_PACK_STORAGE_KEY); } catch (_) {}
+      for (const candidate of [...new Set([requested, stored].filter(Boolean))]) {
+        try {
+          await api(`/course-packs/${encodeURIComponent(candidate)}?output_root=${encodeURIComponent(OUTPUT_ROOT)}`);
+          rememberActivePack(candidate);
+          return;
+        } catch (_) {}
+      }
+      try {
+        const data = await api(`/course-packs?output_root=${encodeURIComponent(OUTPUT_ROOT)}`);
+        const latestUpload = (data.course_packs || []).find((pack) => String(pack.pack_id || "").startsWith("pack_upload_"));
+        if (latestUpload?.pack_id) rememberActivePack(latestUpload.pack_id);
+      } catch (_) {}
+    }
+
+    function packPayload(extra = {}) {
+      return { pack_id: PACK_ID, output_root: OUTPUT_ROOT, ...extra };
+    }
+
+    function setUploadStatus(label, progress, visible = true) {
+      const value = Math.max(0, Math.min(1, Number(progress) || 0));
+      uploadStatus.hidden = !visible;
+      uploadLabel.textContent = label;
+      uploadPercent.textContent = `${Math.round(value * 100)}%`;
+      uploadProgress.style.width = `${value * 100}%`;
+    }
+
+    async function pollCoursePackJob(jobId) {
+      for (let attempt = 0; attempt < 180; attempt += 1) {
+        const job = await api(`/course-packs/jobs/${encodeURIComponent(jobId)}?output_root=${encodeURIComponent(OUTPUT_ROOT)}`);
+        setUploadStatus(job.stage || job.status || "processing", job.progress || 0);
+        if (job.status === "succeeded") return job;
+        if (job.status === "failed") throw new Error(job.error || (job.warnings || []).join("\n") || "Course Pack creation failed");
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+      throw new Error("Course Pack creation timed out");
+    }
+
+    async function uploadCoursePack(files) {
+      if (!files?.length) return;
+      addSource.disabled = true;
+      setUploadStatus(`${files.length}개 자료 업로드 중`, 0.05);
+      try {
+        const form = new FormData();
+        [...files].forEach((file) => form.append("files", file));
+        if (PACK_ID) {
+          form.append("pack_id", PACK_ID);
+          form.append("append", "true");
+        }
+        form.append("run_async", "true");
+        const response = await fetch(`${API_BASE}/course-packs/upload`, { method: "POST", body: form });
+        if (!response.ok) {
+          const detail = await response.text();
+          throw new Error(`${response.status} ${response.statusText}: ${detail}`);
+        }
+        const queued = await response.json();
+        const job = queued.status === "succeeded" ? queued : await pollCoursePackJob(queued.job_id);
+        const createdPackId = job.pack_id || job.course_pack?.pack_id;
+        if (!createdPackId) throw new Error("Created Course Pack did not return a pack_id");
+        rememberActivePack(createdPackId);
+        questionInput.value = "이 Course Pack의 핵심 개념과 관계를 설명해줘";
+        state.sources = {};
+        state.sourceGroups = {};
+        state.currentPayload = null;
+        state.messages = [];
+        state.audioArtifacts = [];
+        state.mindmapArtifacts = [];
+        state.studioArtifacts = [];
+        setUploadStatus("Course Pack 준비 완료", 1);
+        await refreshPack();
+        await refreshArtifacts(false);
+        renderArticle("Course Pack 준비 완료", `<p><b>${escapeHtml(PACK_ID)}</b></p><p>${escapeHtml(job.course_pack?.document_count || files.length)}개 자료의 분석이 끝났습니다.</p>`, job.course_pack || job);
+        setTimeout(() => setUploadStatus("", 0, false), 1800);
+      } finally {
+        addSource.disabled = false;
+        fileInput.value = "";
+      }
+    }
+
+    function sourceLabel(source) {
+      const filename = source?.filename || source?.path || source?.doc_id || "source";
+      const page = source?.page ? ` / page ${source.page}` : "";
+      const chunk = source?.chunk_id ? ` / ${source.chunk_id}` : "";
+      return `${filename}${page}${chunk}`;
+    }
+
+    function sourceItem(source, index) {
+      const excerpt = String(source?.excerpt || "").trim();
+      const isWeb = source?.source_type === "external_web";
+      return {
+        title: `Source ${index}`,
+        path: sourceLabel(source),
+        kicker: isWeb ? `${source?.provider || "web"} · 외부 검색` : ([source?.week ? `week ${source.week}` : "", source?.lecture_no ? `lecture ${source.lecture_no}` : ""].filter(Boolean).join(" · ") || "retrieved chunk"),
+        heading: source?.title || source?.filename || source?.doc_id || `Source ${index}`,
+        summary: excerpt ? (isWeb ? "외부 검색 답변에 사용된 실제 원문 발췌입니다." : "답변에 연결된 실제 강의자료 발췌문입니다.") : "이 답변에 연결된 출처 위치입니다.",
+        evidence: excerpt || "이전 형식의 응답이라 발췌문이 포함되지 않았습니다.",
+        chunks: [sourceLabel(source), source?.char_start != null ? `문자 위치 ${source.char_start}-${source.char_end ?? ""}` : ""].filter(Boolean).join("\n"),
+        url: source?.url || "",
+        raw: source,
+      };
+    }
+
+    function updateSourceStore(payload, modeLabel = "api result", groupId = "current") {
+      const sources = payload?.sources?.length ? payload.sources : payload?.evidence_chunks || payload?.supporting_chunks || [];
+      const next = {
+        overview: {
+          title: "Source overview",
+          path: `${PACK_ID} / ${modeLabel}`,
+          kicker: payload?.retrieval_mode || payload?.mode || "api result",
+          heading: payload?.question_type || "API-backed response",
+          summary: `sources: ${sources.length}, routed_mode: ${payload?.routed_mode || payload?.mode || "n/a"}`,
+          evidence: payload?.graph_context?.length ? JSON.stringify(payload.graph_context.slice(0, 5), null, 2) : JSON.stringify(payload?.trace || {}, null, 2),
+          chunks: sources.map((source, index) => `${index + 1}. ${sourceLabel(source)}`).join("\n") || "No source metadata returned.",
+        },
+      };
+      sources.forEach((source, index) => { next[String(index + 1)] = sourceItem(source, index + 1); });
+      if (payload?.trace) {
+        next.trace = { title: "Trace", path: payload.trace.request_id || "request trace", kicker: "observability", heading: "Retrieval trace", summary: "API 응답에 포함된 request trace입니다.", evidence: JSON.stringify(payload.trace.stages || [], null, 2), chunks: JSON.stringify(payload.trace.retrieval_debug || {}, null, 2) };
+      }
+      state.sources = next;
+      state.sourceGroups[groupId] = next;
+      return sources;
+    }
+
+    function citation(index, groupId = "current") {
+      return `<button class="cite" type="button" data-source="${index}" data-source-group="${escapeHtml(groupId)}" aria-label="출처 ${index}">${index}</button>`;
+    }
+
+    function formatAnswerText(value) {
+      return escapeHtml(value)
+        .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+        .replace(/`([^`]+)`/g, "<code>$1</code>");
+    }
+
+    function formatAnswerMarkdown(value) {
+      const lines = String(value || "").replace(/\r\n?/g, "\n").split("\n");
+      const html = [];
+      let list = "";
+      let inCode = false;
+      let codeLines = [];
+      const closeList = () => { if (list) { html.push(`</${list}>`); list = ""; } };
+      for (const rawLine of lines) {
+        const line = rawLine.trimEnd();
+        if (/^```/.test(line.trim())) {
+          closeList();
+          if (inCode) {
+            html.push(`<pre><code>${escapeHtml(codeLines.join("\n"))}</code></pre>`);
+            codeLines = [];
+          }
+          inCode = !inCode;
+          continue;
+        }
+        if (inCode) { codeLines.push(rawLine); continue; }
+        if (!line.trim()) { closeList(); continue; }
+        const heading = line.match(/^#{1,3}\s+(.+)/);
+        if (heading) { closeList(); html.push(`<h3>${formatAnswerText(heading[1])}</h3>`); continue; }
+        const bullet = line.match(/^[-*]\s+(.+)/);
+        const numbered = line.match(/^\d+[.)]\s+(.+)/);
+        if (bullet || numbered) {
+          const nextList = bullet ? "ul" : "ol";
+          if (list !== nextList) { closeList(); list = nextList; html.push(`<${list}>`); }
+          html.push(`<li>${formatAnswerText((bullet || numbered)[1])}</li>`);
+          continue;
+        }
+        closeList();
+        html.push(`<p>${formatAnswerText(line.trim())}</p>`);
+      }
+      closeList();
+      if (inCode && codeLines.length) html.push(`<pre><code>${escapeHtml(codeLines.join("\n"))}</code></pre>`);
+      return html.join("");
+    }
+
+    function answerHtml(answer, sources, sentenceCitations = [], warnings = [], groupId = "current") {
+      const citations = Array.isArray(sentenceCitations) ? sentenceCitations : [];
+      if (citations.length) {
+        return citations.map((item) => {
+          const raw = String(item.sentence || item.text || "").trim();
+          if (!raw) return "";
+          const isBullet = /^[-*]\s*/.test(raw);
+          const clean = raw.replace(/^[-*]\s*/, "");
+          const cite = item.source_index ? citation(item.source_index, groupId) : "";
+          return `<p class="answer-line">${isBullet ? "&bull; " : ""}${formatAnswerText(clean)}${cite}</p>`;
+        }).join("");
+      }
+      const text = String(answer || "").trim();
+      if (!text) {
+        const noContext = (warnings || []).some((warning) => String(warning).includes("No relevant context"));
+        const title = noContext ? "현재 자료에서 답을 찾지 못했어요." : "답변을 만들지 못했어요.";
+        const detail = noContext
+          ? "이 Course Pack에 질문과 관련된 근거가 없습니다. 관련 강의자료를 추가한 뒤 다시 질문해 주세요."
+          : "잠시 후 다시 시도하거나 trace에서 처리 상태를 확인해 주세요.";
+        return `<div class="no-answer"><b>${title}</b><p>${detail}</p></div>`;
+      }
+      return formatAnswerMarkdown(text);
+    }
+
+    function setRoute(payload) {
+      const route = payload?.routed_mode || payload?.retrieval_mode || payload?.mode || "api";
+      routeBadge.textContent = route;
+      routeBadge.title = payload?.retrieval_details ? JSON.stringify(payload.retrieval_details) : route;
+    }
+
+    function retrievalDetailsHtml(payload) {
+      const details = payload?.retrieval_details || {};
+      if (!details.embedding_model) return "";
+      const labels = [
+        details.implementation,
+        String(details.embedding_model).split("/").pop(),
+        details.reranked ? "reranked" : null,
+        details.fallback_used ? "fallback" : null,
+      ].filter(Boolean);
+      return `<div class="chips">${labels.map((label, index) => `<span class="chip ${details.fallback_used && index === labels.length - 1 ? "amber" : "teal"}">${escapeHtml(label)}</span>`).join("")}</div>`;
+    }
+
+    function answerScopeHtml(payload) {
+      const scope = payload?.answer_scope || "course_pack";
+      if (scope === "external_web") {
+        return `<span class="scope-badge scope-web">외부 검색으로 확인됨</span>`;
+      }
+      if (scope === "general_knowledge") {
+        return `<span class="scope-badge scope-general">일반지식 보충</span>`;
+      }
+      if (scope === "course_pack") {
+        return `<span class="scope-badge scope-grounded">자료에서 확인됨</span>`;
+      }
+      return `<span class="scope-badge scope-error">답변 확인 필요</span>`;
+    }
+
+    function technicalDetailsHtml(payload, groupId = "current") {
+      const route = payload?.routed_mode || payload?.retrieval_mode || payload?.mode || "api";
+      const model = payload?.llm?.model;
+      const webProvider = payload?.web_search?.provider;
+      const context = payload?.conversation_context_used ? `대화 문맥 ${payload.conversation_turns_used || 0}턴` : "독립 질문";
+      return `<details class="answer-details"><summary>상세 정보</summary><div class="technical-grid"><span>${escapeHtml(route)}</span>${webProvider ? `<span>${escapeHtml(webProvider)}</span>` : ""}${model ? `<span>${escapeHtml(model)}</span>` : ""}<span>${escapeHtml(context)}</span></div>${retrievalDetailsHtml(payload)}${payload?.trace ? `<div class="message-actions"><button class="message-action source-link" type="button" data-source="trace" data-source-group="${escapeHtml(groupId)}">trace</button></div>` : ""}</details>`;
+    }
+
+    function messageActionsHtml(messageId, question, sourceCount, groupId) {
+      return `<div class="message-actions">${sourceCount ? `<button class="message-action source-link open-source" type="button" data-source="overview" data-source-group="${escapeHtml(groupId)}">출처 ${sourceCount}</button>` : ""}<button class="message-action" type="button" data-chat-action="copy" data-message-id="${escapeHtml(messageId)}" aria-label="답변 복사" title="답변 복사">&#10697;</button><button class="message-action" type="button" data-chat-action="regenerate" data-question="${escapeHtml(question)}" aria-label="답변 다시 생성" title="답변 다시 생성">&#8635;</button><button class="message-action" type="button" data-chat-action="feedback-up" aria-label="도움이 됨" title="도움이 됨">+</button><button class="message-action" type="button" data-chat-action="feedback-down" aria-label="도움이 되지 않음" title="도움이 되지 않음">&#8722;</button></div>`;
+    }
+
+    function messageId(prefix) {
+      return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+    }
+
+    function renderEmptyChat() {
+      state.messages = [];
+      chatBody.innerHTML = `<section class="chat-empty"><div class="chat-empty-mark">CB</div><h3>무엇을 공부할까요?</h3><p>강의자료를 먼저 확인하고, 근거가 없으면 외부 검색으로 확인한 뒤 답합니다.</p><div class="suggestions"><button class="suggestion" type="button" data-question="이 자료의 핵심 개념을 요약해줘">이 자료의 핵심 개념을 요약해줘</button><button class="suggestion" type="button" data-question="BPE와 OOV의 관계를 설명해줘">BPE와 OOV의 관계를 설명해줘</button><button class="suggestion" type="button" data-question="시험에 나올 만한 내용을 알려줘">시험에 나올 만한 내용을 알려줘</button></div></section>`;
+    }
+
+    function conversationHistory(beforeUserId = "") {
+      const end = beforeUserId ? state.messages.findIndex((item) => item.id === beforeUserId) : state.messages.length;
+      const messages = state.messages.slice(0, end < 0 ? state.messages.length : end);
+      return messages.filter((item) => item.status === "complete" && item.content).slice(-10).map((item) => ({ role: item.role, content: item.content }));
+    }
+
+    function assistantShellHtml(assistantId) {
+      return `<article class="assistant-message" data-assistant-id="${escapeHtml(assistantId)}"><div class="assistant-head"><span class="assistant-avatar">CB</span><span class="assistant-name">CourseBee</span><span class="assistant-scope"></span></div><div class="assistant-body"><div class="loading-status"><span class="loading-dots"><i></i><i></i><i></i></span><span class="loading-label">자료를 검색하고 있어요.</span><span class="loading-elapsed">0초</span></div></div><div class="assistant-extras"></div></article>`;
+    }
+
+    function createChatTurn(question) {
+      chatBody.querySelector(".chat-empty")?.remove();
+      const userId = messageId("user");
+      const assistantId = messageId("assistant");
+      const turn = document.createElement("section");
+      turn.className = "chat-turn";
+      turn.dataset.userId = userId;
+      turn.dataset.assistantId = assistantId;
+      turn.dataset.question = question;
+      turn.innerHTML = `<div class="message-row user"><div class="msg user">${escapeHtml(question)}</div></div>${assistantShellHtml(assistantId)}`;
+      chatBody.appendChild(turn);
+      state.messages.push({ id: userId, role: "user", content: question, status: "complete" });
+      state.messages.push({ id: assistantId, role: "assistant", content: "", status: "pending", question });
+      return turn;
+    }
+
+    function resetChatTurn(turn) {
+      const assistantId = turn.dataset.assistantId;
+      turn.querySelector(".assistant-message")?.remove();
+      turn.insertAdjacentHTML("beforeend", assistantShellHtml(assistantId));
+      const message = state.messages.find((item) => item.id === assistantId);
+      if (message) Object.assign(message, { content: "", status: "pending", payload: null });
+      return turn;
+    }
+
+    function setChatBusy(busy) {
+      chatPanel.classList.toggle("is-busy", busy);
+      questionInput.disabled = busy;
+      stopAnswer.hidden = !busy;
+      sendQuestion.hidden = busy;
+      sendQuestion.disabled = busy || !questionInput.value.trim();
+    }
+
+    function resizeComposer() {
+      questionInput.style.height = "auto";
+      questionInput.style.height = `${Math.min(questionInput.scrollHeight, 150)}px`;
+      sendQuestion.disabled = Boolean(state.activeController) || !questionInput.value.trim();
+    }
+
+    function scrollChatToBottom(behavior = "smooth") {
+      chatBody.scrollTo({ top: chatBody.scrollHeight, behavior });
+    }
+
+    async function streamCoursePack(body, signal, onEvent) {
+      const response = await fetch(`${API_BASE}/course-packs/ask/stream`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "text/event-stream" },
+        body: JSON.stringify(body),
+        signal,
+      });
+      if (response.status === 404 || !response.body) {
+        const payload = await api("/course-packs/ask", { method: "POST", body });
+        onEvent("result", payload);
+        return;
+      }
+      if (!response.ok) throw new Error(`${response.status} ${response.statusText}: ${await response.text()}`);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      const dispatch = (block) => {
+        let eventName = "message";
+        const dataLines = [];
+        block.split(/\r?\n/).forEach((line) => {
+          if (line.startsWith("event:")) eventName = line.slice(6).trim();
+          if (line.startsWith("data:")) dataLines.push(line.slice(5).trim());
+        });
+        if (!dataLines.length) return;
+        onEvent(eventName, JSON.parse(dataLines.join("\n")));
+      };
+      while (true) {
+        const { value, done } = await reader.read();
+        buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+        const blocks = buffer.split(/\r?\n\r?\n/);
+        buffer = blocks.pop() || "";
+        blocks.forEach(dispatch);
+        if (done) break;
+      }
+      if (buffer.trim()) dispatch(buffer);
+    }
+
+    function finishAssistant(turn, payload) {
+      const assistantId = turn.dataset.assistantId;
+      const sources = updateSourceStore(payload, "ask", assistantId);
+      const assistant = turn.querySelector(".assistant-message");
+      assistant.querySelector(".assistant-scope").innerHTML = answerScopeHtml(payload);
+      assistant.querySelector(".assistant-body").classList.remove("stream-cursor");
+      assistant.querySelector(".assistant-body").innerHTML = answerHtml(payload.answer, sources, payload.sentence_citations || [], payload.warnings || [], assistantId);
+      assistant.querySelector(".assistant-extras").innerHTML = `${messageActionsHtml(assistantId, turn.dataset.question, sources.length, assistantId)}${technicalDetailsHtml(payload, assistantId)}`;
+      const message = state.messages.find((item) => item.id === assistantId);
+      if (message) Object.assign(message, { content: payload.answer || "", status: "complete", payload });
+      state.currentPayload = payload;
+      setRoute(payload);
+    }
+
+    function failAssistant(turn, error, stopped = false) {
+      const assistantId = turn.dataset.assistantId;
+      const assistant = turn.querySelector(".assistant-message");
+      assistant.querySelector(".assistant-scope").innerHTML = `<span class="scope-badge scope-error">${stopped ? "생성 중지됨" : "응답 실패"}</span>`;
+      assistant.querySelector(".assistant-body").classList.remove("stream-cursor");
+      assistant.querySelector(".assistant-body").innerHTML = `<div class="retry-box"><p>${escapeHtml(stopped ? "답변 생성을 중지했습니다." : error.message || error)}</p><button class="retry-button" type="button" data-chat-action="retry">다시 시도</button></div>`;
+      assistant.querySelector(".assistant-extras").innerHTML = "";
+      const message = state.messages.find((item) => item.id === assistantId);
+      if (message) Object.assign(message, { content: "", status: stopped ? "stopped" : "failed" });
+      routeBadge.textContent = stopped ? "stopped" : "error";
+    }
+
+    function renderArticle(title, html, payload = {}) {
+      state.messages = [];
+      state.currentPayload = payload;
+      setRoute(payload);
+      const sourceButton = `<div class="answer-actions"><button class="source-btn open-source" type="button">소스 보기</button>${payload?.trace ? '<button class="source-btn" type="button" data-source="trace">trace</button>' : ''}</div>`;
+      chatBody.innerHTML = `<article class="answer"><h3>${escapeHtml(title)}</h3>${html}${sourceButton}</article>`;
+    }
+
+    function renderError(title, error) {
+      routeBadge.textContent = "error";
+      chatBody.innerHTML = `<article class="answer"><h3>${escapeHtml(title)}</h3><div class="error-box">${escapeHtml(error.message || error)}</div></article>`;
+    }
+
+    function setLoading(title) {
+      routeBadge.textContent = "loading";
+      chatBody.innerHTML = `<article class="answer"><h3>${escapeHtml(title)}</h3><p class="status-line">자료를 검색하고 답변을 생성하고 있습니다...</p></article>`;
+    }
+
+    async function askQuestion(question, mode = "auto", options = {}) {
+      const trimmed = String(question || "").trim();
+      if (!trimmed || state.activeController) return;
+      let turn = options.turn || null;
+      const history = conversationHistory(turn?.dataset.userId || "");
+      turn = turn ? resetChatTurn(turn) : createChatTurn(trimmed);
+      const assistant = turn.querySelector(".assistant-message");
+      const bodyNode = assistant.querySelector(".assistant-body");
+      const statusLabel = assistant.querySelector(".loading-label");
+      const elapsedLabel = assistant.querySelector(".loading-elapsed");
+      const controller = new AbortController();
+      state.activeController = controller;
+      state.activeAssistantId = turn.dataset.assistantId;
+      state.lastRequest = { question: trimmed, mode, turn };
+      setChatBusy(true);
+      scrollChatToBottom();
+      const started = performance.now();
+      const timer = window.setInterval(() => { if (elapsedLabel) elapsedLabel.textContent = `${Math.floor((performance.now() - started) / 1000)}초`; }, 1000);
+      let streamedText = "";
+      let result = null;
+      try {
+        const requestBody = packPayload({ question: trimmed, mode, top_k: 5, llm_provider: CHAT_LLM_PROVIDER, llm_model: CHAT_LLM_MODEL, allow_web_fallback: Boolean(externalSearch?.checked), web_provider: "wikipedia", web_top_k: 3, allow_general_fallback: true, conversation_history: history });
+        await streamCoursePack(requestBody, controller.signal, (eventName, data) => {
+          if (eventName === "status") {
+            if (statusLabel) statusLabel.textContent = data.message || "답변을 준비하고 있어요.";
+            return;
+          }
+          if (eventName === "token") {
+            streamedText += data.text || "";
+            bodyNode.classList.add("stream-cursor");
+            bodyNode.innerHTML = formatAnswerMarkdown(streamedText);
+            scrollChatToBottom("auto");
+            return;
+          }
+          if (eventName === "result") result = data;
+          if (eventName === "error") throw new Error(data.message || "답변 생성에 실패했습니다.");
+        });
+        if (!result) throw new Error("완료된 답변이 반환되지 않았습니다.");
+        finishAssistant(turn, result);
+        await refreshArtifacts(false);
+      } catch (error) {
+        failAssistant(turn, error, error.name === "AbortError");
+      } finally {
+        window.clearInterval(timer);
+        state.activeController = null;
+        state.activeAssistantId = null;
+        setChatBusy(false);
+        resizeComposer();
+        questionInput.focus();
+        scrollChatToBottom();
+      }
+    }
+
+    function renderStudyKit(data, flashcardsOnly = false) {
+      const normalized = withArtifactSources(data);
+      const sources = updateSourceStore(normalized, flashcardsOnly ? "flashcards" : "study-kit");
+      const itemCitation = (item) => { const index = sourceIndexFor(item?.sources?.[0], sources); return index ? citation(index) : ""; };
+      if (flashcardsOnly) {
+        const cards = (normalized.flashcards || []).map((card, idx) => `<div class="result-card"><b>${escapeHtml(card.front || card.question || `Flashcard ${idx + 1}`)}</b><p>${escapeHtml(card.back || card.answer || card.definition || "")}${itemCitation(card)}</p></div>`).join("");
+        renderArticle("Flashcards", `<div class="result-grid">${cards || '<p>No flashcards returned.</p>'}</div>`, normalized);
+        return;
+      }
+      const overview = normalized.overview?.text || normalized.summary?.text || "Study Kit generated from Course Pack sources.";
+      const overviewCitation = itemCitation(normalized.overview) || itemCitation(normalized.summary);
+      const concepts = (normalized.key_concepts || normalized.glossary || []).slice(0, 8).map((item, idx) => `<div class="result-card"><b>${escapeHtml(item.term || item.concept || item.title || `Concept ${idx + 1}`)}</b><p>${escapeHtml(item.definition || item.description || item.summary || item.text || "")}${itemCitation(item)}</p></div>`).join("");
+      const questions = (normalized.expected_questions || normalized.quiz || []).slice(0, 5).map((item) => `<div class="result-card"><b>Expected question</b><p>${escapeHtml(item.question || item.text || JSON.stringify(item))}${itemCitation(item)}</p></div>`).join("");
+      renderArticle("Study Kit", `<p>${escapeHtml(overview)}${overviewCitation}</p><div class="result-grid">${concepts}${questions}</div>`, normalized);
+    }
+
+    function renderReport(data) {
+      const normalized = withArtifactSources({ ...data, mode: "summary" });
+      const sources = updateSourceStore(normalized, "summary-report");
+      const itemCitation = (item) => { const index = sourceIndexFor(item?.sources?.[0], sources); return index ? citation(index) : ""; };
+      const overview = normalized.overview?.text || normalized.overview?.summary || "Course Pack summary report.";
+      const lectures = (normalized.lecture_summaries || []).slice(0, 6).map((item, idx) => `<div class="result-card"><b>${escapeHtml(item.title || item.filename || `Lecture ${idx + 1}`)}</b><p>${escapeHtml(item.summary || item.text || JSON.stringify(item))}${itemCitation(item)}</p></div>`).join("");
+      const concepts = (normalized.key_concepts || []).slice(0, 6).map((item, idx) => `<div class="result-card"><b>${escapeHtml(item.term || item.concept || item.title || `Concept ${idx + 1}`)}</b><p>${escapeHtml(item.description || item.definition || item.summary || item.text || "")}${itemCitation(item)}</p></div>`).join("");
+      renderArticle("보고서", `<p>${escapeHtml(overview)}${itemCitation(normalized.overview)}</p><div class="result-grid">${lectures}${concepts}</div>`, normalized);
+    }
+
+    function renderQuiz(data) {
+      const normalized = withArtifactSources(data);
+      const sources = updateSourceStore(normalized, "quiz");
+      const quizItems = [...(normalized.quiz || []), ...(normalized.expected_questions || [])].slice(0, 8);
+      const cards = quizItems.map((item, idx) => {
+        const question = item.question || item.text || JSON.stringify(item);
+        const answer = item.answer ? `<p><b>Answer</b>: ${escapeHtml(item.answer)}</p>` : "";
+        const choices = item.choices?.length ? `<p>${item.choices.map((choice, choiceIdx) => `${String.fromCharCode(65 + choiceIdx)}. ${escapeHtml(choice)}`).join("<br>")}</p>` : "";
+        const sourceIndex = sourceIndexFor(item?.sources?.[0], sources);
+        return `<div class="result-card"><b>${escapeHtml(question)}</b>${choices}${answer}${sourceIndex ? `<p>${citation(sourceIndex)}</p>` : ""}</div>`;
+      }).join("");
+      renderArticle("퀴즈", `<div class="result-grid">${cards || '<p>No quiz items returned.</p>'}</div>`, normalized);
+    }
+
+    function renderDataTable(pack, artifacts) {
+      updateSourceStore({ ...pack, mode: "data_table", sources: pack.documents || [] }, "data-table");
+      const docRows = (pack.documents || []).map((doc, idx) => `<tr><td>${idx + 1}</td><td>${escapeHtml(doc.filename || doc.doc_id || "document")}</td><td>${escapeHtml(doc.week || "")}</td><td>${escapeHtml(doc.lecture_no || "")}</td><td>${escapeHtml(doc.chunk_count || "")}</td></tr>`).join("");
+      const artifactRows = Object.entries(artifacts.artifacts || {}).map(([name, artifact]) => `<tr><td>${escapeHtml(name)}</td><td colspan="3">${artifact.exists ? "exists" : "missing"}</td><td>${escapeHtml(artifact.path || "")}</td></tr>`).join("");
+      const table = `<h4>Sources</h4><table class="data-table"><thead><tr><th>#</th><th>filename</th><th>week</th><th>lecture</th><th>chunks</th></tr></thead><tbody>${docRows || '<tr><td colspan="5">No documents returned.</td></tr>'}</tbody></table><h4>Artifacts</h4><table class="data-table"><thead><tr><th>name</th><th colspan="3">status</th><th>path</th></tr></thead><tbody>${artifactRows}</tbody></table>`;
+      renderArticle("데이터표", table, { ...pack, artifacts: artifacts.artifacts });
+    }
+
+    function renderConceptMap(data) {
+      updateSourceStore({ ...data, mode: "concept_map", sources: [] }, "concept-map");
+      const nodes = (data.nodes || []).slice(0, 12).map((node) => `<div class="result-card"><b>${escapeHtml(node.label || node.id || node.name)}</b><span>${escapeHtml(node.type || node.kind || "node")}</span></div>`).join("");
+      const edges = (data.edges || []).slice(0, 12).map((edge) => `<div class="result-card"><b>${escapeHtml(edge.source || edge.from)} → ${escapeHtml(edge.target || edge.to)}</b><span>${escapeHtml(edge.relation || edge.label || "related_to")}</span></div>`).join("");
+      renderArticle("마인드맵", `<p>${(data.nodes || []).length} nodes, ${(data.edges || []).length} edges returned from API.</p><div class="result-grid">${nodes}${edges}</div>`, data);
+    }
+
+    function renderAudio(data) {
+      updateSourceStore({ ...data, mode: "audio_script", sources: data.sources || [] }, "audio-script");
+      const audio = data.audio_url ? `<p class="status-line">mp3 artifact ready: <a class="audio-link" href="${escapeHtml(data.audio_url)}" target="_blank" rel="noreferrer">${escapeHtml(data.artifact_name || "audio_overview_edge_tts.mp3")}</a></p>` : `<p class="status-line">TTS status: ${escapeHtml(data.tts_status || "pending")}</p>`;
+      const warnings = (data.warnings || []).map((warning) => `<p class="status-line">${escapeHtml(warning)}</p>`).join("");
+      const summary = data.audio_url
+        ? `<p>오디오 오버뷰가 준비되었습니다.</p>`
+        : data.script?.length
+          ? `<p>대본은 생성됐지만 음성 파일 생성에 실패했습니다.</p>`
+          : `<p>오디오 대본을 생성하지 못했습니다.</p>`;
+      renderArticle("AI \uC624\uB514\uC624 \uC624\uBC84\uBDF0", `${audio}${warnings}${summary}`, data);
+    }
+
+    function audioItemFromPayload(data) {
+      const url = data.audio_url || "";
+      if (!url) return null;
+      const model = data.llm?.model || data.llm?.provider || "script";
+      return {
+        title: "AI 오디오 오버뷰",
+        meta: `${data.tts_status || "mp3"} · ${model} · ${data.script_char_count || 0}자`,
+        url,
+        path: data.audio_path || "",
+      };
+    }
+
+    function addAudioArtifact(data, open = false) {
+      const item = audioItemFromPayload(data);
+      if (!item) return null;
+      state.audioArtifacts = [item, ...state.audioArtifacts.filter((existing) => existing.url !== item.url)].slice(0, 5);
+      refreshArtifacts(false).catch(() => {});
+      if (open) showAudioPlayer(item, true);
+      return item;
+    }
+
+    function formatTime(value) {
+      if (!Number.isFinite(value) || value < 0) return "0:00";
+      const minutes = Math.floor(value / 60);
+      const seconds = Math.floor(value % 60).toString().padStart(2, "0");
+      return `${minutes}:${seconds}`;
+    }
+
+    function updateAudioTime() {
+      if (!audioElement || !audioTime || !audioRange) return;
+      const duration = audioElement.duration || 0;
+      const current = audioElement.currentTime || 0;
+      audioTime.textContent = `${formatTime(current)} / ${formatTime(duration)}`;
+      audioRange.value = duration ? String((current / duration) * 100) : "0";
+    }
+
+    function showAudioPlayer(item, autoplay = false) {
+      closeMediaPanels();
+      if (!audioPlayer || !audioElement || !audioTitle || !audioOpen || !audioRange) {
+        window.open(item.url, "_blank", "noreferrer");
+        return;
+      }
+      audioTitle.textContent = item.title;
+      audioOpen.href = item.url;
+      if (audioElement.src !== new URL(item.url, location.href).href) {
+        audioElement.src = item.url;
+        audioRange.value = "0";
+      }
+      audioPlayer.hidden = false;
+      updateAudioTime();
+      if (autoplay) {
+        audioElement.play().catch(() => {});
+      }
+    }
+
+    function artifactFileUrl(filename) {
+      return `${API_BASE}/course-packs/${encodeURIComponent(PACK_ID)}/files/${encodeURIComponent(filename)}?output_root=${encodeURIComponent(OUTPUT_ROOT)}`;
+    }
+
+    function mindmapItemFromPayload(payload, exported = {}) {
+      const isView = Array.isArray(payload.branches);
+      const nodes = payload.nodes || [];
+      const edges = payload.edges || [];
+      const branchCount = isView ? payload.branches.length : 0;
+      const conceptCount = isView ? payload.branches.reduce((sum, branch) => sum + (branch.children || []).length, 0) : nodes.length;
+      return {
+        title: "마인드맵",
+        meta: isView ? `${branchCount} branches · ${conceptCount} concepts` : `${nodes.length} nodes · ${edges.length} edges`,
+        view: isView ? payload : null,
+        nodes,
+        edges,
+        htmlUrl: exported.html_path ? artifactFileUrl("concept_map.html") : "",
+        mermaidUrl: exported.mermaid_path ? artifactFileUrl("concept_map.mmd") : "",
+      };
+    }
+
+    function addMindmapArtifact(payload, exported = {}, open = false) {
+      const item = mindmapItemFromPayload(payload, exported);
+      state.mindmapArtifacts = [item, ...state.mindmapArtifacts.filter((existing) => existing.title !== item.title)].slice(0, 3);
+      refreshArtifacts(false).catch(() => {});
+      if (open) showMindmapViewer(item);
+      return item;
+    }
+
+    function compactMindmap(nodes, edges) {
+      const conceptNodes = nodes.filter((node) => (node.type || node.kind) === "concept");
+      const conceptIds = new Set(conceptNodes.map((node) => String(node.id || node.label || node.name)));
+      const degree = new Map([...conceptIds].map((id) => [id, 0]));
+      edges.forEach((edge) => {
+        const source = String(edge.source || edge.from);
+        const target = String(edge.target || edge.to);
+        if (conceptIds.has(source) && conceptIds.has(target)) {
+          degree.set(source, (degree.get(source) || 0) + 1);
+          degree.set(target, (degree.get(target) || 0) + 1);
+        }
+      });
+      const selected = [...conceptNodes].sort((left, right) => {
+        const leftId = String(left.id || left.label || left.name);
+        const rightId = String(right.id || right.label || right.name);
+        return (degree.get(rightId) || 0) - (degree.get(leftId) || 0) || leftId.localeCompare(rightId);
+      }).slice(0, 10);
+      const selectedIds = new Set(selected.map((node) => String(node.id || node.label || node.name)));
+      const selectedEdges = edges.filter((edge) => selectedIds.has(String(edge.source || edge.from)) && selectedIds.has(String(edge.target || edge.to))).slice(0, 14);
+      return { nodes: selected, edges: selectedEdges };
+    }
+
+    function mindmapTreeHtml(view) {
+      const root = view.root || { label: "Course Pack", summary: "" };
+      const branches = view.branches || [];
+      const relations = (view.relations || []).filter((relation) => relation.present).slice(0, 8);
+      const branchHtml = branches.map((branch) => {
+        const chips = (branch.children || []).map((child) => `<span class="mindmap-chip ${child.present ? '' : 'dim'}">${escapeHtml(child.label || child.id)}</span>`).join("");
+        return `<section class="mindmap-branch"><b>${escapeHtml(branch.label)}</b><p>${escapeHtml(branch.summary || "")}</p>${chips}</section>`;
+      }).join("");
+      const relationHtml = relations.map((relation) => `<div class="mindmap-relation ${relation.present ? '' : 'dim'}">${escapeHtml(relation.source)} <em>${escapeHtml(relation.relation)}</em> ${escapeHtml(relation.target)}</div>`).join("");
+      return `<div class="mindmap-tree"><div class="mindmap-root">${escapeHtml(root.label || "Course Pack")}</div><div class="mindmap-branches">${branchHtml}</div><div class="mindmap-relations">${relationHtml}</div></div>`;
+    }
+
+    function showMindmapViewer(item) {
+      closeMediaPanels();
+      if (!mindmapViewer || !mindmapCanvas || !mindmapMeta || !mindmapTitle) return;
+      mindmapTitle.textContent = item.title;
+      if (item.view) {
+        mindmapCanvas.innerHTML = mindmapTreeHtml(item.view);
+        const graphMeta = item.view.source_graph || {};
+        const links = [
+          `<span>${escapeHtml(item.meta)}</span>`,
+          graphMeta.node_count ? `<span>source graph ${graphMeta.node_count} nodes</span>` : "",
+          item.htmlUrl ? `<span><a class="mindmap-open" href="${escapeHtml(item.htmlUrl)}" target="_blank" rel="noreferrer">HTML 열기</a></span>` : "",
+          item.mermaidUrl ? `<span><a class="mindmap-open" href="${escapeHtml(item.mermaidUrl)}" target="_blank" rel="noreferrer">Mermaid</a></span>` : "",
+        ];
+        mindmapMeta.innerHTML = links.filter(Boolean).join("");
+        mindmapViewer.hidden = false;
+        if (audioElement) audioElement.pause();
+        return;
+      }
+      const graph = compactMindmap(item.nodes || [], item.edges || []);
+      const width = 420;
+      const height = 260;
+      const cx = width / 2;
+      const cy = height / 2;
+      const radius = Math.min(94, 42 + graph.nodes.length * 7);
+      const positions = new Map();
+      graph.nodes.forEach((node, index) => {
+        const angle = graph.nodes.length <= 1 ? 0 : (Math.PI * 2 * index) / graph.nodes.length - Math.PI / 2;
+        positions.set(String(node.id || node.label || node.name), {
+          x: graph.nodes.length <= 1 ? cx : cx + Math.cos(angle) * radius,
+          y: graph.nodes.length <= 1 ? cy : cy + Math.sin(angle) * radius,
+        });
+      });
+      const edgeSvg = graph.edges.map((edge) => {
+        const source = positions.get(String(edge.source || edge.from));
+        const target = positions.get(String(edge.target || edge.to));
+        if (!source || !target) return "";
+        return `<line class="mindmap-edge" x1="${source.x}" y1="${source.y}" x2="${target.x}" y2="${target.y}"><title>${escapeHtml(edge.relation || edge.label || "related_to")}</title></line>`;
+      }).join("");
+      const palette = ["#8c6bd8", "#c37b56", "#5b7fbf", "#5b8d65", "#2f8a7c", "#d69a56", "#995e82", "#72856c", "#4d6c95", "#ad6d75"];
+      const nodeSvg = graph.nodes.map((node, index) => {
+        const id = String(node.id || node.label || node.name);
+        const pos = positions.get(id) || { x: cx, y: cy };
+        const label = String(node.label || node.name || id).slice(0, 20);
+        return `<g class="mindmap-node"><circle cx="${pos.x}" cy="${pos.y}" r="29" fill="${palette[index % palette.length]}"></circle><text class="mindmap-label" x="${pos.x}" y="${pos.y}">${escapeHtml(label)}</text></g>`;
+      }).join("");
+      mindmapCanvas.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Course concept mindmap">${edgeSvg}${nodeSvg}</svg>`;
+      mindmapMeta.innerHTML = `<span>${(item.nodes || []).length} nodes</span><span>${(item.edges || []).length} edges</span>`;
+      mindmapViewer.hidden = false;
+      if (audioElement) audioElement.pause();
+    }
+
+    function studioArtifactConfig(type) {
+      const configs = {
+        report: { icon: "R", color: "var(--amber)", title: "보고서" },
+        flashcards: { icon: "F", color: "var(--rose)", title: "플래시카드" },
+        quiz: { icon: "Q", color: "var(--teal)", title: "퀴즈" },
+        table: { icon: "T", color: "var(--green)", title: "데이터표" },
+      };
+      return configs[type] || { icon: "D", color: "var(--teal)", title: "Artifact" };
+    }
+
+    function closeMediaPanels() {
+      if (audioPlayer) audioPlayer.hidden = true;
+      if (mindmapViewer) mindmapViewer.hidden = true;
+      if (studioArtifactViewer) studioArtifactViewer.hidden = true;
+      if (audioElement) audioElement.pause();
+    }
+
+    function sourceKey(source) {
+      return [source?.filename, source?.doc_id, source?.page, source?.chunk_id, source?.path].map((value) => String(value ?? "")).join("|");
+    }
+
+    function collectArtifactSources(payload) {
+      const collected = [];
+      const push = (source) => {
+        if (source && typeof source === "object") collected.push(source);
+      };
+      const pushList = (list) => Array.isArray(list) && list.forEach(push);
+      pushList(payload?.sources);
+      pushList(payload?.overview?.sources);
+      pushList(payload?.summary?.sources);
+      ["lecture_summaries", "key_concepts", "review_points", "key_points", "glossary", "flashcards", "quiz", "expected_questions"].forEach((key) => {
+        (payload?.[key] || []).forEach((item) => pushList(item?.sources));
+      });
+      (payload?.connections || []).forEach((item) => pushList(item?.evidence));
+      const seen = new Set();
+      return collected.filter((source) => {
+        const key = sourceKey(source);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    }
+
+    function withArtifactSources(payload) {
+      const sources = collectArtifactSources(payload);
+      return { ...(payload || {}), sources: sources.length ? sources : (payload?.sources || []) };
+    }
+
+    function sourceIndexFor(source, allSources) {
+      if (!source || !allSources?.length) return 0;
+      const key = sourceKey(source);
+      const index = allSources.findIndex((item) => sourceKey(item) === key);
+      return index >= 0 ? index + 1 : 0;
+    }
+
+    function sourceChipsHtml(itemSources = [], allSources = []) {
+      const list = Array.isArray(itemSources) ? itemSources : [];
+      if (!list.length) return "";
+      return `<div class="studio-source-row">${list.slice(0, 3).map((source) => {
+        const index = sourceIndexFor(source, allSources) || 1;
+        return `<button class="studio-source-chip" type="button" data-source="${index}">source ${index}</button>`;
+      }).join("")}</div>`;
+    }
+
+    function addStudioArtifact(item, open = false) {
+      state.studioArtifacts = [item, ...state.studioArtifacts.filter((existing) => existing.type !== item.type)].slice(0, 8);
+      refreshArtifacts(false).catch(() => {});
+      if (open) showStudioArtifact(item);
+      return item;
+    }
+
+    function reportArtifact(data) {
+      const normalized = withArtifactSources(data);
+      const sources = normalized.sources || [];
+      const lectures = normalized.lecture_summaries || [];
+      const concepts = normalized.key_concepts || [];
+      const connections = normalized.connections || [];
+      const reviewPoints = normalized.review_points || [];
+      const overview = normalized.overview?.text || normalized.overview?.summary || "Course Pack summary report.";
+      const overviewSources = normalized.overview?.sources?.length ? normalized.overview.sources : sources.slice(0, 2);
+      const lectureHtml = lectures.slice(0, 6).map((item, idx) => `<div class="studio-mini-card"><b>${escapeHtml(item.title || item.filename || `Lecture ${idx + 1}`)}</b><p>${escapeHtml(item.summary || item.text || JSON.stringify(item))}</p>${sourceChipsHtml(item.sources, sources)}</div>`).join("");
+      const conceptHtml = concepts.slice(0, 8).map((item) => `<div class="studio-mini-card"><b>${escapeHtml(item.term || item.concept || item.title || "Concept")}</b><p>${escapeHtml(item.description || item.definition || item.summary || item.text || "")}</p>${sourceChipsHtml(item.sources, sources)}</div>`).join("");
+      const connectionHtml = connections.slice(0, 5).map((item) => `<div class="studio-mini-card"><b>${escapeHtml(item.source || "concept")} → ${escapeHtml(item.target || "concept")}</b><p>${escapeHtml(item.relation || "related_in_course_pack")}</p>${sourceChipsHtml(item.evidence, sources)}</div>`).join("");
+      const reviewHtml = reviewPoints.slice(0, 4).map((item) => `<div class="studio-mini-card"><p>${escapeHtml(item.text || item.summary || "")}</p>${sourceChipsHtml(item.sources, sources)}</div>`).join("");
+      const html = `
+        <div class="studio-section-title">개요</div>
+        <div class="studio-mini-card accent"><p>${escapeHtml(overview)}</p>${sourceChipsHtml(overviewSources, sources)}</div>
+        ${lectureHtml ? `<div class="studio-section-title">강의별 요약</div><div class="studio-card-grid">${lectureHtml}</div>` : ""}
+        ${conceptHtml ? `<div class="studio-section-title">핵심 개념</div><div class="studio-card-grid">${conceptHtml}</div>` : ""}
+        ${connectionHtml ? `<div class="studio-section-title">개념 연결</div><div class="studio-card-grid">${connectionHtml}</div>` : ""}
+        ${reviewHtml ? `<div class="studio-section-title">복습 포인트</div><div class="studio-card-grid">${reviewHtml}</div>` : ""}`;
+      return {
+        type: "report",
+        title: "보고서",
+        meta: `강의 ${lectures.length || 0}개 · 개념 ${concepts.length || 0}개 · 출처 ${sources.length}개`,
+        data: normalized,
+        html,
+      };
+    }
+
+    function flashcardArtifact(data) {
+      const normalized = withArtifactSources(data);
+      const sources = normalized.sources || [];
+      const cards = normalized.flashcards?.length ? normalized.flashcards : (normalized.glossary || []).map((item) => ({ front: item.term, back: item.definition, sources: item.sources }));
+      return {
+        type: "flashcards",
+        title: "플래시카드",
+        meta: `카드 ${cards.length}개 · 출처 ${sources.length}개`,
+        data: normalized,
+        html: cards.slice(0, 10).map((card, idx) => `<article class="flashcard-item" data-flashcard><span class="flashcard-count">카드 ${idx + 1} / ${Math.min(cards.length, 10)}</span><div class="flashcard-face" data-flashcard-side="front"><span>앞면</span><p>${escapeHtml(card.front || card.question || `플래시카드 ${idx + 1}`)}</p></div><div class="flashcard-face" data-flashcard-side="back" hidden><span>뒷면</span><p>${escapeHtml(card.back || card.answer || card.definition || "")}</p></div><button class="flashcard-flip" type="button" data-flashcard-flip>정답 보기</button>${sourceChipsHtml(card.sources, sources)}</article>`).join("") || `<div class="studio-mini-card"><p>생성된 플래시카드가 없습니다.</p></div>`,
+      };
+    }
+
+    function quizArtifact(data) {
+      const normalized = withArtifactSources(data);
+      const sources = normalized.sources || [];
+      const items = [...(normalized.quiz || []), ...(normalized.expected_questions || [])].slice(0, 10);
+      return {
+        type: "quiz",
+        title: "퀴즈",
+        meta: `문제 ${items.length}개 · 출처 ${sources.length}개`,
+        data: normalized,
+        html: items.map((item, idx) => {
+          const question = item.question || item.text || JSON.stringify(item);
+          const choices = item.choices?.length ? `<div class="quiz-choices">${item.choices.map((choice, choiceIdx) => `<span class="quiz-choice">${String.fromCharCode(65 + choiceIdx)}. ${escapeHtml(choice)}</span>`).join("")}</div>` : "";
+          const answer = item.answer || item.answer_hint || "연결된 자료에서 답을 확인하세요.";
+          const explanation = item.explanation ? `<br><b>해설</b> ${escapeHtml(item.explanation)}` : "";
+          return `<article class="quiz-item"><b>${idx + 1}. ${escapeHtml(question)}</b>${choices}<button class="quiz-reveal" type="button" data-quiz-reveal>정답 보기</button><div class="quiz-answer" hidden><b>정답</b> ${escapeHtml(answer)}${explanation}</div>${sourceChipsHtml(item.sources, sources)}</article>`;
+        }).join("") || `<div class="studio-mini-card"><p>생성된 퀴즈가 없습니다.</p></div>`,
+      };
+    }
+
+    function tableArtifact(pack, artifacts) {
+      const docs = pack.documents || [];
+      const artifactRows = Object.entries(artifacts.artifacts || {});
+      const docTable = `<table class="studio-mini-table"><thead><tr><th>자료</th><th>주차</th><th>강의</th><th>청크</th></tr></thead><tbody>${docs.map((doc) => `<tr><td>${escapeHtml(doc.filename || doc.doc_id || "document")}</td><td>${escapeHtml(doc.week || "")}</td><td>${escapeHtml(doc.lecture_no || "")}</td><td>${escapeHtml(doc.chunk_count || "")}</td></tr>`).join("")}</tbody></table>`;
+      const artifactTable = `<table class="studio-mini-table"><thead><tr><th>산출물</th><th>상태</th><th>경로</th></tr></thead><tbody>${artifactRows.map(([name, artifact]) => `<tr><td>${escapeHtml(artifactTitle(name))}</td><td><span class="artifact-status ${artifact.exists ? 'ok' : 'missing'}">${artifact.exists ? "생성됨" : "없음"}</span></td><td>${escapeHtml(artifact.path || "")}</td></tr>`).join("")}</tbody></table>`;
+      return {
+        type: "table",
+        title: "데이터표",
+        meta: `자료 ${docs.length}개 · 청크 ${pack.chunk_count || 0}개 · 산출물 ${artifactRows.length}개`,
+        data: { pack, artifacts, sources: [] },
+        html: `<div class="studio-section-title">자료 메타데이터</div><div class="studio-mini-card">${docTable}</div><div class="studio-section-title">생성 산출물</div><div class="studio-mini-card">${artifactTable}</div>`,
+      };
+    }
+
+    function showStudioArtifact(item) {
+      if (!studioArtifactViewer || !studioArtifactTitle || !studioArtifactBody || !studioArtifactMeta) return;
+      closeMediaPanels();
+      if (item.data) updateSourceStore(item.data, item.type || "artifact");
+      studioArtifactTitle.textContent = item.title;
+      studioArtifactBody.innerHTML = item.html || `<div class="studio-mini-card"><p>No preview.</p></div>`;
+      const config = studioArtifactConfig(item.type);
+      studioArtifactMeta.innerHTML = [`<span>${escapeHtml(config.icon)}</span>`, `<span>${escapeHtml(item.meta || "generated")}</span>`].join("");
+      studioArtifactViewer.hidden = false;
+    }
+
+    function renderArtifacts(data) {
+      updateSourceStore({ ...data, mode: "artifacts", sources: [] }, "artifacts");
+      const rows = Object.entries(data.artifacts || {}).map(([name, artifact]) => `<div class="result-card"><b>${escapeHtml(name)}</b><p>${artifact.exists ? "exists" : "missing"} · ${escapeHtml(artifact.path || "")}</p></div>`).join("");
+      renderArticle("Artifacts", `<p>${escapeHtml(data.output_dir || "")}</p><div class="result-grid">${rows}</div>`, data);
+    }
+
+    async function runEvaluationSmoke() {
+      setLoading("Evaluation smoke check");
+      const [answer, graph, artifacts] = await Promise.all([
+        api("/course-packs/ask", { method: "POST", body: packPayload({ question: "이 Course Pack의 핵심 개념과 관계를 설명해줘", mode: "auto", top_k: 4 }) }),
+        api("/course-packs/concept-map", { method: "POST", body: packPayload() }),
+        api(`/course-packs/${PACK_ID}/artifacts?output_root=${encodeURIComponent(OUTPUT_ROOT)}&include_content=false`),
+      ]);
+      const rows = [
+        ["Q&A route", answer.routed_mode || answer.retrieval_mode || answer.mode],
+        ["Source count", (answer.sources || []).length],
+        ["Concept graph", `${(graph.nodes || []).length} nodes / ${(graph.edges || []).length} edges`],
+        ["Artifacts", `${Object.values(artifacts.artifacts || {}).filter((item) => item.exists).length} available`],
+      ].map(([key, value]) => `<div class="result-card"><b>${escapeHtml(key)}</b><p>${escapeHtml(value)}</p></div>`).join("");
+      updateSourceStore(answer, "evaluation");
+      renderArticle("Evaluation Snapshot", `<div class="result-grid">${rows}</div>`, answer);
+    }
+
+    async function refreshPack() {
+      try {
+        const data = await api(`/course-packs/${PACK_ID}?output_root=${encodeURIComponent(OUTPUT_ROOT)}`);
+        packBadge.textContent = data.pack_id || PACK_ID;
+        const docs = data.documents || [];
+        document.getElementById("sourceCount").textContent = `${data.chunk_count || 0} chunks`;
+        const list = document.getElementById("sourceList");
+        list.innerHTML = docs.map((doc, idx) => `<div class="src on" data-source-filename="${escapeHtml(doc.filename || "")}" data-source-doc-id="${escapeHtml(doc.doc_id || "")}"><span class="fileicon ${String(doc.filename || '').endsWith('.pdf') ? 'pdf' : 'md'}">${String(doc.filename || '').endsWith('.pdf') ? 'PDF' : 'TXT'}</span><div><b>${escapeHtml(doc.filename || doc.doc_id || `document ${idx + 1}`)}</b><span>${escapeHtml([doc.week ? `week ${doc.week}` : '', doc.lecture_no ? `lecture ${doc.lecture_no}` : '', doc.chunk_count ? `${doc.chunk_count} chunks` : ''].filter(Boolean).join(' · '))}</span></div><span class="check on">ok</span></div>`).join("") || list.innerHTML;
+        return data;
+      } catch (error) {
+        document.getElementById("sourceCount").textContent = "offline";
+        throw error;
+      }
+    }
+
+    function artifactIcon(name, exists) {
+      const map = { summary: "S", study_kit: "K", audio_script: "A", audio_overview: "A", graph: "G", chunks: "C", course_pack: "P", hierarchical_summary_index: "H", concept_map_html: "M", concept_map_mermaid: "M" };
+      const colors = { summary: "var(--amber)", study_kit: "var(--amber)", audio_script: "var(--blue)", audio_overview: "var(--blue)", graph: "var(--violet)", chunks: "var(--teal)", course_pack: "var(--green)", hierarchical_summary_index: "var(--green)", concept_map_html: "var(--violet)", concept_map_mermaid: "var(--violet)" };
+      return { label: map[name] || "D", color: exists ? (colors[name] || "var(--teal)") : "var(--sub)" };
+    }
+
+    function artifactTitle(name) {
+      const titles = { course_pack: "데이터표", summary: "보고서", study_kit: "퀴즈 / 플래시카드", audio_script: "AI 오디오 대본", audio_overview: "AI 오디오 오버뷰", graph: "마인드맵", chunks: "데이터표", concept_map_mermaid: "마인드맵 Mermaid", concept_map_html: "마인드맵 HTML", hierarchical_summary_index: "Hierarchical Summary Index" };
+      return titles[name] || name;
+    }
+
+    async function refreshArtifacts(render = false) {
+      const data = await api(`/course-packs/${PACK_ID}/artifacts?output_root=${encodeURIComponent(OUTPUT_ROOT)}&include_content=false`);
+      const artifacts = data.artifacts || {};
+      const artifactList = document.getElementById("artifactList");
+      const generatedAudio = state.audioArtifacts.map((item, index) => `<div class="artifact on" data-audio-index="${index}" role="button" tabindex="0" aria-label="AI 오디오 오버뷰 열기"><span class="artifact-icon" style="color:var(--blue)">A</span><div><b>${escapeHtml(item.title)}</b><span>${escapeHtml(item.meta)}</span></div><button class="artifact-menu" type="button" aria-label="more">⋮</button></div>`);
+      const generatedMindmaps = ENABLED_STUDIO_ACTIONS.has("mindmap") ? state.mindmapArtifacts.map((item, index) => `<div class="artifact on" data-mindmap-index="${index}" role="button" tabindex="0" aria-label="마인드맵 열기"><span class="artifact-icon" style="color:var(--violet)">M</span><div><b>${escapeHtml(item.title)}</b><span>${escapeHtml(item.meta)}</span></div><button class="artifact-menu" type="button" aria-label="more">⋮</button></div>`) : [];
+      const generatedStudio = state.studioArtifacts.map((item, index) => ({ item, index })).filter(({ item }) => ENABLED_STUDIO_ACTIONS.has(item.type)).map(({ item, index }) => { const config = studioArtifactConfig(item.type); return `<div class="artifact on" data-studio-index="${index}" role="button" tabindex="0" aria-label="${escapeHtml(item.title)} 열기"><span class="artifact-icon" style="color:${config.color}">${config.icon}</span><div><b>${escapeHtml(item.title)}</b><span>${escapeHtml(item.meta)}</span></div><button class="artifact-menu" type="button" aria-label="more">⋮</button></div>`; });
+      const baseItems = [
+        { key: "audio_overview", action: "audio", icon: "A", color: "var(--blue)", title: "AI 오디오 오버뷰", meta: "대본과 음성 · 생성됨" },
+        { key: "graph", action: "mindmap", icon: "M", color: "var(--violet)", title: "마인드맵", meta: "개념과 관계 · 생성됨" },
+        { key: "summary", action: "report", icon: "R", color: "var(--amber)", title: "보고서", meta: "강의별 요약 · 생성됨" },
+        { key: "study_kit", action: "flashcards", icon: "F", color: "var(--rose)", title: "플래시카드", meta: "학습 카드 · 생성됨" },
+        { key: "study_kit", action: "quiz", icon: "Q", color: "var(--teal)", title: "퀴즈", meta: "문제와 해설 · 생성됨" },
+        { key: "course_pack", action: "table", icon: "T", color: "var(--green)", title: "데이터표", meta: "자료 메타데이터 · 준비됨" },
+      ].filter((item) => ENABLED_STUDIO_ACTIONS.has(item.action));
+      const generatedTypes = new Set(state.studioArtifacts.map((item) => item.type));
+      const visibleItems = baseItems.filter((item) => !(state.audioArtifacts.length && item.key === "audio_overview") && !(state.mindmapArtifacts.length && item.key === "graph") && !(generatedTypes.has("report") && item.key === "summary") && !(generatedTypes.has("table") && item.key === "course_pack") && !(generatedTypes.has("flashcards") && item.icon === "F") && !(generatedTypes.has("quiz") && item.icon === "Q"));
+      const rows = visibleItems.map((item) => {
+        const exists = artifacts[item.key]?.ready ?? artifacts[item.key]?.exists === true;
+        const color = exists ? item.color : "var(--sub)";
+        const meta = exists ? item.meta : "아직 생성 전";
+        return `<div class="artifact ${exists ? 'on' : ''}" data-action="${item.action}" role="button" tabindex="0" aria-label="${escapeHtml(item.title)} ${exists ? '열기' : '생성'}"><span class="artifact-icon" style="color:${color}">${item.icon}</span><div><b>${escapeHtml(item.title)}</b><span>${escapeHtml(meta)}</span></div><button class="artifact-menu" type="button" aria-label="more">⋮</button></div>`;
+      });
+      artifactList.innerHTML = [...generatedAudio, ...generatedMindmaps, ...generatedStudio, ...rows].join("");
+      if (render) renderArtifacts(data);
+    }
+
+    async function handleStudioAction(action, button) {
+      if (!ENABLED_STUDIO_ACTIONS.has(action) || !STUDIO_ACTION_STATUS[action] || button?.dataset.studioBusy === "true") return;
+      if (button) button.dataset.studioBusy = "true";
+      button?.classList.add("is-loading");
+      button?.setAttribute("aria-busy", "true");
+      if (button instanceof HTMLButtonElement) button.disabled = true;
+      const statusNode = button?.querySelector("div span");
+      const previousStatus = statusNode?.textContent || "";
+      if (statusNode) statusNode.textContent = STUDIO_ACTION_STATUS[action];
+      closeMediaPanels();
+      try {
+        if (action === "audio") {
+          const data = await api("/course-packs/tts", { method: "POST", body: packPayload({ question: questionInput.value || "이 Course Pack의 핵심 흐름을 자연스러운 2인 학습 팟캐스트로 설명해줘", mode: "podcast", llm_provider: CHAT_LLM_PROVIDER, llm_model: CHAT_LLM_MODEL, grounding: "creative", knowledge_scope: "course_pack", top_k: 10, target_minutes: 5, target_chars: 2200, voice: "ko-KR-SunHiNeural", guest_voice: "ko-KR-InJoonNeural", reuse_existing: false }) });
+          const audioItem = addAudioArtifact(data, true);
+          if (!audioItem) renderAudio(data);
+        }
+        if (action === "mindmap") {
+          const [mindmap, exported] = await Promise.all([
+            api("/course-packs/mindmap", { method: "POST", body: packPayload() }),
+            api("/course-packs/concept-map/export", { method: "POST", body: packPayload({ max_nodes: 40, max_edges: 60 }) }),
+          ]);
+          addMindmapArtifact(mindmap, exported, true);
+        }
+        if (action === "report") addStudioArtifact(reportArtifact(await api("/course-packs/summary", { method: "POST", body: packPayload({ question: "Course Pack 전체 흐름을 보고서로 정리해줘", top_k: 8, max_items: 6, llm_provider: "mock" }) })), true);
+        if (action === "flashcards") addStudioArtifact(flashcardArtifact(await api("/course-packs/study-kit", { method: "POST", body: packPayload({ question: "핵심 개념 플래시카드를 만들어줘", top_k: 6, max_items: 6 }) })), true);
+        if (action === "quiz") addStudioArtifact(quizArtifact(await api("/course-packs/study-kit", { method: "POST", body: packPayload({ question: "시험 대비 퀴즈를 만들어줘", top_k: 6, max_items: 6 }) })), true);
+        if (action === "table") {
+          const [pack, artifacts] = await Promise.all([
+            api(`/course-packs/${PACK_ID}?output_root=${encodeURIComponent(OUTPUT_ROOT)}`),
+            api(`/course-packs/${PACK_ID}/artifacts?output_root=${encodeURIComponent(OUTPUT_ROOT)}&include_content=false`),
+          ]);
+          addStudioArtifact(tableArtifact(pack, artifacts), true);
+        }
+      } catch (error) {
+        renderError("API call failed", error);
+      } finally {
+        if (statusNode) statusNode.textContent = previousStatus;
+        button?.classList.remove("is-loading");
+        button?.removeAttribute("aria-busy");
+        if (button instanceof HTMLButtonElement) button.disabled = false;
+        if (button) delete button.dataset.studioBusy;
+      }
+    }
+
+    function highlightSource(raw = {}) {
+      const items = [...document.querySelectorAll("#sourceList .src")];
+      items.forEach((node) => node.classList.remove("source-highlight"));
+      const match = items.find((node) => (raw.filename && node.dataset.sourceFilename === raw.filename) || (raw.doc_id && node.dataset.sourceDocId === raw.doc_id));
+      if (match) {
+        match.classList.add("source-highlight");
+        match.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+
+    function openSource(key = "overview", groupId = "current") {
+      const group = state.sourceGroups[groupId] || state.sources;
+      const item = group?.[key] || group?.overview || emptySource;
+      sourceTitle.textContent = item.title;
+      sourcePath.textContent = item.path;
+      sourceKicker.textContent = item.kicker;
+      sourceHeading.textContent = item.heading;
+      sourceSummary.textContent = item.summary;
+      sourceEvidence.textContent = item.evidence;
+      sourceChunks.textContent = item.chunks;
+      sourceOpenUrl.hidden = !item.url;
+      sourceOpenUrl.href = item.url || "#";
+      if (item.raw) highlightSource(item.raw);
+      sourceModal.hidden = false;
+    }
+
+    document.addEventListener("click", async (event) => {
+      const suggestion = event.target.closest(".suggestion[data-question]");
+      if (suggestion) {
+        questionInput.value = suggestion.dataset.question || "";
+        resizeComposer();
+        await askQuestion(questionInput.value, retrievalMode?.value || "auto");
+        questionInput.value = "";
+        resizeComposer();
+        return;
+      }
+
+      const chatAction = event.target.closest("[data-chat-action]");
+      if (chatAction) {
+        const action = chatAction.dataset.chatAction;
+        const turn = chatAction.closest(".chat-turn");
+        if (action === "copy") {
+          const message = state.messages.find((item) => item.id === chatAction.dataset.messageId);
+          if (message?.content) {
+            await navigator.clipboard?.writeText(message.content);
+            chatAction.classList.add("is-active");
+            window.setTimeout(() => chatAction.classList.remove("is-active"), 1000);
+          }
+        }
+        if ((action === "regenerate" || action === "retry") && turn) await askQuestion(turn.dataset.question, retrievalMode?.value || "auto", { turn });
+        if (action === "feedback-up" || action === "feedback-down") {
+          chatAction.parentElement?.querySelectorAll('[data-chat-action^="feedback-"]').forEach((button) => button.classList.remove("is-active"));
+          chatAction.classList.add("is-active");
+        }
+        return;
+      }
+
+      const flashcardFlip = event.target.closest("[data-flashcard-flip]");
+      if (flashcardFlip) {
+        const card = flashcardFlip.closest("[data-flashcard]");
+        const front = card?.querySelector('[data-flashcard-side="front"]');
+        const back = card?.querySelector('[data-flashcard-side="back"]');
+        if (front && back) {
+          const showingBack = !back.hidden;
+          front.hidden = !showingBack;
+          back.hidden = showingBack;
+          flashcardFlip.textContent = showingBack ? "정답 보기" : "문제 보기";
+        }
+        return;
+      }
+
+      const quizReveal = event.target.closest("[data-quiz-reveal]");
+      if (quizReveal) {
+        const answer = quizReveal.parentElement?.querySelector(".quiz-answer");
+        if (answer) {
+          answer.hidden = !answer.hidden;
+          quizReveal.textContent = answer.hidden ? "정답 보기" : "정답 숨기기";
+        }
+        return;
+      }
+
+      const cite = event.target.closest(".cite");
+      if (cite) openSource(cite.dataset.source || "overview", cite.dataset.sourceGroup || "current");
+      const sourceButton = event.target.closest(".open-source, [data-source]");
+      if (sourceButton && !cite) openSource(sourceButton.dataset.source || "overview", sourceButton.dataset.sourceGroup || "current");
+      const audioArtifact = event.target.closest(".artifact[data-audio-index]");
+      if (audioArtifact && !event.target.closest(".artifact-menu")) {
+        const item = state.audioArtifacts[Number(audioArtifact.dataset.audioIndex)];
+        if (item) showAudioPlayer(item, false);
+      }
+      const mindmapArtifact = event.target.closest(".artifact[data-mindmap-index]");
+      if (mindmapArtifact && !event.target.closest(".artifact-menu")) {
+        const item = state.mindmapArtifacts[Number(mindmapArtifact.dataset.mindmapIndex)];
+        if (item) showMindmapViewer(item);
+      }
+      const studioArtifact = event.target.closest(".artifact[data-studio-index]");
+      if (studioArtifact && !event.target.closest(".artifact-menu")) {
+        const item = state.studioArtifacts[Number(studioArtifact.dataset.studioIndex)];
+        if (item) showStudioArtifact(item);
+      }
+      const studio = event.target.closest(".studio-card[data-action], .artifact[data-action]");
+      if (studio && !event.target.closest(".artifact-menu")) handleStudioAction(studio.dataset.action, studio);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (!['Enter', ' '].includes(event.key) || event.target.closest(".artifact-menu")) return;
+      const artifact = event.target.closest('.artifact[role="button"]');
+      if (!artifact) return;
+      event.preventDefault();
+      artifact.click();
+    });
+
+    chatForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const question = questionInput.value.trim();
+      if (!question) return;
+      questionInput.value = "";
+      resizeComposer();
+      await askQuestion(question, retrievalMode?.value || "auto");
+    });
+
+    questionInput.addEventListener("input", resizeComposer);
+    questionInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+        event.preventDefault();
+        chatForm.requestSubmit();
+      }
+    });
+    stopAnswer.addEventListener("click", () => state.activeController?.abort());
+    chatAdvancedToggle.addEventListener("click", () => {
+      const expanded = chatAdvancedToggle.getAttribute("aria-expanded") === "true";
+      chatAdvancedToggle.setAttribute("aria-expanded", String(!expanded));
+      chatAdvanced.hidden = expanded;
+    });
+
+    document.getElementById("closeSource").addEventListener("click", () => { sourceModal.hidden = true; });
+    sourceModal.addEventListener("click", (event) => { if (event.target === sourceModal) sourceModal.hidden = true; });
+    audioPlay?.addEventListener("click", () => { if (!audioElement) return; if (audioElement.paused) audioElement.play().catch(() => {}); else audioElement.pause(); });
+    audioClose?.addEventListener("click", () => { if (audioElement) audioElement.pause(); if (audioPlayer) audioPlayer.hidden = true; });
+    audioElement?.addEventListener("play", () => { audioPlay.textContent = "Pause"; });
+    audioElement?.addEventListener("pause", () => { audioPlay.textContent = "Play"; });
+    audioElement?.addEventListener("loadedmetadata", updateAudioTime);
+    audioElement?.addEventListener("timeupdate", updateAudioTime);
+    audioElement?.addEventListener("ended", updateAudioTime);
+    audioRange?.addEventListener("input", () => { if (audioElement?.duration) audioElement.currentTime = (Number(audioRange.value) / 100) * audioElement.duration; });
+    mindmapClose?.addEventListener("click", () => { if (mindmapViewer) mindmapViewer.hidden = true; });
+    studioArtifactClose?.addEventListener("click", () => { if (studioArtifactViewer) studioArtifactViewer.hidden = true; });
+    addSource?.addEventListener("click", () => fileInput?.click());
+    fileInput?.addEventListener("change", async () => {
+      try { await uploadCoursePack(fileInput.files); }
+      catch (error) { setUploadStatus("업로드 실패", 0); renderError("Course Pack upload failed", error); }
+    });
+
+    document.querySelector(".btn.primary")?.addEventListener("click", async () => {
+      setLoading("Course Pack");
+      try {
+        const data = await api(`/course-packs/${PACK_ID}?output_root=${encodeURIComponent(OUTPUT_ROOT)}`);
+        renderArticle("Course Pack", `<p><b>${escapeHtml(data.pack_id)}</b></p><p>${escapeHtml(data.document_count || 0)} documents · ${escapeHtml(data.chunk_count || 0)} chunks</p><pre class="mini-json">${escapeHtml(JSON.stringify(data.documents || [], null, 2))}</pre>`, data);
+      } catch (error) { renderError("Course Pack failed", error); }
+    });
+    document.querySelectorAll(".actions .btn")[1]?.addEventListener("click", runEvaluationSmoke);
+    document.querySelectorAll(".actions .btn")[2]?.addEventListener("click", async () => { await navigator.clipboard?.writeText(location.href); routeBadge.textContent = "copied"; });
+    document.querySelectorAll(".actions .btn")[3]?.addEventListener("click", () => openSource("overview"));
+
+    async function bootstrapDemo() {
+      setLoading("Course Pack 준비 중");
+      try {
+        await restoreActivePack();
+        await refreshPack();
+        routeBadge.textContent = "ready";
+        renderEmptyChat();
+        resizeComposer();
+        questionInput.focus();
+      } catch (error) {
+        renderError("Course Pack을 불러오지 못했습니다", error);
+      }
+    }
+
+    bootstrapDemo();
+  </script>
+
+</body>
+</html>

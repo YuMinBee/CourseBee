@@ -1,16 +1,16 @@
 ﻿from __future__ import annotations
 
 import hashlib
-import json
 import posixpath
 import re
-import zipfile
 import xml.etree.ElementTree as ET
+import zipfile
 from dataclasses import asdict
 from pathlib import Path
 from uuid import uuid4
 
 from v2.graph.concept_map import build_concept_map
+from v2.io_utils import atomic_write_json
 from v2.providers.ocr import LocalTesseractOCRProvider
 from v2.rag.chunking import chunk_pages
 from v2.schemas import DocumentIngestResult, PageMarkdown
@@ -273,5 +273,4 @@ def _read_text(path: Path, warnings: list[str]) -> str:
 
 
 def _write_json(path: Path, payload: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    atomic_write_json(path, payload)

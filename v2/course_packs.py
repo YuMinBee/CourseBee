@@ -5,27 +5,47 @@ import hashlib
 import json
 import re
 import time
-from collections import OrderedDict
+from collections import Counter, OrderedDict
+from collections.abc import Callable
 from dataclasses import asdict
 from pathlib import Path
-from uuid import uuid4
+from threading import Event
 from urllib.parse import quote
+from uuid import uuid4
 
 from v2.audio_script import generate_audio_script
 from v2.background_knowledge import BACKGROUND_SCOPE_VALUES, background_chunks_for_query
+from v2.course_pack_artifacts import (
+    artifact_name as _artifact_name,
+    artifact_preview as _artifact_preview,
+    export_concept_map as _export_concept_map,
+    save_artifact,
+)
+from v2.course_pack_store import (
+    course_pack_dir,
+    list_course_packs,
+    load_course_pack,
+    load_course_pack_chunks,
+)
 from v2.course_summary import generate_course_pack_summary
-from v2.documents import chunk_from_dict, load_chunks
+from v2.documents import load_chunks
 from v2.graph.concept_map import build_concept_map
 from v2.hierarchical_retrieval import build_hierarchical_summary_index, retrieve_hierarchical_summary
 from v2.ingest import ingest_local_document
+from v2.io_utils import atomic_write_json
 from v2.providers.base import LLMProvider
 from v2.providers.local import MockLLMProvider
 from v2.providers.ollama import OllamaProvider
+from v2.providers.semantic import SemanticHybridRetriever
+from v2.providers.web_search import WebSearchProviderError, WikipediaSearchProvider, web_results_to_chunks
 from v2.rag.answering import _sources_from_chunks, generate_source_grounded_answer
 from v2.rag.retrieval import chunks_from_contexts, retrieve_contexts
 from v2.retrieval_router import classify_course_pack_question
+from v2.runtime import current_request_id
 from v2.schemas import Chunk
 from v2.study_kit import generate_study_kit
+
+__all__ = ["list_course_packs", "load_course_pack"]
 
 OVERVIEW_QUERY_TERMS = {
     "전체",
@@ -42,9 +62,7 @@ OVERVIEW_QUERY_TERMS = {
     "outline",
 }
 
-
-def course_pack_dir(pack_id: str, output_root: str = "outputs") -> Path:
-    return Path(output_root) / "course_packs" / pack_id
+CoursePackProgressCallback = Callable[[str, int, int], None]
 
 
 def create_course_pack(
@@ -52,22 +70,41 @@ def create_course_pack(
     output_root: str = "outputs",
     max_chunk_chars: int = 900,
     pack_id: str | None = None,
+    append: bool = False,
+    progress_callback: CoursePackProgressCallback | None = None,
 ) -> dict:
     warnings: list[str] = []
-    documents: list[dict] = []
-    chunks: list[Chunk] = []
+    new_documents: list[dict] = []
+    new_chunks: list[Chunk] = []
 
-    for path in paths:
+    requested_pack_id = _safe_pack_id(pack_id) if pack_id else None
+    existing_documents: list[dict] = []
+    existing_chunks: list[Chunk] = []
+    if append and requested_pack_id:
+        existing_pack = load_course_pack(requested_pack_id, output_root=output_root)
+        if existing_pack.get("output_dir"):
+            existing_documents = list(existing_pack.get("documents") or [])
+            existing_chunks = load_course_pack_chunks(requested_pack_id, output_root=output_root)
+            warnings.extend(existing_pack.get("warnings") or [])
+
+    total_documents = len(paths)
+    for index, path in enumerate(paths, start=1):
         result = ingest_local_document(path=path, output_root=output_root, max_chunk_chars=max_chunk_chars)
         document = result.to_dict()
-        documents.append(document)
+        new_documents.append(document)
         warnings.extend([f"{result.filename}: {warning}" for warning in result.warnings])
         for chunk in load_chunks(result.doc_id, output_root=output_root):
             chunk.metadata.setdefault("doc_id", result.doc_id)
             chunk.metadata.setdefault("filename", result.filename)
-            chunks.append(chunk)
+            new_chunks.append(chunk)
+        _report_course_pack_progress(progress_callback, "ingesting_documents", index, total_documents)
 
-    safe_pack_id = _safe_pack_id(pack_id) if pack_id else _pack_id_from_documents(documents)
+    documents, added_document_count, duplicate_document_count = _merge_course_pack_documents(
+        existing_documents,
+        new_documents,
+    )
+    chunks = _merge_course_pack_chunks(existing_chunks, new_chunks)
+    safe_pack_id = requested_pack_id or _pack_id_from_documents(documents)
     for chunk in chunks:
         chunk.metadata["pack_id"] = safe_pack_id
 
@@ -78,37 +115,67 @@ def create_course_pack(
         "pack_id": safe_pack_id,
         "document_count": len(documents),
         "chunk_count": len(chunks),
+        "added_document_count": added_document_count,
+        "duplicate_document_count": duplicate_document_count,
         "documents": documents,
         "output_dir": str(output_dir),
-        "warnings": warnings,
+        "warnings": list(dict.fromkeys(warnings)),
     }
 
     _write_json(output_dir / "course_pack.json", response)
     _write_json(output_dir / "chunks.json", {"chunks": [asdict(chunk) for chunk in chunks]})
+    _report_course_pack_progress(progress_callback, "building_concept_map", total_documents, total_documents)
     build_concept_map(chunks, output_dir=str(output_dir))
+    _report_course_pack_progress(progress_callback, "building_summary_index", total_documents, total_documents)
     _write_json(output_dir / "hierarchical_summary_index.json", build_hierarchical_summary_index(chunks, safe_pack_id))
     _write_json(output_dir / "summary.json", {})
     _write_json(output_dir / "study_kit.json", {})
     _write_json(output_dir / "audio_script.json", {})
+    _report_course_pack_progress(progress_callback, "finalizing", total_documents, total_documents)
     return response
 
 
-def load_course_pack(pack_id: str, output_root: str = "outputs") -> dict:
-    path = course_pack_dir(pack_id, output_root=output_root) / "course_pack.json"
-    if not path.exists():
-        return {"pack_id": pack_id, "warnings": [f"course pack not found: {pack_id}"]}
-    return json.loads(path.read_text(encoding="utf-8"))
+def _merge_course_pack_documents(existing: list[dict], incoming: list[dict]) -> tuple[list[dict], int, int]:
+    documents = list(existing)
+    seen = {_document_identity(document) for document in documents}
+    added = 0
+    duplicates = 0
+    for document in incoming:
+        identity = _document_identity(document)
+        if identity in seen:
+            duplicates += 1
+            continue
+        documents.append(document)
+        seen.add(identity)
+        added += 1
+    return documents, added, duplicates
 
 
-def load_course_pack_chunks(pack_id: str, output_root: str = "outputs") -> list[Chunk]:
-    path = course_pack_dir(pack_id, output_root=output_root) / "chunks.json"
-    if not path.exists():
-        return []
-    data = json.loads(path.read_text(encoding="utf-8"))
-    chunks = [chunk_from_dict(item) for item in data.get("chunks", [])]
-    for chunk in chunks:
-        chunk.metadata.setdefault("pack_id", pack_id)
+def _merge_course_pack_chunks(existing: list[Chunk], incoming: list[Chunk]) -> list[Chunk]:
+    chunks: list[Chunk] = []
+    seen: set[tuple[str, str]] = set()
+    for chunk in [*existing, *incoming]:
+        document_identity = str(chunk.metadata.get("doc_id") or chunk.metadata.get("filename") or "document")
+        identity = (document_identity, chunk.chunk_id)
+        if identity in seen:
+            continue
+        chunks.append(chunk)
+        seen.add(identity)
     return chunks
+
+
+def _document_identity(document: dict) -> str:
+    return str(document.get("doc_id") or document.get("filename") or document.get("output_dir") or id(document))
+
+
+def _report_course_pack_progress(
+    callback: CoursePackProgressCallback | None,
+    stage: str,
+    processed_documents: int,
+    total_documents: int,
+) -> None:
+    if callback is not None:
+        callback(stage, processed_documents, total_documents)
 
 
 def ask_course_pack(
@@ -120,33 +187,70 @@ def ask_course_pack(
     llm_provider: str = "mock",
     llm_model: str | None = None,
     allow_general_fallback: bool = False,
+    allow_web_fallback: bool = False,
+    web_provider: str = "wikipedia",
+    web_top_k: int = 3,
+    conversation_history: list[dict] | None = None,
+    token_callback: Callable[[str], None] | None = None,
+    cancel_event: Event | None = None,
 ) -> dict:
     trace = _new_trace()
     total_started = time.perf_counter()
-    answer_provider = _answer_provider(llm_provider, llm_model)
+    conversation = _normalize_conversation(conversation_history)
+    conversation_context_used = _needs_conversation_context(question, conversation)
+    retrieval_question = _contextualized_retrieval_question(question, conversation) if conversation_context_used else question
+    generation_question = _contextualized_generation_question(question, conversation) if conversation_context_used else question
+    answer_provider = _answer_provider(llm_provider, llm_model, token_callback=token_callback, cancel_event=cancel_event)
+    course_allow_general = allow_general_fallback and not allow_web_fallback
 
     if mode in {"auto", "router", "dual", "lightrag", "lightrag_dual"}:
         started = time.perf_counter()
-        route = classify_course_pack_question(question)
+        route = classify_course_pack_question(retrieval_question)
         _trace_stage(trace, "classify_question", started)
         payload = _ask_course_pack_with_router(
             pack_id=pack_id,
-            question=question,
+            question=generation_question,
+            retrieval_question=retrieval_question,
             output_root=output_root,
             top_k=top_k,
             route=route,
             trace=trace,
             answer_provider=answer_provider,
-            allow_general_fallback=allow_general_fallback,
+            allow_general_fallback=course_allow_general,
         )
     elif mode == "local_graph":
-        payload = _ask_course_pack_with_graph(pack_id=pack_id, question=question, output_root=output_root, top_k=top_k, trace=trace, answer_provider=answer_provider, allow_general_fallback=allow_general_fallback)
+        payload = _ask_course_pack_with_graph(pack_id=pack_id, question=generation_question, retrieval_question=retrieval_question, output_root=output_root, top_k=top_k, trace=trace, answer_provider=answer_provider, allow_general_fallback=course_allow_general)
     elif mode in {"hierarchical", "hierarchical_summary"}:
-        payload = _ask_course_pack_with_hierarchical_summary(pack_id=pack_id, question=question, output_root=output_root, top_k=top_k, trace=trace, answer_provider=answer_provider, allow_general_fallback=allow_general_fallback)
+        payload = _ask_course_pack_with_hierarchical_summary(pack_id=pack_id, question=generation_question, retrieval_question=retrieval_question, output_root=output_root, top_k=top_k, trace=trace, answer_provider=answer_provider, allow_general_fallback=course_allow_general)
     else:
-        payload = _ask_course_pack_with_vector(pack_id=pack_id, question=question, output_root=output_root, top_k=top_k, mode=mode, trace=trace, answer_provider=answer_provider, allow_general_fallback=allow_general_fallback)
+        payload = _ask_course_pack_with_vector(pack_id=pack_id, question=generation_question, retrieval_question=retrieval_question, output_root=output_root, top_k=top_k, mode=mode, trace=trace, answer_provider=answer_provider, allow_general_fallback=course_allow_general)
+
+    if payload.get("answer_scope") == "none" and allow_web_fallback:
+        started = time.perf_counter()
+        payload = _answer_with_web_fallback(
+            query=generation_question,
+            search_query=retrieval_question,
+            provider_name=web_provider,
+            top_k=web_top_k,
+            answer_provider=answer_provider,
+            course_payload=payload,
+        )
+        _trace_stage(trace, "external_web_rag", started)
+
+    if payload.get("answer_scope") == "none" and allow_general_fallback:
+        started = time.perf_counter()
+        payload = _answer_with_general_fallback(
+            query=generation_question,
+            answer_provider=answer_provider,
+            previous_payload=payload,
+        )
+        _trace_stage(trace, "general_knowledge_fallback", started)
 
     payload["llm"] = _answer_llm_metadata(llm_provider, llm_model, answer_provider, payload.get("warnings", []))
+    payload["question"] = question
+    payload["retrieval_query"] = retrieval_question
+    payload["conversation_context_used"] = conversation_context_used
+    payload["conversation_turns_used"] = len(conversation) if conversation_context_used else 0
     debug = payload.pop("_retrieval_debug", {})
     _finish_trace(trace, payload, debug, total_started)
     payload["trace"] = trace
@@ -156,11 +260,202 @@ def ask_course_pack(
 
 
 
-def _answer_provider(llm_provider: str, llm_model: str | None) -> LLMProvider:
+def _answer_provider(
+    llm_provider: str,
+    llm_model: str | None,
+    token_callback: Callable[[str], None] | None = None,
+    cancel_event: Event | None = None,
+) -> LLMProvider:
     provider = (llm_provider or "mock").lower()
     if provider in {"ollama", "qwen", "qwen3"}:
-        return OllamaProvider(model=llm_model or "qwen3:14b", timeout=180)
+        return OllamaProvider(
+            model=llm_model or "qwen3:14b",
+            timeout=180,
+            stream_callback=token_callback,
+            cancel_event=cancel_event,
+        )
     return MockLLMProvider()
+
+
+_FOLLOW_UP_PREFIX = re.compile(
+    r"^\s*(그럼|그러면|그렇다면|그건|이건|그것|이것|저것|앞에서|위에서|방금|왜|장점|단점|예시|차이|비교|더|구체적으로|쉽게|어떻게)",
+    re.IGNORECASE,
+)
+
+
+def _normalize_conversation(conversation_history: list[dict] | None) -> list[dict[str, str]]:
+    normalized: list[dict[str, str]] = []
+    for item in (conversation_history or [])[-12:]:
+        if hasattr(item, "model_dump"):
+            item = item.model_dump()
+        elif hasattr(item, "dict"):
+            item = item.dict()
+        if not isinstance(item, dict):
+            continue
+        role = str(item.get("role") or "").strip().lower()
+        content = " ".join(str(item.get("content") or "").split()).strip()
+        if role not in {"user", "assistant"} or not content:
+            continue
+        normalized.append({"role": role, "content": content[:1500]})
+    return normalized
+
+
+def _needs_conversation_context(question: str, conversation: list[dict[str, str]]) -> bool:
+    if not any(item["role"] == "user" for item in conversation):
+        return False
+    compact = " ".join(question.split())
+    if _FOLLOW_UP_PREFIX.search(compact):
+        return True
+    return any(marker in compact for marker in ("이 방식", "그 방식", "이 내용", "그 내용", "두 개", "둘의", "방금 답"))
+
+
+def _contextualized_retrieval_question(question: str, conversation: list[dict[str, str]]) -> str:
+    previous_user = next((item["content"] for item in reversed(conversation) if item["role"] == "user"), "")
+    return f"이전 질문: {previous_user}\n현재 후속 질문: {question}" if previous_user else question
+
+
+def _contextualized_generation_question(question: str, conversation: list[dict[str, str]]) -> str:
+    lines = [f"{'사용자' if item['role'] == 'user' else 'CourseBee'}: {item['content']}" for item in conversation[-6:]]
+    return "최근 대화:\n" + "\n".join(lines) + f"\n\n현재 질문: {question}\n현재 질문에 직접 답하세요."
+
+
+_FALLBACK_METADATA_KEYS = (
+    "mode",
+    "routed_mode",
+    "question_type",
+    "retrieval_plan",
+    "selected_retrievers",
+)
+
+
+def _answer_with_web_fallback(
+    query: str,
+    search_query: str,
+    provider_name: str,
+    top_k: int,
+    answer_provider: LLMProvider,
+    course_payload: dict,
+) -> dict:
+    web_metadata = {
+        "provider": provider_name,
+        "query": search_query,
+        "status": "searching",
+        "result_count": 0,
+        "results": [],
+    }
+    if provider_name != "wikipedia":
+        return _failed_web_payload(
+            course_payload,
+            web_metadata,
+            f"Unsupported web search provider: {provider_name}",
+        )
+
+    try:
+        results = WikipediaSearchProvider().search(search_query, top_k=top_k)
+    except WebSearchProviderError as exc:
+        return _failed_web_payload(course_payload, web_metadata, f"External web search failed: {exc}")
+
+    web_metadata.update(
+        {
+            "status": "used" if results else "no_results",
+            "result_count": len(results),
+            "results": [
+                {"title": result.title, "url": result.url, "language": result.language, "rank": result.rank}
+                for result in results
+            ],
+        }
+    )
+    if not results:
+        return _failed_web_payload(course_payload, web_metadata, "External web search returned no usable results.")
+
+    chunks = web_results_to_chunks(results)
+    result = generate_source_grounded_answer(
+        query=query,
+        chunks=chunks,
+        index_provider=_PreselectedIndexProvider(),
+        llm_provider=answer_provider,
+        top_k=top_k,
+        allow_general_fallback=False,
+    )
+    payload = result.to_dict()
+    payload["answer_scope"] = "external_web" if payload.get("answer") else "none"
+    payload["grounding_status"] = "web_grounded" if payload.get("answer") else "not_answered"
+    payload["general_knowledge_used"] = False
+    payload["web_search_used"] = True
+    payload["web_search"] = web_metadata
+    payload["sentence_citations"] = _sentence_citations(payload.get("answer", ""), chunks)
+    payload["retrieval_mode"] = "external_web"
+    payload["retrieval_details"] = {
+        "implementation": "wikipedia_search_rag",
+        "provider": provider_name,
+        "candidate_chunks": len(chunks),
+        "selected_chunks": len(chunks),
+        "fallback_used": True,
+    }
+    payload["warnings"] = _dedupe_strings(
+        [
+            *(warning for warning in course_payload.get("warnings", []) if "No relevant context" not in warning),
+            *payload.get("warnings", []),
+            "No Course Pack evidence was found; the answer uses cited external web sources.",
+        ]
+    )
+    payload["_retrieval_debug"] = {
+        "candidate_chunks": len(chunks),
+        "selected_chunks": len(chunks),
+        "fallback_used": True,
+        "retrieval_implementation": "wikipedia_search_rag",
+    }
+    _copy_fallback_metadata(payload, course_payload)
+    return payload
+
+
+def _failed_web_payload(course_payload: dict, web_metadata: dict, warning: str) -> dict:
+    payload = {**course_payload}
+    payload["web_search_used"] = True
+    payload["web_search"] = {**web_metadata, "status": web_metadata.get("status", "failed")}
+    if payload["web_search"]["status"] == "searching":
+        payload["web_search"]["status"] = "failed"
+    payload["warnings"] = _dedupe_strings([*payload.get("warnings", []), warning])
+    return payload
+
+
+def _answer_with_general_fallback(query: str, answer_provider: LLMProvider, previous_payload: dict) -> dict:
+    result = generate_source_grounded_answer(
+        query=query,
+        chunks=[],
+        index_provider=_PreselectedIndexProvider(),
+        llm_provider=answer_provider,
+        top_k=1,
+        allow_general_fallback=True,
+    )
+    payload = result.to_dict()
+    payload["web_search_used"] = bool(previous_payload.get("web_search_used"))
+    payload["web_search"] = previous_payload.get("web_search", {})
+    payload["retrieval_mode"] = "general_knowledge_fallback"
+    payload["retrieval_details"] = {
+        "implementation": "llm_general_knowledge",
+        "fallback_used": True,
+        "selected_chunks": 0,
+    }
+    payload["warnings"] = _dedupe_strings([*previous_payload.get("warnings", []), *payload.get("warnings", [])])
+    payload["_retrieval_debug"] = {
+        "candidate_chunks": 0,
+        "selected_chunks": 0,
+        "fallback_used": True,
+        "retrieval_implementation": "llm_general_knowledge",
+    }
+    _copy_fallback_metadata(payload, previous_payload)
+    return payload
+
+
+def _copy_fallback_metadata(target: dict, source: dict) -> None:
+    for key in _FALLBACK_METADATA_KEYS:
+        if key in source:
+            target[key] = source[key]
+
+
+def _dedupe_strings(items: list[str]) -> list[str]:
+    return list(dict.fromkeys(item for item in items if item))
 
 
 def _answer_llm_metadata(
@@ -261,7 +556,7 @@ def _source_key_from_source(source) -> tuple:
 
 def _new_trace() -> dict:
     return {
-        "request_id": f"req_{uuid4().hex[:8]}",
+        "request_id": current_request_id() or f"req_{uuid4().hex[:8]}",
         "stages": [],
         "retrieval_debug": {},
     }
@@ -281,6 +576,10 @@ def _trace_stage(trace: dict | None, name: str, started: float) -> None:
 def _finish_trace(trace: dict, payload: dict, debug: dict, started: float) -> None:
     fallback_used = bool(debug.get("fallback_used")) or "fallback" in str(payload.get("retrieval_mode", ""))
     trace["latency_ms"] = round((time.perf_counter() - started) * 1000, 3)
+    trace["answer_scope"] = payload.get("answer_scope", "course_pack")
+    trace["grounding_status"] = payload.get("grounding_status", "grounded")
+    trace["general_knowledge_used"] = bool(payload.get("general_knowledge_used"))
+    trace["web_search_used"] = bool(payload.get("web_search_used"))
     trace["retrieval_debug"] = {
         "candidate_chunks": debug.get("candidate_chunks", 0),
         "selected_chunks": debug.get("selected_chunks", len(payload.get("sources", []))),
@@ -289,6 +588,12 @@ def _finish_trace(trace: dict, payload: dict, debug: dict, started: float) -> No
         "fallback_used": fallback_used,
         "retrieval_mode": payload.get("retrieval_mode"),
         "routed_mode": payload.get("routed_mode") or payload.get("mode"),
+        "retrieval_implementation": debug.get("retrieval_implementation", "local_hybrid"),
+        "embedding_model": debug.get("embedding_model"),
+        "reranker_model": debug.get("reranker_model"),
+        "lexical_candidates": debug.get("lexical_candidates", 0),
+        "dense_candidates": debug.get("dense_candidates", 0),
+        "reranked": debug.get("reranked", False),
     }
 
 
@@ -385,6 +690,31 @@ def _audio_script_text(script: list[dict]) -> str:
     return "\n\n".join(lines)
 
 
+async def _save_edge_tts_script(
+    edge_tts_module,
+    script: list[dict],
+    target: Path,
+    host_voice: str,
+    guest_voice: str,
+) -> None:
+    audio_chunks = 0
+    with target.open("wb") as handle:
+        for segment in script:
+            text = str(segment.get("text") or segment.get("content") or "").strip()
+            if not text:
+                continue
+            speaker = str(segment.get("speaker") or "narrator").lower()
+            voice = guest_voice if speaker == "guest" else host_voice
+            communicate = edge_tts_module.Communicate(text, voice)
+            async for chunk in communicate.stream():
+                if chunk.get("type") != "audio" or not chunk.get("data"):
+                    continue
+                handle.write(chunk["data"])
+                audio_chunks += 1
+    if audio_chunks == 0:
+        raise RuntimeError("Edge TTS returned no audio frames")
+
+
 def _existing_audio_artifact(output_dir: Path) -> Path | None:
     preferred = output_dir / "audio_overview_edge_tts.mp3"
     if preferred.exists():
@@ -406,6 +736,7 @@ def tts_for_course_pack(
     target_chars: int | None = None,
     knowledge_scope: str = "course_pack",
     voice: str = "ko-KR-SunHiNeural",
+    guest_voice: str = "ko-KR-InJoonNeural",
     reuse_existing: bool = False,
 ) -> dict:
     payload = audio_script_for_course_pack(
@@ -431,27 +762,38 @@ def tts_for_course_pack(
     script_text = _audio_script_text(payload.get("script", []))
 
     if audio_path is None and script_text:
+        temporary = output_dir / f".{target.stem}.{uuid4().hex}.tmp.mp3"
         try:
             import edge_tts
 
             async def _save_audio() -> None:
-                communicate = edge_tts.Communicate(script_text, voice)
-                await communicate.save(str(target))
+                await _save_edge_tts_script(
+                    edge_tts,
+                    payload.get("script", []),
+                    temporary,
+                    host_voice=voice,
+                    guest_voice=guest_voice,
+                )
 
             asyncio.run(_save_audio())
+            if not temporary.exists() or temporary.stat().st_size == 0:
+                raise RuntimeError("Edge TTS returned an empty audio file")
+            temporary.replace(target)
             audio_path = target
             tts_status = "edge_tts"
         except Exception as exc:  # pragma: no cover - network/provider dependent.
-            fallback = _existing_audio_artifact(output_dir)
+            fallback = _existing_audio_artifact(output_dir) if reuse_existing else None
             if fallback:
                 audio_path = fallback
                 tts_status = "existing_mp3"
                 warnings.append(f"Edge TTS failed; reused existing mp3 artifact: {exc}")
             else:
                 tts_status = "failed"
-                warnings.append(f"Edge TTS failed and no existing mp3 artifact was found: {exc}")
+                warnings.append(f"Edge TTS failed; the newly generated script was not replaced with stale audio: {exc}")
+        finally:
+            temporary.unlink(missing_ok=True)
     elif audio_path is None:
-        fallback = _existing_audio_artifact(output_dir)
+        fallback = _existing_audio_artifact(output_dir) if reuse_existing else None
         if fallback:
             audio_path = fallback
             tts_status = "existing_mp3"
@@ -464,6 +806,7 @@ def tts_for_course_pack(
     payload["audio_path"] = str(audio_path) if audio_path else None
     payload["artifact_name"] = audio_path.name if audio_path else None
     payload["audio_url"] = _audio_file_url(pack_id, audio_path.name, output_root) if audio_path else None
+    payload["voices"] = {"host": voice, "narrator": voice, "guest": guest_voice}
     payload["duration_seconds"] = None
     payload["warnings"] = warnings
     if audio_path:
@@ -476,44 +819,7 @@ def concept_map_for_course_pack(
     output_root: str = "outputs",
 ) -> dict:
     chunks = load_course_pack_chunks(pack_id, output_root=output_root)
-    return build_concept_map(chunks, output_dir=str(course_pack_dir(pack_id, output_root=output_root)))
-
-
-MINDMAP_BRANCHES = [
-    {
-        "id": "tokenization",
-        "label": "Tokenization",
-        "summary": "Input text is stabilized before it enters sequence or pattern models.",
-        "concepts": ["Tokenizer", "subword tokenization", "BPE", "OOV"],
-    },
-    {
-        "id": "sequence_modeling",
-        "label": "Sequence Modeling",
-        "summary": "Models that process token order and contextual flow across a sentence.",
-        "concepts": ["sequence data", "RNN", "LSTM", "long-term dependency"],
-    },
-    {
-        "id": "pattern_extraction",
-        "label": "Pattern Extraction",
-        "summary": "Models that capture local phrases or n-gram-like patterns for downstream tasks.",
-        "concepts": ["CNN", "local pattern", "text classification"],
-    },
-]
-
-MINDMAP_RELATIONS = [
-    ("BPE", "OOV", "reduces"),
-    ("BPE", "subword tokenization", "is_a"),
-    ("subword tokenization", "BPE", "prerequisite_of"),
-    ("RNN", "sequence data", "handles"),
-    ("LSTM", "RNN", "improves"),
-    ("LSTM", "long-term dependency", "handles"),
-    ("CNN", "local pattern", "captures"),
-    ("CNN", "text classification", "used_in"),
-    ("BPE", "NLP pipeline", "used_in"),
-    ("RNN", "NLP pipeline", "used_in"),
-    ("LSTM", "NLP pipeline", "used_in"),
-    ("CNN", "NLP pipeline", "used_in"),
-]
+    return _load_or_build_course_pack_graph(pack_id, output_root, chunks)
 
 
 def mindmap_view_for_course_pack(
@@ -530,53 +836,96 @@ def _mindmap_view_from_graph(pack_id: str, graph: dict) -> dict:
     nodes = graph.get("nodes", [])
     edges = graph.get("edges", [])
     node_by_id = {str(node.get("id") or node.get("label")): node for node in nodes}
-    concepts = {node_id for node_id, node in node_by_id.items() if node.get("type") == "concept"}
+    concept_nodes = [(node_id, node) for node_id, node in node_by_id.items() if node.get("type") == "concept"]
+    concept_ids = {node_id for node_id, _ in concept_nodes}
+    concept_edges = [
+        edge
+        for edge in edges
+        if str(edge.get("source")) in concept_ids and str(edge.get("target")) in concept_ids
+    ]
+    degree = Counter()
+    for edge in concept_edges:
+        degree[str(edge.get("source"))] += 1
+        degree[str(edge.get("target"))] += 1
+
+    concepts_by_document: OrderedDict[str, list[str]] = OrderedDict()
+    ungrouped: list[str] = []
+    for concept_id, node in concept_nodes:
+        documents = node.get("documents") or []
+        filenames = [str(item.get("filename") or item.get("doc_id")) for item in documents if isinstance(item, dict)]
+        if not filenames:
+            ungrouped.append(concept_id)
+        for filename in filenames:
+            concepts_by_document.setdefault(filename, []).append(concept_id)
+    if ungrouped:
+        concepts_by_document["Key concepts"] = ungrouped
 
     branches = []
-    for branch in MINDMAP_BRANCHES:
-        children = []
-        for concept in branch["concepts"]:
-            node = node_by_id.get(concept, {"id": concept, "label": concept, "type": "concept"})
-            children.append(
-                {
-                    "id": concept,
-                    "label": str(node.get("label") or concept),
-                    "present": concept in concepts,
-                    "evidence": _first_mindmap_evidence(concept, edges),
-                }
-            )
-        branches.append({**branch, "children": children})
+    for index, (document, document_concepts) in enumerate(concepts_by_document.items()):
+        ranked = sorted(set(document_concepts), key=lambda item: (-degree[item], item.lower()))[:8]
+        if not ranked:
+            continue
+        children = [
+            {
+                "id": concept_id,
+                "label": str(node_by_id[concept_id].get("label") or concept_id),
+                "present": True,
+                "evidence": _first_mindmap_evidence(concept_id, edges),
+            }
+            for concept_id in ranked
+        ]
+        label = Path(document).stem if document != "Key concepts" else document
+        branches.append(
+            {
+                "id": f"branch_{index + 1}",
+                "label": label,
+                "summary": f"{len(document_concepts)} concepts grounded in {document}.",
+                "children": children,
+            }
+        )
 
+    relation_edges = sorted(
+        concept_edges,
+        key=lambda edge: (
+            str(edge.get("relation")) == "related_in_context",
+            -(degree[str(edge.get("source"))] + degree[str(edge.get("target"))]),
+        ),
+    )
     relations = []
-    for source, target, fallback_relation in MINDMAP_RELATIONS:
-        relation_edge = _find_mindmap_edge(source, target, edges)
+    seen_relations: set[tuple[str, str, str]] = set()
+    for edge in relation_edges:
+        source = str(edge.get("source"))
+        target = str(edge.get("target"))
+        relation = str(edge.get("relation") or "related_in_context")
+        key = (source, target, relation)
+        if source == target or key in seen_relations:
+            continue
+        seen_relations.add(key)
         relations.append(
             {
                 "source": source,
                 "target": target,
-                "relation": str(relation_edge.get("relation") or fallback_relation) if relation_edge else fallback_relation,
-                "present": bool(relation_edge) or (source in concepts and target in concepts),
-                "evidence": (relation_edge.get("evidence") or [None])[0] if relation_edge else None,
+                "relation": relation,
+                "present": True,
+                "evidence": (edge.get("evidence") or [None])[0],
             }
         )
+        if len(relations) >= 16:
+            break
+
+    top_concepts = sorted(concept_ids, key=lambda item: (-degree[item], item.lower()))[:5]
+    summary = "Key concepts: " + ", ".join(top_concepts) if top_concepts else "No concepts were extracted."
 
     view = {
         "pack_id": pack_id,
-        "title": "NLP 11-week Course Mindmap",
-        "root": {"id": "nlp_pipeline", "label": "NLP Pipeline", "summary": "BPE stabilizes input; RNN/LSTM model sequence flow; CNN captures local patterns."},
+        "title": "Course Pack Mindmap",
+        "root": {"id": pack_id, "label": "Course Pack", "summary": summary},
         "branches": branches,
         "relations": relations,
         "source_graph": {"node_count": len(nodes), "edge_count": len(edges)},
         "warnings": graph.get("warnings", []),
     }
     return view
-
-
-def _find_mindmap_edge(source: str, target: str, edges: list[dict]) -> dict | None:
-    for edge in edges:
-        if str(edge.get("source")) == source and str(edge.get("target")) == target:
-            return edge
-    return None
 
 
 def _first_mindmap_evidence(concept: str, edges: list[dict]) -> dict | None:
@@ -600,6 +949,7 @@ def artifacts_for_course_pack(
         "summary": "summary.json",
         "study_kit": "study_kit.json",
         "audio_script": "audio_script.json",
+        "audio_overview": "audio_overview.json",
         "graph": "graph.json",
         "chunks": "chunks.json",
         "concept_map_mermaid": "concept_map.mmd",
@@ -659,15 +1009,46 @@ def _ask_course_pack_with_vector(
     question: str,
     output_root: str,
     top_k: int,
+    retrieval_question: str | None = None,
     mode: str = "vector",
     trace: dict | None = None,
     answer_provider: LLMProvider | None = None,
     allow_general_fallback: bool = False,
 ) -> dict:
     all_chunks = load_course_pack_chunks(pack_id, output_root=output_root)
+    search_question = retrieval_question or question
     started = time.perf_counter()
-    chunks = _balanced_chunks(query=question, chunks=all_chunks, top_k=top_k)
-    _trace_stage(trace, "select_vector_chunks", started)
+    if mode in {"semantic", "semantic_hybrid", "semantic_rerank"}:
+        semantic_run = SemanticHybridRetriever(
+            include_lexical=mode != "semantic",
+            use_reranker=mode == "semantic_rerank",
+        ).search_with_details(search_question, all_chunks, top_k=top_k)
+        chunks = semantic_run.chunks
+        retrieval_mode = semantic_run.retrieval_mode
+        retrieval_details = semantic_run.details()
+        retrieval_warnings = semantic_run.warnings
+        retrieval_debug = {
+            **retrieval_details,
+            "retrieval_implementation": semantic_run.implementation,
+        }
+        _trace_stage(trace, "select_semantic_chunks", started)
+    else:
+        chunks = _balanced_chunks(query=search_question, chunks=all_chunks, top_k=top_k)
+        retrieval_mode = "vector"
+        retrieval_details = {
+            "implementation": "local_hybrid",
+            "candidate_chunks": len(all_chunks),
+            "selected_chunks": len(chunks),
+            "fallback_used": False,
+        }
+        retrieval_warnings = []
+        retrieval_debug = {
+            "candidate_chunks": len(all_chunks),
+            "selected_chunks": len(chunks),
+            "fallback_used": False,
+            "retrieval_implementation": "local_hybrid",
+        }
+        _trace_stage(trace, "select_vector_chunks", started)
 
     started = time.perf_counter()
     result = generate_source_grounded_answer(
@@ -683,12 +1064,10 @@ def _ask_course_pack_with_vector(
     payload = result.to_dict()
     payload["sentence_citations"] = _sentence_citations(payload.get("answer", ""), chunks)
     payload["mode"] = mode
-    payload["retrieval_mode"] = "vector"
-    payload["_retrieval_debug"] = {
-        "candidate_chunks": len(all_chunks),
-        "selected_chunks": len(chunks),
-        "fallback_used": False,
-    }
+    payload["retrieval_mode"] = retrieval_mode
+    payload["retrieval_details"] = retrieval_details
+    payload["warnings"] = [*payload.get("warnings", []), *retrieval_warnings]
+    payload["_retrieval_debug"] = retrieval_debug
     return payload
 
 
@@ -697,14 +1076,16 @@ def _ask_course_pack_with_router(
     question: str,
     output_root: str,
     top_k: int,
+    retrieval_question: str | None = None,
     route: dict | None = None,
     trace: dict | None = None,
     answer_provider: LLMProvider | None = None,
     allow_general_fallback: bool = False,
 ) -> dict:
+    search_question = retrieval_question or question
     if route is None:
         started = time.perf_counter()
-        route = classify_course_pack_question(question)
+        route = classify_course_pack_question(search_question)
         _trace_stage(trace, "classify_question", started)
 
     started = time.perf_counter()
@@ -712,11 +1093,11 @@ def _ask_course_pack_with_router(
     _trace_stage(trace, "route_decision", started)
 
     if selected_mode == "local_graph":
-        payload = _ask_course_pack_with_graph(pack_id=pack_id, question=question, output_root=output_root, top_k=top_k, trace=trace, answer_provider=answer_provider, allow_general_fallback=allow_general_fallback)
+        payload = _ask_course_pack_with_graph(pack_id=pack_id, question=question, retrieval_question=search_question, output_root=output_root, top_k=top_k, trace=trace, answer_provider=answer_provider, allow_general_fallback=allow_general_fallback)
     elif selected_mode == "hierarchical":
-        payload = _ask_course_pack_with_hierarchical_summary(pack_id=pack_id, question=question, output_root=output_root, top_k=top_k, trace=trace, answer_provider=answer_provider, allow_general_fallback=allow_general_fallback)
+        payload = _ask_course_pack_with_hierarchical_summary(pack_id=pack_id, question=question, retrieval_question=search_question, output_root=output_root, top_k=top_k, trace=trace, answer_provider=answer_provider, allow_general_fallback=allow_general_fallback)
     else:
-        payload = _ask_course_pack_with_vector(pack_id=pack_id, question=question, output_root=output_root, top_k=top_k, trace=trace, answer_provider=answer_provider, allow_general_fallback=allow_general_fallback)
+        payload = _ask_course_pack_with_vector(pack_id=pack_id, question=question, retrieval_question=search_question, output_root=output_root, top_k=top_k, trace=trace, answer_provider=answer_provider, allow_general_fallback=allow_general_fallback)
 
     payload["mode"] = "auto"
     payload["routed_mode"] = selected_mode
@@ -735,13 +1116,15 @@ def _ask_course_pack_with_hierarchical_summary(
     question: str,
     output_root: str,
     top_k: int,
+    retrieval_question: str | None = None,
     trace: dict | None = None,
     answer_provider: LLMProvider | None = None,
     allow_general_fallback: bool = False,
 ) -> dict:
     all_chunks = load_course_pack_chunks(pack_id, output_root=output_root)
+    search_question = retrieval_question or question
     started = time.perf_counter()
-    retrieval = retrieve_hierarchical_summary(query=question, chunks=all_chunks, pack_id=pack_id, top_k=top_k)
+    retrieval = retrieve_hierarchical_summary(query=search_question, chunks=all_chunks, pack_id=pack_id, top_k=top_k)
     _trace_stage(trace, "retrieve_hierarchical_summary", started)
     chunks = retrieval.pop("chunks")
 
@@ -802,18 +1185,20 @@ def _ask_course_pack_with_graph(
     question: str,
     output_root: str,
     top_k: int,
+    retrieval_question: str | None = None,
     trace: dict | None = None,
     answer_provider: LLMProvider | None = None,
     allow_general_fallback: bool = False,
 ) -> dict:
     all_chunks = load_course_pack_chunks(pack_id, output_root=output_root)
+    search_question = retrieval_question or question
 
     started = time.perf_counter()
     graph = _load_or_build_course_pack_graph(pack_id, output_root=output_root, chunks=all_chunks)
     _trace_stage(trace, "load_course_graph", started)
 
     started = time.perf_counter()
-    graph_selection = _select_course_graph_context(question, graph)
+    graph_selection = _select_course_graph_context(search_question, graph)
     graph_edges = graph_selection["graph_context"]
     _trace_stage(trace, "retrieve_graph_context", started)
 
@@ -823,13 +1208,15 @@ def _ask_course_pack_with_graph(
     retrieval_mode = "course_graph_path" if graph_selection["graph_paths"] else "local_graph"
 
     if graph_chunks:
-        chunks = _dedupe_chunks(graph_chunks)[:top_k]
+        supplemental_chunks = _balanced_chunks(query=search_question, chunks=all_chunks, top_k=top_k)
+        chunks = _dedupe_chunks([*graph_chunks, *supplemental_chunks])[:top_k]
         fallback_used = False
     else:
+        supplemental_chunks = []
         retrieval_mode = "local_graph_fallback_vector"
         fallback_used = True
         warnings.append("No matching course graph evidence was found. Falling back to balanced vector retrieval.")
-        chunks = _balanced_chunks(query=question, chunks=all_chunks, top_k=top_k)
+        chunks = _balanced_chunks(query=search_question, chunks=all_chunks, top_k=top_k)
     _trace_stage(trace, "select_evidence_chunks", started)
 
     started = time.perf_counter()
@@ -858,6 +1245,7 @@ def _ask_course_pack_with_graph(
         "selected_chunks": len(chunks),
         "candidate_graph_edges": len(graph.get("edges", [])),
         "selected_graph_edges": len(graph_edges),
+        "supplemental_chunks": len(supplemental_chunks),
         "fallback_used": fallback_used,
     }
     return payload
@@ -865,6 +1253,13 @@ def _ask_course_pack_with_graph(
 
 def _load_or_build_course_pack_graph(pack_id: str, output_root: str, chunks: list[Chunk]) -> dict:
     output_dir = course_pack_dir(pack_id, output_root=output_root)
+    graph_path = output_dir / "graph.json"
+    try:
+        graph = json.loads(graph_path.read_text(encoding="utf-8"))
+        if isinstance(graph, dict) and isinstance(graph.get("nodes"), list) and isinstance(graph.get("edges"), list):
+            return graph
+    except (OSError, json.JSONDecodeError, TypeError, ValueError):
+        pass
     return build_concept_map(chunks, output_dir=str(output_dir))
 
 
@@ -1073,13 +1468,21 @@ def _dedupe_graph_edges(edges: list[dict]) -> list[dict]:
 
 def _query_entities(question: str, graph: dict) -> set[str]:
     normalized = question.lower()
+    compact_question = re.sub(r"[^0-9a-z가-힣]", "", normalized)
     entities: set[str] = set()
     for node in graph.get("nodes", []):
         if node.get("type") != "concept":
             continue
         node_id = str(node.get("id", ""))
         label = str(node.get("label") or node_id)
-        if node_id.lower() in normalized or label.lower() in normalized:
+        compact_id = re.sub(r"[^0-9a-z가-힣]", "", node_id.lower())
+        compact_label = re.sub(r"[^0-9a-z가-힣]", "", label.lower())
+        if (
+            node_id.lower() in normalized
+            or label.lower() in normalized
+            or (len(compact_id) >= 2 and compact_id in compact_question)
+            or (len(compact_label) >= 2 and compact_label in compact_question)
+        ):
             entities.add(node_id)
     return entities
 
@@ -1141,25 +1544,40 @@ def _balanced_chunks(query: str, chunks: list[Chunk], top_k: int) -> list[Chunk]
 
     groups = _group_chunks_by_document(chunks)
     is_overview = _is_overview_query(query)
+    group_selected: list[Chunk] = []
     selected: list[Chunk] = []
 
     for group in groups.values():
         contexts = retrieve_contexts(query=query, chunks=group, top_k=1).contexts if query else []
         if contexts:
-            selected.extend(chunks_from_contexts(contexts))
+            group_selected.extend(chunks_from_contexts(contexts))
             continue
         if is_overview:
             representative = _representative_chunk(group)
             if representative is not None:
-                selected.append(representative)
+                group_selected.append(representative)
+
+    selected.extend(_spread_chunks(group_selected, top_k) if is_overview else group_selected)
 
     global_contexts = retrieve_contexts(query=query, chunks=chunks, top_k=max(top_k, 1)).contexts if query else []
-    selected.extend(chunks_from_contexts(global_contexts))
+    if not is_overview or len(selected) < top_k:
+        selected.extend(chunks_from_contexts(global_contexts))
 
     if not selected and is_overview:
         selected.extend(chunk for chunk in (_representative_chunk(group) for group in groups.values()) if chunk is not None)
 
     return _dedupe_chunks(selected)[:top_k]
+
+
+def _spread_chunks(chunks: list[Chunk], limit: int) -> list[Chunk]:
+    if limit <= 0 or not chunks:
+        return []
+    if len(chunks) <= limit:
+        return list(chunks)
+    if limit == 1:
+        return [chunks[0]]
+    indexes = [round(index * (len(chunks) - 1) / (limit - 1)) for index in range(limit)]
+    return [chunks[index] for index in indexes]
 
 
 def _group_chunks_by_document(chunks: list[Chunk]) -> OrderedDict[str, list[Chunk]]:
@@ -1217,123 +1635,12 @@ def _safe_pack_id(pack_id: str | None) -> str:
     return cleaned or f"pack_{uuid4().hex[:12]}"
 
 
-def _artifact_name(text: str) -> str:
-    cleaned = re.sub(r"[^A-Za-z0-9가-힣_.-]+", "-", text or "answer").strip("-_.")
-    return (cleaned or "answer")[:80]
-
-
 def _save_pack_artifact(pack_id: str, output_root: str, name: str, payload: dict) -> None:
-    path = course_pack_dir(pack_id, output_root=output_root) / name
-    _write_json(path, payload)
+    save_artifact(course_pack_dir(pack_id, output_root=output_root), name, payload)
 
 
 def _write_json(path: Path, payload: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-
-
-def _artifact_preview(path: Path, include_content: bool) -> dict:
-    preview = {
-        "name": path.name,
-        "path": str(path),
-        "exists": path.exists(),
-    }
-    if not path.exists() or not include_content:
-        return preview
-    if path.suffix.lower() == ".json":
-        try:
-            preview["data"] = json.loads(path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError as error:
-            preview["error"] = f"invalid json: {error}"
-        return preview
-    text = path.read_text(encoding="utf-8")
-    preview["text"] = text[:12000]
-    preview["truncated"] = len(text) > 12000
-    return preview
-
-
-def _export_concept_map(graph: dict, output_dir: Path, max_nodes: int, max_edges: int) -> dict:
-    max_nodes = max(1, max_nodes)
-    max_edges = max(1, max_edges)
-    nodes = graph.get("nodes", [])[:max_nodes]
-    node_ids = {node.get("id") for node in nodes}
-    edges = [edge for edge in graph.get("edges", []) if edge.get("source") in node_ids and edge.get("target") in node_ids]
-    edges = edges[:max_edges]
-    warnings: list[str] = []
-    if len(graph.get("nodes", [])) > len(nodes):
-        warnings.append(f"Concept map export limited nodes to {len(nodes)} of {len(graph.get('nodes', []))}.")
-    if len(graph.get("edges", [])) > len(edges):
-        warnings.append(f"Concept map export limited edges to {len(edges)} of {len(graph.get('edges', []))}.")
-
-    mermaid = _concept_map_mermaid(nodes, edges)
-    html = _concept_map_html(mermaid)
-    mermaid_path = output_dir / "concept_map.mmd"
-    html_path = output_dir / "concept_map.html"
-    mermaid_path.parent.mkdir(parents=True, exist_ok=True)
-    mermaid_path.write_text(mermaid, encoding="utf-8")
-    html_path.write_text(html, encoding="utf-8")
-    return {
-        "format": "mermaid",
-        "mermaid_path": str(mermaid_path),
-        "html_path": str(html_path),
-        "mermaid": mermaid,
-        "exported_node_count": len(nodes),
-        "exported_edge_count": len(edges),
-        "warnings": warnings,
-    }
-
-
-def _concept_map_mermaid(nodes: list[dict], edges: list[dict]) -> str:
-    lines = ["flowchart LR"]
-    id_map = {str(node.get("id")): f"n{index}" for index, node in enumerate(nodes)}
-    for node in nodes:
-        node_id = str(node.get("id"))
-        mermaid_id = id_map[node_id]
-        label = _mermaid_label(str(node.get("label") or node_id))
-        shape = "{{{label}}}" if node.get("type") == "document" else "[{label}]"
-        lines.append(f"  {mermaid_id}{shape.format(label=label)}")
-    for edge in edges:
-        source = id_map.get(str(edge.get("source")))
-        target = id_map.get(str(edge.get("target")))
-        if not source or not target:
-            continue
-        relation = _mermaid_label(str(edge.get("relation") or "related_to"))
-        lines.append(f"  {source} -- {relation} --> {target}")
-    return "\n".join(lines) + "\n"
-
-
-def _concept_map_html(mermaid: str) -> str:
-    escaped = mermaid.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-    return "\n".join(
-        [
-            "<!doctype html>",
-            "<html lang=\"ko\">",
-            "<head>",
-            "  <meta charset=\"utf-8\" />",
-            "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />",
-            "  <title>BeePDF Course Pack Concept Map</title>",
-            "  <style>body{font-family:Arial,sans-serif;margin:24px;background:#f7f7f8;color:#171717}.wrap{max-width:1200px;margin:auto;background:white;border:1px solid #ddd;border-radius:8px;padding:20px}pre{white-space:pre-wrap;background:#111;color:#eee;padding:16px;border-radius:6px;overflow:auto}</style>",
-            "</head>",
-            "<body>",
-            "  <div class=\"wrap\">",
-            "    <h1>BeePDF Course Pack Concept Map</h1>",
-            "    <p>Mermaid diagram generated from GraphRAG-lite concept relationships.</p>",
-            "    <div class=\"mermaid\">",
-            escaped,
-            "    </div>",
-            "    <h2>Mermaid Source</h2>",
-            f"    <pre>{escaped}</pre>",
-            "  </div>",
-            "  <script type=\"module\">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs'; mermaid.initialize({startOnLoad:true});</script>",
-            "</body>",
-            "</html>",
-        ]
-    )
-
-
-def _mermaid_label(text: str) -> str:
-    cleaned = " ".join(text.split())[:80]
-    return "\"" + cleaned.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
+    atomic_write_json(path, payload)
 
 
 class _PreselectedIndexProvider:

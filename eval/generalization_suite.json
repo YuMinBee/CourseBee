@@ -1,0 +1,73 @@
+{
+  "domains": [
+    {
+      "id": "biology",
+      "documents": {
+        "biology_energy.txt": "광합성은 엽록체에서 빛 에너지를 화학 에너지로 전환한다. 세포 호흡은 포도당의 화학 에너지를 ATP로 전환한다.",
+        "biology_cycle.txt": "캘빈 회로는 이산화탄소를 고정해 당 합성에 필요한 물질을 만든다."
+      },
+      "cases": [
+        {
+          "id": "biology_fact",
+          "question": "광합성은 에너지를 어떻게 바꾸나요?",
+          "expected_route": "vector",
+          "expected_source": "biology_energy.txt",
+          "expected_terms": ["빛 에너지", "화학 에너지"]
+        },
+        {
+          "id": "biology_relation",
+          "question": "빛 에너지와 화학 에너지는 광합성에서 어떤 관계인가요?",
+          "expected_route": "local_graph",
+          "expected_source": "biology_energy.txt",
+          "expected_terms": ["빛 에너지", "화학 에너지"]
+        }
+      ]
+    },
+    {
+      "id": "economics",
+      "documents": {
+        "economics_policy.txt": "금리 인상은 대출 비용을 높여 총수요와 물가 상승 압력을 낮춘다.",
+        "economics_choice.txt": "기회비용은 어떤 선택 때문에 포기한 대안 중 가장 큰 가치다."
+      },
+      "cases": [
+        {
+          "id": "economics_fact",
+          "question": "기회비용의 정의는 무엇인가요?",
+          "expected_route": "vector",
+          "expected_source": "economics_choice.txt",
+          "expected_terms": ["기회비용", "포기한 대안"]
+        },
+        {
+          "id": "economics_relation",
+          "question": "금리 인상과 물가 상승 압력은 어떤 관계인가요?",
+          "expected_route": "local_graph",
+          "expected_source": "economics_policy.txt",
+          "expected_terms": ["금리 인상", "물가 상승 압력"]
+        }
+      ]
+    },
+    {
+      "id": "software",
+      "documents": {
+        "software_resilience.txt": "A circuit breaker prevents cascading failures and improves service resilience.",
+        "software_delivery.txt": "Continuous integration runs automated tests before changes are merged."
+      },
+      "cases": [
+        {
+          "id": "software_fact",
+          "question": "What does a circuit breaker prevent?",
+          "expected_route": "vector",
+          "expected_source": "software_resilience.txt",
+          "expected_terms": ["circuit breaker", "cascading failures"]
+        },
+        {
+          "id": "software_relation",
+          "question": "Explain the relationship between circuit breaker and cascading failures.",
+          "expected_route": "local_graph",
+          "expected_source": "software_resilience.txt",
+          "expected_terms": ["circuit breaker", "cascading failures"]
+        }
+      ]
+    }
+  ]
+}

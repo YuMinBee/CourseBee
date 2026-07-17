@@ -1,5 +1,8 @@
 ﻿__pycache__/
 *.py[cod]
+*.egg-info/
+build/
+dist/
 outputs/
 .tmp-tests/
 .env
@@ -7,4 +10,5 @@ outputs/
 venv/
 _backups/
 *.log
+/자연어처리 강의자료/
 

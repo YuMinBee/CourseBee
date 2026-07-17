@@ -1,0 +1,43 @@
+{
+  "description": "Public synthetic CourseBee semantic retrieval benchmark with Korean paraphrases and cross-lingual questions.",
+  "documents": {
+    "tokenization.txt": "토크나이저는 문장을 모델이 처리할 수 있는 토큰 단위로 나눈다. 단어 단위 어휘집은 학습 중 보지 못한 단어를 OOV로 처리해 정보 손실을 만들 수 있다. BPE는 자주 함께 등장하는 문자 쌍을 반복적으로 병합해 서브워드 어휘집을 만든다. 처음 보는 단어도 이미 아는 작은 조각으로 나눌 수 있어 OOV 문제를 줄인다. 어휘집이 너무 크면 희귀 토큰과 메모리 비용이 증가한다.",
+    "sequence_models.txt": "RNN은 입력을 시간 순서대로 처리하며 이전 hidden state를 다음 단계로 전달한다. 긴 문맥에서는 gradient vanishing으로 앞부분의 정보가 약해질 수 있다. LSTM은 input gate, forget gate, output gate를 이용해 유지할 정보와 버릴 정보를 조절하므로 장기 의존 관계를 다루는 데 유리하다.",
+    "text_cnn.txt": "텍스트 CNN은 convolution filter로 인접한 토큰의 지역 패턴을 찾는다. 여러 필터가 서로 다른 n-gram 유사 패턴을 포착하고 pooling이 중요한 특징을 압축하므로 텍스트 분류에 효과적이다.",
+    "attention.txt": "Transformer의 self-attention은 각 토큰이 다른 토큰을 직접 참조하도록 한다. Query, Key, Value의 유사도로 문맥 가중치를 계산하며 순차 연산 없이 긴 거리의 상호작용을 모델링한다.",
+    "grounding.txt": "검색 증강 생성에서는 답변의 근거를 검증할 수 있어야 한다. 각 chunk에 원본 파일명, 페이지 번호, chunk_id를 보존하고 생성 결과에 source citation을 함께 반환하면 사용자가 출처를 추적할 수 있다.",
+    "operations.txt": "배포 파이프라인은 컨테이너 이미지 빌드, readiness 확인, 점진적 릴리스, rollback 절차로 구성된다. 장애 대응에서는 로그와 메트릭을 사용한다."
+  },
+  "cases": [
+    {
+      "id": "cross_lingual_subword",
+      "question": "Which method handles unseen words by splitting them into reusable smaller pieces?",
+      "expected_source": "tokenization.txt"
+    },
+    {
+      "id": "paraphrase_vocabulary_tradeoff",
+      "question": "말뭉치 사전의 규모를 지나치게 키우면 드문 항목과 저장 비용에는 어떤 영향이 생기나?",
+      "expected_source": "tokenization.txt"
+    },
+    {
+      "id": "cross_lingual_long_memory",
+      "question": "Which gated architecture selectively preserves information across long contexts?",
+      "expected_source": "sequence_models.txt"
+    },
+    {
+      "id": "paraphrase_vanishing_gradient",
+      "question": "문장 앞쪽에서 전달되던 학습 신호가 점점 희미해지는 순환 구조의 한계는?",
+      "expected_source": "sequence_models.txt"
+    },
+    {
+      "id": "cross_lingual_local_patterns",
+      "question": "Which classifier detects nearby token patterns with convolution and pooling?",
+      "expected_source": "text_cnn.txt"
+    },
+    {
+      "id": "paraphrase_provenance",
+      "question": "생성된 설명이 어느 자료의 어느 위치에서 나왔는지 확인하려면 무엇을 남겨야 하나?",
+      "expected_source": "grounding.txt"
+    }
+  ]
+}

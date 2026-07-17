@@ -1,6 +1,6 @@
 # Providers
 
-BeePDF v2 separates infrastructure concerns behind provider interfaces. Local implementations are used by default, while cloud services can be added without rewriting the workflow.
+CourseBee v2 separates infrastructure concerns behind provider interfaces. Local implementations are used by default, while cloud services can be added without rewriting the workflow.
 
 ## StorageProvider
 
@@ -68,7 +68,8 @@ Local demo:
 
 - `MockLLMProvider`
 - `OpenAIProvider` when `OPENAI_API_KEY` is configured
-- `OllamaProvider` for local LLM script generation, defaulting to `gemma2:2b` and accepting `qwen3:8b` later
+- `OllamaProvider` for local grounded answers, explicit general-knowledge fallback, and script generation; the demo chat requests `qwen3:14b`
+- `OllamaProvider` can stream token fragments through a callback and checks a cancellation event between fragments.
 
 Future replacements:
 
@@ -83,6 +84,18 @@ Responsibilities:
 - Extract entities and relations.
 - Generate study kits and audio scripts.
 - For Course Pack audio scripts, `llm_provider: "ollama"` can call a local model and fall back to rule output if Ollama is unavailable.
+- For Course Pack Q&A, `allow_general_fallback: true` uses Ollama only when retrieval finds no evidence. The response marks this as `answer_scope: "general_knowledge"`, sets `grounding_status: "ungrounded"`, and returns no source citations.
+- Follow-up questions can include bounded `conversation_history`; independent questions do not inherit stale retrieval terms.
+
+## WebSearchProvider
+
+Local demo:
+
+- `WikipediaSearchProvider` searches Korean Wikipedia first and English Wikipedia as a fallback.
+- Results include a bounded plain-text extract, canonical URL, language, provider, and rank.
+- Results are converted to normal `Chunk` objects so answer generation and sentence citations reuse the same grounded pipeline.
+
+Course Pack Q&A enables this layer with `allow_web_fallback: true`. The response uses `answer_scope: "external_web"`, `grounding_status: "web_grounded"`, `web_search_used: true`, and URL-bearing sources. `allow_general_fallback` is evaluated only after this search returns no usable evidence or fails.
 
 ## TTSProvider
 
@@ -105,6 +118,7 @@ Responsibilities:
 Local demo:
 
 - `LexicalRetriever`
+- `HybridRetriever`
 - `SimpleRetriever` compatibility alias
 
 Current implementation:
@@ -112,15 +126,17 @@ Current implementation:
 - Tokenizes query and chunk text.
 - Computes term frequency and IDF-style scores.
 - Returns top-k chunks while preserving `doc_id`, `filename`, `page`, `chunk_id`, and lecture metadata.
+- `EmbeddingRetriever` performs optional multilingual E5 dense retrieval with model and embedding caches.
+- `SemanticHybridRetriever` combines local and dense rankings with Reciprocal Rank Fusion.
+- `semantic_rerank` applies a multilingual Cross-Encoder only to the fused candidate set.
+- Model import/download/runtime failures fall back to local hybrid retrieval and remain visible in response metadata.
 
 Production replacements:
 
-- `EmbeddingRetriever` backed by sentence-transformers or OpenAI embeddings
 - `VectorDBRetriever` backed by Chroma, FAISS, pgvector, or a managed vector DB
-- `HybridRetriever` combining lexical and embedding scores
-- Optional `Reranker` using a cross-encoder or LLM judge
+- Hosted embedding and reranking endpoints behind the same provider contract
 
-This split is intentional. The local demo favors reproducibility and explainability, while production can swap in semantic retrieval behind the same provider boundary.
+This split is intentional. Default local mode favors reproducibility and explainability, while explicit semantic modes demonstrate real retrieve-and-rerank behavior without making heavyweight downloads part of startup.
 ## IndexProvider
 
 Local demo:

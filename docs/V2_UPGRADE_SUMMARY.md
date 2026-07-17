@@ -1,123 +1,82 @@
-﻿# BeePDF v2 Upgrade Summary
+# CourseBee v2 Upgrade Summary
 
 ## What Changed
 
-BeePDF v2 upgrades the original PDF-to-audio pipeline into a runnable local Document AI demo. The service now ingests local documents, creates page-level chunks, retrieves source-grounded contexts, and generates Q&A, Study Kit, Audio Script, and GraphRAG-lite concept maps with citations.
+CourseBee v2 evolves the original single-document BeePDF prototype into a runnable, multi-document learning system. A Course Pack can ingest PDF, PPTX, Markdown, and text sources, then produce source-grounded answers, summaries, study kits, audio scripts, and concept-map artifacts.
 
-## Added Technologies And Why
+The default path is local and deterministic so a reviewer can run the complete demo without paid APIs. OpenAI and Ollama remain optional providers, and generated refinements are accepted only when citation grounding checks pass.
 
-| Area | Added technology | Why it was added |
+## Current Stack
+
+| Area | Implementation | Why it matters |
 | --- | --- | --- |
-| API | FastAPI v2 demo entrypoint in `v2/main.py` | Makes the demo executable through `/docs` instead of remaining as isolated functions. |
-| Parsing | PyMuPDF-based local PDF parsing and dependency-free PPTX slide parsing | Extracts text-layer PDFs and lecture slide text locally without paid APIs. |
-| OCR fallback | Tesseract via `LocalTesseractOCRProvider` | Handles image-only/scanned PDFs in a free local demo path. It remains replaceable by cloud OCR later. |
-| Chunking | Page-level chunk schema | Preserves `page`, `chunk_id`, and char offsets so every answer can cite its source. |
-| Retrieval | Keyword/TF-IDF style local retriever | Provides lightweight source retrieval without embeddings, FAISS, or GPU/model downloads. |
-| RAG | Source-grounded answer generator with Korean templates | Prevents unsupported answers by returning sources from retrieved chunks only, then formats the evidence as readable Korean answers. |
-| LLM API | `OpenAIProvider` using the Responses API | Adds optional API-backed Korean summary refinement while preserving mock/rule fallback when no API key is configured. |
-| Citation Check | Term-overlap source grounding validator | Blocks unsupported LLM summary refinements and falls back to rule-based source-grounded output. |
-| Course Pack | Multi-document pack service with balanced overview retrieval | Groups several lecture files into one learning unit, keeps `doc_id`, `filename`, `page`, and `chunk_id` on every source, and prevents overview answers from being dominated by a single file. |
-| Study Kit | Rule/template generator | Produces summary, key points, glossary, quiz, and expected questions while preserving sources. |
-| Audio Script | Source-grounded script modes | Supports `brief_1min`, `briefing_3min`, `lecture`, and `podcast` modes without requiring real TTS. |
-| GraphRAG-lite | Heuristic concept map builder plus Mermaid/HTML export | Adds relationship/context visualization with evidence-backed edges and portfolio-friendly concept map artifacts without heavy LLM extraction. |
-| Providers | Storage/Parser/OCR/LLM/TTS/Index interfaces | Keeps the local demo replaceable by cloud object storage, managed OCR, external LLM, managed vector DB, and real TTS. |
-| Tests | Local unit/service/E2E-style tests | Verifies ingest, chunks, source-grounded ask, study kit, audio script, concept map, OCR fallback, and API routes. |
+| API | FastAPI application and typed request/response schemas | Exposes the workflow through a reviewable HTTP contract and OpenAPI docs. |
+| Ingestion | PyMuPDF PDF parser, dependency-free PPTX parser, text/Markdown parser | Supports common lecture formats without requiring a cloud parser. |
+| OCR | Local Tesseract fallback | Keeps scanned PDFs in the same ingestion and citation flow. |
+| Chunking | Page/slide-aware chunks with stable source metadata | Preserves `doc_id`, filename, page, offsets, and `chunk_id` for provenance. |
+| Retrieval | Local TF-IDF/character features plus optional multilingual E5, RRF, and Cross-Encoder | Keeps the default reproducible while allowing measured semantic retrieve-and-rerank experiments. |
+| Routing | Fact, overview, relation, learning-path, and mixed question routes | Selects chunk, hierarchical-summary, or concept-graph evidence by question type. |
+| Generation | Rule/mock baseline with optional OpenAI or Ollama refinement | Provides a reproducible free path while retaining replaceable LLM adapters. |
+| Grounding | Source-only answer construction and citation validation | Prevents unsupported refinements from silently replacing grounded output. |
+| Persistence | Atomic JSON artifact writes behind Course Pack store/artifact modules | Avoids partially written artifacts and keeps storage responsibilities isolated. |
+| Runtime | CLI, packaged demo assets, readiness checks, upload limits, Docker | Makes local, wheel, and container execution follow the same application entrypoint. |
+| Quality | Unit/API tests, three dependency-light suites, and one live-model semantic suite | Measures routing, source recall, graph evidence, abstention, noise, conflicts, and semantic ranking. |
 
-## Why These Changes Fit The Existing Project
+## Implemented Surface
 
-The original BeePDF architecture focused on document processing, cost reduction, request tracing, OCR fallback, TTS, and object storage. v2 keeps that direction but upgrades the service layer first, because the full cloud architecture is expensive and harder to reproduce locally.
+- `GET /health` and `GET /ready`
+- `GET /demo` and `GET /demo-ko`
+- document ingest, retrieval, study-kit, audio-script, and concept-map endpoints under `/v2`
+- Course Pack create, upload, list, read, ask, summary, study-kit, audio-script, TTS, and concept-map endpoints
+- background Course Pack job status endpoint for local asynchronous ingestion
+- `.txt`, `.md`, `.pdf`, and `.pptx` ingestion with type/signature and batch-size validation
+- page/slide-level provenance on retrieved sources and graph evidence
+- Mermaid and standalone HTML concept-map exports
+- request IDs, structured error responses, optional `X-API-Key` protection, and safe runtime paths
+- installable `coursebee` CLI and wheel-contained demo fixtures/UI
+- non-root Docker runtime with readiness-based health checks
 
-The result is a local-first but cloud-ready implementation:
+## Evaluation
 
-- Local providers keep the demo free and reproducible.
-- Provider interfaces keep the production path open.
-- Source citations make PDF answers auditable.
-- OCR fallback makes scanned PDFs part of the same RAG workflow.
-- GraphRAG-lite adds document relationship analysis without overbuilding Microsoft GraphRAG.
+The repository includes three deterministic suites:
 
-## Implemented Locally
+| Suite | Coverage | Latest checked result |
+| --- | --- | --- |
+| `eval/run_eval.py` | NLP routing, source recall, citation coverage, graph routes | 10 / 10 |
+| `eval/run_generalization_eval.py` | Biology, economics, and software engineering | 6 / 6 |
+| `eval/run_robustness_eval.py` | OCR noise, conflicts, cross-document relations, distractors, abstention | 5 / 5 |
+| `eval/run_semantic_retrieval_eval.py` | Korean paraphrases and cross-lingual expected-source ranking | Recall@3 1.00 |
 
-- `POST /v2/documents/ingest`
-- `GET /v2/documents/{doc_id}`
-- `POST /v2/ask`
-- `POST /v2/study-kit`
-- `POST /v2/audio-script`
-- `POST /v2/concept-map`
-- `POST /v2/course-packs`
-- `GET /v2/course-packs/{pack_id}`
-- `GET /v2/course-packs/{pack_id}/artifacts`
-- `POST /v2/course-packs/ask`
-- `POST /v2/course-packs/study-kit`
-- `POST /v2/course-packs/summary`
-- `POST /v2/course-packs/audio-script`
-- `POST /v2/course-packs/concept-map`
-- `POST /v2/course-packs/concept-map/export`
-- `.txt`, `.md`, `.pdf`, `.pptx` ingest
-- Text-layer PDF parsing
-- Tesseract OCR fallback for image-only PDFs
-- Page/slide-level chunks with `doc_id`, `filename`, `page`, and `chunk_id` source metadata
-- Multi-document Course Pack ingest and pack-level generation
-- Balanced Course Pack overview retrieval across lecture files
-- Course Pack Summary generation with sources
-- Optional `OpenAIProvider` summary refinement with safe fallback
-- Citation check for LLM-refined summaries
-- Keyword/TF-IDF retrieval
-- Source-grounded Q&A
-- Study Kit generation
-- Audio Script generation
-- GraphRAG-lite concept map
-- Course Pack artifact preview endpoint
-- Mermaid/HTML concept map export
-- Output artifacts under `outputs/{doc_id}` and `outputs/course_packs/{pack_id}`
+Run the complete local verification with:
 
-## Designed As Optional Future Replacements
-
-- `LocalStorageProvider` -> Object Storage provider
-- `LocalTesseractOCRProvider` -> CLOVA OCR or managed OCR provider
-- `MockLLMProvider` -> CLOVA Studio, OpenAI, or Ollama provider
-- `MockTTSProvider` -> CLOVA Voice or local TTS provider
-- `LocalIndexProvider` -> FAISS, Chroma, or managed vector DB provider
-- In-process workflow -> Queue-based worker execution
-
-## Validation
-
-Current local validation:
-
-```text
+```bash
+python -m ruff check v2 eval tests
 python -m unittest discover -s tests
-48 tests OK
+python eval/run_eval.py
+python eval/run_generalization_eval.py
+python eval/run_robustness_eval.py
 ```
 
-Manual checks performed:
+GitHub Actions repeats lint, tests, the three dependency-light evaluation suites, isolated wheel installation, and container smoke checks. The semantic suite is a separate reproducible command because it downloads two model artifacts.
 
-- FastAPI `/docs` and OpenAPI route registration
-- Text-layer Korean NLP lecture PDF ingest: 36 pages, 39 chunks
-- 11-week PPTX Course Pack ingest: 3 documents, 112 chunks
-- Course Pack overview answer sources balanced across 1차시, 2차시, and 3차시 PPTX files
-- Course Pack summary generated from 11-week PPTX pack with 3 lecture summaries, 5 key concepts, and 5 concept connections
-- Course Pack demo document added at `docs/COURSE_PACK_DEMO.md`
-- 11-week concept map exported to Mermaid/HTML with 60 nodes and 120 edges for visual review
-- Citation check verifies grounded LLM refinements and rejects unsupported generated terms
-- Image-only PDF OCR fallback through Tesseract
-- Source-grounded ask/study-kit/audio-script/concept-map from OCR output
+## Cloud Migration Path
 
-## Current Limits
+| Current local boundary | Production replacement |
+| --- | --- |
+| Local JSON and uploaded files | Object storage plus a managed metadata database |
+| In-memory hybrid retrieval | pgvector, Chroma, or another managed vector index |
+| In-process background task | Durable queue and worker service |
+| Local Tesseract | Managed OCR provider where accuracy or scale requires it |
+| Optional static API key | Identity-aware gateway, OAuth, or platform IAM |
+| Local logs | Centralized logs, metrics, traces, and alerting |
 
-- Retrieval is keyword/TF-IDF style, not embedding based.
-- LLM output defaults to mock/rule mode. API refinement requires `OPENAI_API_KEY` and explicit `llm_provider: "openai"`. Refined output must pass `citation_check` or BeePDF falls back to the rule-based summary.
-- TTS is mock and returns `audio_path: null`.
-- GraphRAG-lite uses heuristics, not LLM-based entity/relation extraction. Mermaid/HTML export is capped by default to keep large graphs readable.
-- Korean OCR quality depends on installed Tesseract language data.
+## Honest Limits
 
+- Storage is local JSON rather than a transactional database and object store.
+- Background ingestion is process-local and is not durable across restarts.
+- TTS defaults to a mock artifact; a real provider must be configured for audio output.
+- Concept graph extraction is heuristic rather than model-based entity and relation extraction.
+- The local retriever is designed for portfolio-sized Course Packs, not a large multi-tenant corpus.
+- Authentication and rate limiting need an external production-grade layer before public multi-user deployment.
 
-
-
-
-
-
-
-
-
-
-
-
+These limits are deliberate boundaries, not hidden claims: the current repository is a complete local portfolio demo and a tested foundation for later cloud deployment.

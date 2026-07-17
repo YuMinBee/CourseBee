@@ -1,1 +1,1 @@
-"""FastAPI route skeletons for BeePDF v2."""
+"""FastAPI routes for CourseBee v2."""

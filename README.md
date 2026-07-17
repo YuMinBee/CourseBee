@@ -16,26 +16,31 @@ CourseBee의 graph 기능은 Course Pack 내부의 concept graph와 evidence chu
 
 ## Retrieval Strategy
 
-CourseBee v2 separates the local demo retriever from the production retrieval path.
+CourseBee v2 separates the dependency-free local retriever from the optional semantic retrieval path.
 
-Local demo에서는 외부 의존성을 줄이고 재현성을 높이기 위해 `LexicalRetriever`를 기본으로 사용합니다. 현재 `retrieve_contexts`는 query/chunk를 토큰화하고, term frequency와 IDF 기반 점수를 계산해 top-k chunk를 반환하는 설명 가능한 lexical retrieval입니다.
+Local demo에서는 `HybridRetriever`를 기본으로 사용합니다. TF-IDF 계열 lexical score에 한국어 조사 정규화와 한글 character n-gram 유사도를 결합하고, 영어는 정확한 어휘 일치만 사용해 철자가 비슷한 무관 용어의 거짓 양성을 줄였습니다. 이 경로는 embedding 모델 없이도 설명 가능하고 재현 가능합니다.
 
-Production path에서는 같은 `RetrieverProvider` 인터페이스 뒤에서 embedding retriever, vector DB, hybrid retriever, reranker를 교체할 수 있도록 설계했습니다.
+선택형 AI path에서는 multilingual E5 bi-encoder 검색, lexical+dense RRF 결합, 다국어 Cross-Encoder reranking을 실제 Course Pack API에서 실행할 수 있습니다. 모델은 semantic 모드를 처음 호출할 때만 로드되고 이후 요청에서는 모델과 document embedding cache를 재사용합니다.
 
 ```text
 RetrieverProvider
-├─ LexicalRetriever      # current local/demo implementation
-├─ EmbeddingRetriever    # sentence-transformers or OpenAI embeddings
-├─ HybridRetriever       # lexical + embedding retrieval
-└─ Reranker              # optional cross-encoder or LLM judge
+├─ LexicalRetriever      # exact lexical baseline
+├─ HybridRetriever       # current local default: lexical + Korean character features
+├─ EmbeddingRetriever    # multilingual E5 dense retrieval
+└─ SemanticHybridRetriever
+   ├─ RRF                # lexical + dense rank fusion
+   └─ Cross-Encoder      # optional top-candidate reranking
 ```
 
-이 선택은 약점이 아니라 의식적인 trade-off입니다. Local demo는 재현성과 설명 가능성을 우선하고, production에서는 retrieval provider를 교체해 semantic search와 reranking을 붙이는 방향으로 확장합니다.
+`mode="semantic"`, `mode="semantic_hybrid"`, `mode="semantic_rerank"`로 각 단계를 비교할 수 있습니다. 모델이 없거나 실행에 실패하면 기존 local hybrid로 돌아가고, 실제 실행 경로와 fallback 여부를 `retrieval_details`와 `trace.retrieval_debug`에 남깁니다.
 ## Key Features
 
 - Multi-document Course Pack ingestion
 - Source-grounded Q&A
-- Explicit local lexical retriever and production `RetrieverProvider` path
+- Grounded-first Web RAG fallback with cited Wikipedia extracts and URLs
+- Multi-turn SSE chat with token streaming, cancellation, and source-aware follow-ups
+- Korean-aware local hybrid retriever and optional E5 + RRF + Cross-Encoder path
+- Browser file upload for PDF, PPTX, Markdown, and text Course Packs
 - Query-type Retrieval Router via `mode="auto"`
 - Multi-level Summary Retrieval for global overview questions
 - Concept Graph-assisted Retrieval via `local_graph`
@@ -44,16 +49,19 @@ RetrieverProvider
 - Staged Podcast Script generation: `outline -> scene generation -> repair`
 - Edge TTS artifact generation
 - Evaluation harness for router accuracy, source recall, citation coverage, graph usefulness, and fallback behavior
+- Robustness evaluation for OCR noise, source conflicts, cross-document evidence, distractors, and abstention
+- Optional API-key boundary, request IDs, upload signatures and limits, and path validation
+- GitHub Actions CI, isolated wheel verification, and non-root Docker/Compose runtime
 
 ## Demo Course Pack
 
 - `pack_id`: `pack_static_nlp_11week_demo`
-- Input: NLP 11주차 1~3차시 강의자료
+- Input: bundled synthetic NLP 11주차 1~3차시 fixtures
 - Output: Q&A, Study Kit, Concept Map, Podcast Script, Edge TTS mp3
 
-원본 강의자료는 저작권 문제로 공개하지 않습니다. 포트폴리오에는 Course Pack 구조, source metadata 설계, 샘플 artifact, 실행 가능한 로컬 데모 코드만 포함합니다.
+`/demo`를 처음 열면 공개 가능한 합성 fixture로 이 Course Pack을 자동 생성합니다. 사용자는 화면의 `Add Source`에서 자신의 PDF, PPTX, Markdown, TXT 자료를 올려 별도 Course Pack으로 전환할 수 있습니다.
 
-mp3 같은 큰 생성 artifact는 `outputs/` 경로에 직접 링크하지 않습니다. 공개 가능한 샘플만 필요한 경우 `assets/demo/` 아래에 별도로 둘 수 있습니다.
+mp3 같은 생성 artifact는 Course Pack 범위의 파일 API를 통해 제공하며, 로컬 데이터 루트 밖의 경로는 노출하지 않습니다.
 
 ## Operations Surface
 
@@ -61,16 +69,20 @@ CourseBee exposes a small operations surface so long-running Course Pack ingesti
 
 ```text
 POST /v2/course-packs/jobs
+POST /v2/course-packs/upload
+GET  /v2/course-packs
 GET  /v2/course-packs/jobs/{job_id}
 GET  /v2/course-packs/{pack_id}
+GET  /health
+GET  /ready
 ```
 
-Local jobs are file-backed and run inline for the demo, but they return production-shaped state:
+Local jobs are file-backed. By default they can run inline for tests and demos, and with `run_async: true` they are scheduled through FastAPI background tasks while exposing production-shaped state:
 
 ```json
 {
   "job_id": "job_20260629_001",
-  "status": "succeeded",
+  "status": "queued | running | succeeded | failed",
   "stage": "completed",
   "progress": 1.0,
   "processed_documents": 3,
@@ -106,12 +118,52 @@ python eval/run_eval.py
 | --- | --- |
 | Overall pass rate | 10 / 10 |
 | Router accuracy | 10 / 10 |
-| Source recall@5 | 10 / 10 |
+| Source recall@5 | 9 / 9 required-source cases |
 | Citation coverage | 0.90 |
 | No-context fallback pass | 1 / 1 |
 | Graph route useful cases | 4 / 4 |
 
 Latest report: [eval/results/latest_eval.md](eval/results/latest_eval.md)
+
+The generalization suite also runs six fact/relation cases across biology, economics, and software engineering.
+
+| Metric | Result |
+| --- | --- |
+| Overall pass rate | 6 / 6 |
+| Router accuracy | 6 / 6 |
+| Required source recall | 6 / 6 |
+| Citation coverage | 6 / 6 |
+| Graph evidence usefulness | 3 / 3 |
+
+Latest report: [eval/results/latest_generalization_eval.md](eval/results/latest_generalization_eval.md)
+
+The robustness suite covers OCR line-break noise, conflicting source versions, cross-document evidence, distractors, and unsupported questions.
+
+| Metric | Result |
+| --- | --- |
+| Overall pass rate | 5 / 5 |
+| Source recall and precision | 5 / 5 |
+| Graph evidence checks | 2 / 2 |
+| Abstention checks | 1 / 1 |
+
+Latest report: [eval/results/latest_robustness_eval.md](eval/results/latest_robustness_eval.md)
+
+The optional semantic benchmark compares paraphrased and cross-lingual retrieval against the local baseline.
+
+```bash
+pip install -e ".[semantic]"
+python eval/run_semantic_retrieval_eval.py
+```
+
+| Mode | Recall@3 | MRR | Mean warm latency |
+| --- | ---: | ---: | ---: |
+| Local hybrid | 0.17 | 0.167 | 2.29 ms |
+| E5 + RRF | 1.00 | 0.917 | 9.09 ms |
+| E5 + RRF + Cross-Encoder | 1.00 | 1.000 | 12.03 ms |
+
+This six-case synthetic suite measures retrieval ranking rather than answer quality. Warm latency is machine-dependent; the versioned report records the latest local run. Latest report: [eval/results/latest_semantic_retrieval_eval.md](eval/results/latest_semantic_retrieval_eval.md)
+
+Set `COURSEBEE_INSTALL_SEMANTIC=true` before `docker compose build` to include the optional CPU-only model runtime in a container. Model weights remain lazy downloads; the default image stays lightweight and uses visible local fallback for semantic requests.
 
 ## Representative Outputs
 
@@ -230,9 +282,14 @@ Status
 - Answer trace / retrieval debug: implemented
 - Concept graph-assisted retrieval: implemented
 - Retrieval evaluation harness: implemented
+- Multi-domain generalization evaluation: implemented
+- OCR/conflict/distractor robustness evaluation: implemented
+- Upload validation, optional API key, and atomic artifact writes: implemented
+- Packaged demo assets and isolated wheel install: implemented
+- GitHub Actions CI and non-root Docker runtime smoke test: implemented
 - Production vector DB: planned
-- Async ingestion worker: planned
-- CI/CD: planned
+- Async ingestion background task: implemented locally
+- Production worker queue and durable database/object storage: planned
 ```
 
 The current repository is intentionally local-first. Mock/rule providers make the demo reproducible without paid services, while provider interfaces define the production upgrade path.
@@ -252,8 +309,9 @@ The current repository is intentionally local-first. Mock/rule providers make th
 ## Quick Start
 
 ```bash
-pip install -r requirements-v2.txt
-uvicorn v2.main:app --reload --port 8000
+python -m venv .venv
+pip install -e ".[pdf,tts,dev]"
+coursebee --reload --port 8000
 ```
 
 Open:
@@ -261,7 +319,16 @@ Open:
 ```text
 http://127.0.0.1:8000/docs
 http://127.0.0.1:8000/demo
+http://127.0.0.1:8000/ready
 ```
+
+The demo Course Pack is seeded automatically. Upload a new Course Pack with `Add Source`, or run the same app in a container:
+
+```bash
+docker compose up --build
+```
+
+Set `COURSEBEE_API_KEY` to require `X-API-Key` on `/v2/*`; leave it empty for the same-origin local browser demo. See [.env.example](.env.example) for data-root and upload limits.
 
 Example API call:
 
@@ -283,18 +350,23 @@ curl -X POST http://127.0.0.1:8000/v2/course-packs/ask \
 - `POST /v2/audio-script`
 - `POST /v2/concept-map`
 - `POST /v2/course-packs/jobs`
+- `POST /v2/course-packs/upload`
+- `GET /v2/course-packs`
 - `GET /v2/course-packs/jobs/{job_id}`
 - `GET /v2/course-packs/{pack_id}`
 - `POST /v2/course-packs/ask`
 - `POST /v2/course-packs/study-kit`
+- `POST /v2/course-packs/summary`
 - `POST /v2/course-packs/audio-script`
+- `POST /v2/course-packs/tts`
 - `POST /v2/course-packs/concept-map`
+- `POST /v2/course-packs/mindmap`
 
 ## Docs
 
 - [CourseBee v2 Case Study](docs/coursebee-v2-case-study.md)
-- [CourseBee Demo UI](docs/coursebee_demo_ui.html) - run the server and open `http://127.0.0.1:8000/demo`
-- [CourseBee Demo UI Korean](docs/coursebee_demo_ui_ko.html) - run the server and open `http://127.0.0.1:8000/demo-ko`
+- [CourseBee Demo UI](v2/assets/coursebee_demo_ui.html) - run the server and open `http://127.0.0.1:8000/demo`
+- CourseBee demo alias: `http://127.0.0.1:8000/demo-ko` serves the same current UI
 - [Architecture](docs/ARCHITECTURE.md)
 - [Retrieval Router](docs/LIGHTRAG_ROUTER.md)
 - [Multi-level Summary Retrieval](docs/HIERARCHICAL_RETRIEVAL.md)
@@ -313,4 +385,6 @@ More docs: [docs/README.md](docs/README.md)
 ```bash
 python -m unittest discover -s tests
 python eval/run_eval.py
+python eval/run_generalization_eval.py
+python eval/run_robustness_eval.py
 ```

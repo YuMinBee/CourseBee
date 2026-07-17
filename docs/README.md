@@ -3,9 +3,8 @@
 Documentation is split by purpose:
 
 
-- `coursebee_demo_ui.html`: CourseBee v2 app-style demo UI served at `/demo`
-- `coursebee_demo_ui_ko.html`: Korean CourseBee v2 app-style demo UI served at `/demo-ko`
-- `project_visualization.html`: browser-openable v2 static endpoint viewer with sample request/response payloads and rendered outputs
+- `../v2/assets/coursebee_demo_ui.html`: packaged CourseBee app UI served at `/demo`
+- `/demo-ko`: alias that serves the same current CourseBee app UI as `/demo`
 - `COURSE_PACK_CASE_STUDY.md`: portfolio-style case study covering architecture, representative inputs/outputs, comparisons, and honest limitations
 - `COURSE_PACK_CASE_STUDY_KO.md`: Korean version of the Course Pack engineering case study
 - `V1_LEGACY.md`: original PDF-to-audio service direction
@@ -20,5 +19,6 @@ Documentation is split by purpose:
 - `GRAPH_RAG.md`: concept graph-assisted retrieval design
 - `GRAPH_RAG_EVALUATION.md`: case-based comparison of vector vs graph retrieval
 - `CLOUD_READY_PLAN.md`: future cloud migration path
-- `EVALUATION.md`: executable retrieval evaluation harness and latest metrics
+- `EVALUATION.md`: executable NLP, multi-domain, and robustness evaluation harnesses and latest metrics
+- `SEMANTIC_RETRIEVAL.md`: optional E5, RRF, and Cross-Encoder retrieval design and benchmark
 - `CITATION_GROUNDING.md`: citation quality, grounding checks, and source metadata flow

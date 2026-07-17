@@ -12,7 +12,6 @@ from v2.api.schemas import AudioScriptRequest, ConceptMapRequest, QueryRequest, 
 from v2.ingest import ingest_local_document
 from v2.providers.ocr import LocalTesseractOCRProvider, MockOCRProvider
 
-
 TEST_OUTPUT_ROOT = Path.cwd() / "outputs" / "_test_ocr"
 
 

@@ -5,8 +5,6 @@ import shutil
 from io import BytesIO
 from pathlib import Path
 
-from PIL import Image
-
 from v2.schemas import PageMarkdown
 
 DEFAULT_TESSERACT_PATHS = [
@@ -24,9 +22,9 @@ class MockOCRProvider:
 
 
 class LocalTesseractOCRProvider:
-    def __init__(self, tesseract_cmd: str | None = None, lang: str = "eng", dpi: int = 200) -> None:
+    def __init__(self, tesseract_cmd: str | None = None, lang: str | None = None, dpi: int = 200) -> None:
         self.tesseract_cmd = tesseract_cmd or _resolve_tesseract_cmd()
-        self.lang = lang
+        self.lang = lang or os.environ.get("COURSEBEE_OCR_LANG", "eng")
         self.dpi = dpi
 
     def is_available(self) -> bool:
@@ -41,6 +39,7 @@ class LocalTesseractOCRProvider:
         try:
             import fitz  # type: ignore[import-not-found]
             import pytesseract  # type: ignore[import-not-found]
+            from PIL import Image
         except ImportError as error:
             warnings.append(f"OCR fallback unavailable: {error}")
             return []

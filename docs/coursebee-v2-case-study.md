@@ -155,7 +155,7 @@ outline -> scene generation -> repair -> TTS
 
 ## Operational Surface
 
-CourseBee exposes a local Course Pack job API and answer-level traces. The local job endpoint runs inline but records production-shaped state such as `job_id`, `status`, `stage`, `progress`, and processed document counts. Answer responses include `trace.request_id`, stage latencies, and retrieval debug fields so router decisions and fallback behavior can be inspected.
+CourseBee exposes a local Course Pack job API and answer-level traces. The job endpoint can run inline for tests or as a FastAPI background task with `run_async: true`, while recording production-shaped state such as `job_id`, `status`, `stage`, `progress`, and processed document counts. Answer responses include `trace.request_id`, stage latencies, and retrieval debug fields so router decisions and fallback behavior can be inspected.
 
 ## Reliability Layer
 
