@@ -1,159 +1,99 @@
 # CourseBee v2
 
-CourseBee v2는 단일 PDF RAG 도구였던 BeePDF를 여러 강의자료 기반 Course Pack 학습 시스템으로 확장한 프로젝트입니다.
+[![CI](https://github.com/YuMinBee/CourseBee/actions/workflows/ci.yml/badge.svg)](https://github.com/YuMinBee/CourseBee/actions/workflows/ci.yml)
 
-CourseBee는 여러 차시의 Learning Materials를 하나의 `Course Pack`으로 묶고, source metadata를 유지한 상태에서 Q&A, Study Kit, Concept Map, Podcast Script, TTS artifact를 생성하는 AI 학습 콘텐츠 생성 시스템입니다.
+> 여러 강의자료를 하나의 Course Pack으로 구성하고, 출처 기반 질의응답과 AI 오디오 학습 콘텐츠를 생성하는 RAG 학습 서비스
+
+CourseBee는 단일 PDF 처리 도구였던 BeePDF를 다중 문서 학습 서비스로 확장한 프로젝트입니다. PDF, PPTX, Markdown, TXT 자료를 강의 단위로 누적하고, 질문 유형에 맞는 검색 경로를 선택해 근거와 함께 답변합니다. 자료에서 근거를 찾지 못하면 그 사실을 먼저 알리고 웹 검색 또는 일반지식 폴백을 명시적으로 구분합니다.
+
+| 구분 | 내용 |
+| --- | --- |
+| 핵심 흐름 | 자료 추가 → Course Pack 구성 → 검색/라우팅 → 출처 기반 답변 → AI Audio Overview |
+| 검색 | Local hybrid, multilingual E5, RRF, Cross-Encoder reranking, concept graph-assisted retrieval |
+| 백엔드 | FastAPI, Pydantic, SSE, background jobs, file-backed artifacts |
+| 운영 기반 | Docker, GitHub Actions, health/readiness checks, request trace, atomic writes |
+| 검증 | 자동화 테스트 118개 및 검색·일반화·견고성 평가 스위트 |
+| 현재 상태 | Local-first portfolio demo, production-shaped architecture |
 
 ![CourseBee v2 Architecture](images/coursebee-v2-architecture.png)
 
-## Why CourseBee?
+> 위 이미지는 외부 Vector DB를 포함한 확장 방향까지 표현합니다. 현재 데모의 의미 검색은 프로세스 내부에서 실행되며, Course Pack 메타데이터와 생성 결과는 로컬 파일에 저장됩니다. 외부 Vector DB와 Object Storage는 운영 확장 단계입니다.
 
-기존 단일 PDF RAG는 문서 하나 안의 질문에는 대응하기 쉽지만, 실제 강의 복습처럼 여러 차시 자료를 하나의 학습 단위로 묶어 이해하는 데는 한계가 있습니다.
+## Problem
 
-CourseBee v2는 여러 강의자료를 하나의 Course Pack으로 묶고, 각 chunk에 `doc_id`, `filename`, `week`, `lecture_no`, `page`, `chunk_id`를 보존합니다. 이를 통해 답변과 학습 자료가 어떤 강의자료의 어떤 부분을 근거로 했는지 추적할 수 있습니다.
+강의 복습은 문서 한 개가 아니라 여러 주차와 차시를 함께 탐색해야 합니다. 이 과정에서는 다음 문제가 발생합니다.
 
-CourseBee의 graph 기능은 Course Pack 내부의 concept graph와 evidence chunk를 활용해 관계형 질문의 검색 근거를 보강하는 Concept Graph-assisted Retrieval입니다. 고급 graph indexing 제품을 흉내 내기보다, 강의 개념 관계를 검색 context로 쓰는 좁고 설명 가능한 범위에 집중했습니다.
+- 정확한 단어가 다른 의역·교차 언어 질문은 키워드 검색만으로 찾기 어렵습니다.
+- 일반 LLM 답변은 실제 강의자료에 없는 내용을 근거처럼 제시할 수 있습니다.
+- 문서가 늘어나면 답변이 어느 파일과 페이지에서 나왔는지 추적하기 어렵습니다.
+- 문서 처리와 오디오 생성은 시간이 걸리므로 진행 상태와 실패 원인을 확인할 수 있어야 합니다.
 
-## Retrieval Strategy
+CourseBee는 검색 품질뿐 아니라 출처 보존, 실패 처리, 관측 가능성을 하나의 사용자 흐름 안에서 다루는 것을 목표로 합니다.
 
-CourseBee v2 separates the dependency-free local retriever from the optional semantic retrieval path.
+## User Flow
 
-Local demo에서는 `HybridRetriever`를 기본으로 사용합니다. TF-IDF 계열 lexical score에 한국어 조사 정규화와 한글 character n-gram 유사도를 결합하고, 영어는 정확한 어휘 일치만 사용해 철자가 비슷한 무관 용어의 거짓 양성을 줄였습니다. 이 경로는 embedding 모델 없이도 설명 가능하고 재현 가능합니다.
+1. 사용자가 PDF, PPTX, Markdown, TXT 자료를 추가합니다.
+2. 기존 자료를 유지한 채 Course Pack에 새 문서를 누적합니다.
+3. 문서를 chunk로 나누고 `doc_id`, `filename`, `page`, `chunk_id` 등의 출처 메타데이터를 보존합니다.
+4. 질문을 분류하고 local hybrid, semantic, graph, hierarchical 검색 중 적절한 경로를 선택합니다.
+5. 선택된 근거로 답변을 생성하고 문장별 출처와 retrieval trace를 제공합니다.
+6. 자료에 근거가 없으면 웹 근거 또는 일반지식 폴백임을 답변에 표시합니다.
+7. 선택한 Course Pack을 바탕으로 대화형 스크립트와 음성 파일을 생성합니다.
 
-선택형 AI path에서는 multilingual E5 bi-encoder 검색, lexical+dense RRF 결합, 다국어 Cross-Encoder reranking을 실제 Course Pack API에서 실행할 수 있습니다. 모델은 semantic 모드를 처음 호출할 때만 로드되고 이후 요청에서는 모델과 document embedding cache를 재사용합니다.
+현재 브라우저 데모는 **자료 관리, grounded chat, AI Audio Overview**에 집중합니다. Study Kit, Summary, Concept Map API는 구현되어 있지만 UI에서는 완성된 기능부터 공개하기 위해 숨겨 두었습니다.
+
+## Runtime Architecture
+
+```mermaid
+flowchart LR
+    UI[Browser Demo] --> API[FastAPI API]
+    API --> INGEST[Upload and Ingestion]
+    INGEST --> PACK[Course Pack and Source Metadata]
+    API --> ROUTER[Query Router]
+    ROUTER --> LOCAL[Local Hybrid]
+    ROUTER --> SEMANTIC[E5 + RRF + Reranker]
+    ROUTER --> GRAPH[Concept Graph / Hierarchical]
+    LOCAL --> ANSWER[Grounded Answer]
+    SEMANTIC --> ANSWER
+    GRAPH --> ANSWER
+    ANSWER --> CITATION[Citations and Trace]
+    ANSWER --> FALLBACK[Web / General Fallback]
+    PACK --> AUDIO[Audio Script and Edge TTS]
+    PACK --> STORE[File-backed Jobs and Artifacts]
+```
+
+검색 컴포넌트는 provider 경계로 분리되어 있습니다.
 
 ```text
 RetrieverProvider
-├─ LexicalRetriever      # exact lexical baseline
-├─ HybridRetriever       # current local default: lexical + Korean character features
-├─ EmbeddingRetriever    # multilingual E5 dense retrieval
+├─ LexicalRetriever           # exact lexical baseline
+├─ HybridRetriever            # lexical + Korean character features
+├─ EmbeddingRetriever         # multilingual E5 dense retrieval
 └─ SemanticHybridRetriever
-   ├─ RRF                # lexical + dense rank fusion
-   └─ Cross-Encoder      # optional top-candidate reranking
+   ├─ Reciprocal Rank Fusion  # lexical + dense ranking
+   └─ Cross-Encoder           # optional candidate reranking
 ```
 
-`mode="semantic"`, `mode="semantic_hybrid"`, `mode="semantic_rerank"`로 각 단계를 비교할 수 있습니다. 모델이 없거나 실행에 실패하면 기존 local hybrid로 돌아가고, 실제 실행 경로와 fallback 여부를 `retrieval_details`와 `trace.retrieval_debug`에 남깁니다.
-## Key Features
+모델이 없거나 semantic 검색이 실패하면 local hybrid로 복구하고, 실제 실행 경로와 폴백 여부를 `retrieval_details`와 `trace.retrieval_debug`에 기록합니다.
 
-- Multi-document Course Pack ingestion
-- Source-grounded Q&A
-- Grounded-first Web RAG fallback with cited Wikipedia extracts and URLs
-- Multi-turn SSE chat with token streaming, cancellation, and source-aware follow-ups
-- Korean-aware local hybrid retriever and optional E5 + RRF + Cross-Encoder path
-- Browser file upload for PDF, PPTX, Markdown, and text Course Packs
-- Query-type Retrieval Router via `mode="auto"`
-- Multi-level Summary Retrieval for global overview questions
-- Concept Graph-assisted Retrieval via `local_graph`
-- Study Kit generation
-- Concept Map generation
-- Staged Podcast Script generation: `outline -> scene generation -> repair`
-- Edge TTS artifact generation
-- Evaluation harness for router accuracy, source recall, citation coverage, graph usefulness, and fallback behavior
-- Robustness evaluation for OCR noise, source conflicts, cross-document evidence, distractors, and abstention
-- Optional API-key boundary, request IDs, upload signatures and limits, and path validation
-- GitHub Actions CI, isolated wheel verification, and non-root Docker/Compose runtime
+## Engineering Decisions
 
-## Demo Course Pack
+| 문제 | 선택 | 확인 방법 |
+| --- | --- | --- |
+| 의역과 교차 언어 검색 누락 | multilingual E5 + lexical/dense RRF + Cross-Encoder | Recall@3, MRR, warm latency 비교 |
+| 근거 없는 LLM 답변 | source-first 생성, 문장별 citation, grounding check | citation coverage, abstention 평가 |
+| 자료 밖 질문의 낮은 사용성 | Course Pack → Web RAG → 일반지식 순서의 명시적 폴백 | `answer_scope`, `grounding_status`, URL source |
+| 질문별 검색 특성 차이 | fact, relation, overview 질문을 분류하는 retrieval router | router accuracy와 route별 회귀 테스트 |
+| 긴 문서 처리 | `queued/running/succeeded/failed` 작업 상태와 background task | job API 및 HTTP end-to-end 테스트 |
+| 중간 파일 손상 | 임시 파일 작성 후 교체하는 atomic write | storage failure/replace 테스트 |
+| 운영 중 원인 추적 | request ID, 단계별 latency, 후보/선택 chunk trace | 응답 trace와 HTTP header 테스트 |
+| 유료 서비스 없는 재현성 | local rule/mock fallback과 공개 synthetic fixture | 격리 wheel 설치 및 Docker smoke test |
 
-- `pack_id`: `pack_static_nlp_11week_demo`
-- Input: bundled synthetic NLP 11주차 1~3차시 fixtures
-- Output: Q&A, Study Kit, Concept Map, Podcast Script, Edge TTS mp3
+## Evaluation
 
-`/demo`를 처음 열면 공개 가능한 합성 fixture로 이 Course Pack을 자동 생성합니다. 사용자는 화면의 `Add Source`에서 자신의 PDF, PPTX, Markdown, TXT 자료를 올려 별도 Course Pack으로 전환할 수 있습니다.
+### Semantic Retrieval
 
-mp3 같은 생성 artifact는 Course Pack 범위의 파일 API를 통해 제공하며, 로컬 데이터 루트 밖의 경로는 노출하지 않습니다.
-
-## Operations Surface
-
-CourseBee exposes a small operations surface so long-running Course Pack ingestion and RAG decisions can be inspected.
-
-```text
-POST /v2/course-packs/jobs
-POST /v2/course-packs/upload
-GET  /v2/course-packs
-GET  /v2/course-packs/jobs/{job_id}
-GET  /v2/course-packs/{pack_id}
-GET  /health
-GET  /ready
-```
-
-Local jobs are file-backed. By default they can run inline for tests and demos, and with `run_async: true` they are scheduled through FastAPI background tasks while exposing production-shaped state:
-
-```json
-{
-  "job_id": "job_20260629_001",
-  "status": "queued | running | succeeded | failed",
-  "stage": "completed",
-  "progress": 1.0,
-  "processed_documents": 3,
-  "total_documents": 3,
-  "warnings": []
-}
-```
-
-Course Pack answers also include `trace` with `request_id`, stage latencies, and retrieval debug information such as candidate chunks, selected chunks, graph edges, and fallback usage.
-
-## Reliability Layer
-
-CourseBee does not simply generate study content. Every generated artifact keeps source metadata, and API-refined summaries must pass `citation_check`. If generated text introduces unsupported terms, the system falls back to rule-based grounded output.
-
-Citation quality checks include:
-
-- source coverage
-- unsupported claim detection
-- source/chunk hover preview through artifact metadata
-- answer sentence to supporting chunk mapping through preserved `sources`
-
-`check_text_grounding` compares generated claim terms with source chunk terms and returns `coverage`, `matched_terms`, `unsupported_terms`, and warnings. This keeps generated Q&A, Study Kit, Concept Map, Podcast Script, and Summary artifacts tied back to Course Pack evidence.
-
-## Evaluation Snapshot
-
-The evaluation harness uses a public synthetic NLP 11-week Course Pack fixture, so it can be run without private lecture materials.
-
-```bash
-python eval/run_eval.py
-```
-
-| Metric | Result |
-| --- | --- |
-| Overall pass rate | 10 / 10 |
-| Router accuracy | 10 / 10 |
-| Source recall@5 | 9 / 9 required-source cases |
-| Citation coverage | 0.90 |
-| No-context fallback pass | 1 / 1 |
-| Graph route useful cases | 4 / 4 |
-
-Latest report: [eval/results/latest_eval.md](eval/results/latest_eval.md)
-
-The generalization suite also runs six fact/relation cases across biology, economics, and software engineering.
-
-| Metric | Result |
-| --- | --- |
-| Overall pass rate | 6 / 6 |
-| Router accuracy | 6 / 6 |
-| Required source recall | 6 / 6 |
-| Citation coverage | 6 / 6 |
-| Graph evidence usefulness | 3 / 3 |
-
-Latest report: [eval/results/latest_generalization_eval.md](eval/results/latest_generalization_eval.md)
-
-The robustness suite covers OCR line-break noise, conflicting source versions, cross-document evidence, distractors, and unsupported questions.
-
-| Metric | Result |
-| --- | --- |
-| Overall pass rate | 5 / 5 |
-| Source recall and precision | 5 / 5 |
-| Graph evidence checks | 2 / 2 |
-| Abstention checks | 1 / 1 |
-
-Latest report: [eval/results/latest_robustness_eval.md](eval/results/latest_robustness_eval.md)
-
-The optional semantic benchmark compares paraphrased and cross-lingual retrieval against the local baseline.
-
-```bash
-pip install -e ".[semantic]"
-python eval/run_semantic_retrieval_eval.py
-```
+한국어 의역과 영문 질문이 포함된 6개 synthetic case에서 동일한 top-3 조건으로 비교했습니다.
 
 | Mode | Recall@3 | MRR | Mean warm latency |
 | --- | ---: | ---: | ---: |
@@ -161,230 +101,179 @@ python eval/run_semantic_retrieval_eval.py
 | E5 + RRF | 1.00 | 0.917 | 9.09 ms |
 | E5 + RRF + Cross-Encoder | 1.00 | 1.000 | 12.03 ms |
 
-This six-case synthetic suite measures retrieval ranking rather than answer quality. Warm latency is machine-dependent; the versioned report records the latest local run. Latest report: [eval/results/latest_semantic_retrieval_eval.md](eval/results/latest_semantic_retrieval_eval.md)
+재정렬 경로는 local hybrid보다 평균 약 9.7ms 느렸지만, 실험 케이스의 Recall@3를 `0.17 → 1.00`, MRR을 `0.167 → 1.000`으로 개선했습니다.
 
-Set `COURSEBEE_INSTALL_SEMANTIC=true` before `docker compose build` to include the optional CPU-only model runtime in a container. Model weights remain lazy downloads; the default image stays lightweight and uses visible local fallback for semantic requests.
+### Quality and Robustness
 
-## Representative Outputs
+| Suite | Result |
+| --- | ---: |
+| Query router | 10 / 10 |
+| Required source recall@5 | 9 / 9 |
+| Citation coverage | 0.90 |
+| Multi-domain generalization | 6 / 6 |
+| OCR/conflict/distractor/abstention robustness | 5 / 5 |
+| Local ask latency p50 / p95 | 9.97 ms / 13.51 ms |
 
-### Source-grounded Q&A
+평가는 공개 가능한 synthetic fixture를 사용합니다. Semantic latency는 모델 다운로드를 제외한 단일 프로세스 warm 측정값이며, 외부 LLM/TTS 응답 시간이나 운영 환경 SLA를 의미하지 않습니다.
 
-```json
-{
-  "question": "BPE와 OOV는 어떤 관계야?",
-  "mode": "local_graph",
-  "answer": "BPE는 OOV 문제를 줄이기 위해 단어를 통째로 unknown 처리하지 않고 subword 조각으로 나누는 토큰화 방식입니다.",
-  "sources": [
-    {
-      "doc_id": "doc_week11_1",
-      "filename": "자연어처리_11주차_1차시.pptx",
-      "page": 3,
-      "chunk_id": "p3_c1"
-    }
-  ],
-  "graph_context": [
-    {
-      "source": "BPE",
-      "target": "OOV",
-      "relation": "reduces",
-      "evidence_chunk_id": "p3_c1"
-    }
-  ],
-  "matched_entities": ["BPE", "OOV"],
-  "traversal_strategy": "edge"
-}
-```
+- [Core evaluation report](eval/results/latest_eval.md)
+- [Semantic retrieval report](eval/results/latest_semantic_retrieval_eval.md)
+- [Generalization report](eval/results/latest_generalization_eval.md)
+- [Robustness report](eval/results/latest_robustness_eval.md)
 
-### Query-type Retrieval Router
+## Tech Stack
 
-```json
-{
-  "question": "RNN, LSTM, CNN은 NLP pipeline에서 어떻게 연결돼?",
-  "mode": "auto",
-  "question_type": "relation_question",
-  "routed_mode": "local_graph",
-  "retrieval_plan": [
-    {"level": "high", "strategy": "course_graph"},
-    {"level": "low", "strategy": "evidence_chunks"}
-  ]
-}
-```
-
-### Concept Graph-assisted Retrieval
-
-```json
-{
-  "question": "BPE를 이해하려면 먼저 뭘 알아야 해?",
-  "retrieval_mode": "course_graph_path",
-  "traversal_strategy": "prerequisite",
-  "matched_entities": ["BPE"],
-  "graph_paths": [
-    {
-      "nodes": ["subword tokenization", "BPE"],
-      "edges": [{"relation": "prerequisite_of"}]
-    }
-  ]
-}
-```
-
-### Multi-level Summary Retrieval
-
-```json
-{
-  "question": "11주차 전체 흐름 설명해줘",
-  "mode": "hierarchical",
-  "retrieval_mode": "hierarchical_summary",
-  "abstraction_level": "course_pack",
-  "selected_summary_nodes": [
-    {"type": "course_pack_summary"},
-    {"type": "lecture_summary"}
-  ],
-  "supporting_chunks": [
-    {"filename": "자연어처리_11주차_1차시.pptx", "chunk_id": "p3_c1"}
-  ]
-}
-```
-
-### Study Kit
-
-```json
-{
-  "overview": "11주차 Course Pack은 BPE/OOV 문제에서 시작해 RNN, LSTM, CNN이 자연어처리 pipeline 안에서 어떤 역할을 하는지 연결해 설명합니다.",
-  "flashcards": [
-    {
-      "front": "BPE는 OOV 문제를 어떻게 줄이는가?",
-      "back": "단어를 subword 조각으로 나누어 처음 보는 단어도 기존 조각의 조합으로 처리하게 한다."
-    }
-  ],
-  "expected_questions": [
-    "BPE와 word-level tokenization의 차이는 무엇인가?",
-    "RNN/LSTM과 CNN은 텍스트를 보는 방식이 어떻게 다른가?"
-  ]
-}
-```
-
-### Podcast Script
-
-```text
-HOST: 오늘은 NLP의 복잡한 용어들이 하나의 퍼즐처럼 연결되어 있다는 걸 알아보는 시간이에요.
-
-GUEST: BPE, OOV, RNN, LSTM, CNN 같은 용어들이 각각 다른 분야처럼 보이지만, 사실은 AI가 텍스트를 읽는 과정에서 서로 연결된 단계를 이루고 있어요.
-```
-
-## Implementation Status
-
-```text
-Status
-- Local demo: implemented
-- Source-grounded artifacts: implemented
-- Citation / grounding check: implemented for API-refined summaries
-- Course Pack job API: implemented locally
-- Answer trace / retrieval debug: implemented
-- Concept graph-assisted retrieval: implemented
-- Retrieval evaluation harness: implemented
-- Multi-domain generalization evaluation: implemented
-- OCR/conflict/distractor robustness evaluation: implemented
-- Upload validation, optional API key, and atomic artifact writes: implemented
-- Packaged demo assets and isolated wheel install: implemented
-- GitHub Actions CI and non-root Docker runtime smoke test: implemented
-- Production vector DB: planned
-- Async ingestion background task: implemented locally
-- Production worker queue and durable database/object storage: planned
-```
-
-The current repository is intentionally local-first. Mock/rule providers make the demo reproducible without paid services, while provider interfaces define the production upgrade path.
-
-## v1 vs v2
-
-| Area | v1 BeePDF | CourseBee v2 |
-| --- | --- | --- |
-| Main unit | Single PDF | Multi-document Course Pack |
-| Goal | PDF-to-audio / document QA | Learning content generation from multiple lecture materials |
-| Retrieval | Single-document RAG | Auto-routed chunk, multi-level summary, and concept graph-assisted retrieval across Course Pack sources |
-| Graph | None or visualization-focused | Concept graph-assisted retrieval using concept edges and evidence chunks |
-| Output | Script / TTS centered | Q&A, Study Kit, Concept Map, Podcast Script, TTS artifact |
-| Generation | Mostly one-shot | Staged orchestration: `outline -> scene generation -> repair` |
-| Provenance | Page/chunk-level within one file | `doc_id`, filename, week, lecture_no, page, chunk_id across files |
+| Area | Technology |
+| --- | --- |
+| API | Python, FastAPI, Pydantic, Uvicorn |
+| Streaming | Server-Sent Events with cancellation handling |
+| Document processing | PyMuPDF, Tesseract OCR, PDF/PPTX/TXT/Markdown ingestion |
+| Retrieval | lexical scoring, Korean character features, multilingual E5, RRF, Cross-Encoder |
+| RAG | source-grounded generation, sentence citation, web/general fallback, concept graph routing |
+| AI providers | local Ollama, optional OpenAI-compatible API, Wikipedia Web RAG |
+| Audio | staged dialogue script generation, dual-voice Edge TTS |
+| Storage | local JSON/artifact store, atomic file replacement |
+| Quality | unittest/HTTP integration tests, Ruff, evaluation harnesses |
+| Delivery | Docker/Compose, GitHub Actions, isolated wheel verification |
 
 ## Quick Start
 
+### Local
+
 ```bash
 python -m venv .venv
-pip install -e ".[pdf,tts,dev]"
+python -m pip install -e ".[pdf,tts,dev]"
 coursebee --reload --port 8000
+```
+
+Optional semantic retrieval:
+
+```bash
+python -m pip install -e ".[pdf,tts,semantic,dev]"
+python eval/run_semantic_retrieval_eval.py
 ```
 
 Open:
 
 ```text
-http://127.0.0.1:8000/docs
-http://127.0.0.1:8000/demo
-http://127.0.0.1:8000/ready
+Demo     http://127.0.0.1:8000/demo
+Swagger  http://127.0.0.1:8000/docs
+Health   http://127.0.0.1:8000/health
+Ready    http://127.0.0.1:8000/ready
 ```
 
-The demo Course Pack is seeded automatically. Upload a new Course Pack with `Add Source`, or run the same app in a container:
+`/demo`를 처음 열면 공개 synthetic NLP Course Pack이 자동 생성됩니다. 브라우저의 `Add Source`에서 직접 자료를 추가할 수도 있습니다.
+
+### Docker
 
 ```bash
 docker compose up --build
 ```
 
-Set `COURSEBEE_API_KEY` to require `X-API-Key` on `/v2/*`; leave it empty for the same-origin local browser demo. See [.env.example](.env.example) for data-root and upload limits.
+Semantic 모델을 이미지에 포함하려면 빌드 전에 `COURSEBEE_INSTALL_SEMANTIC=true`를 설정합니다. 모델 가중치는 첫 semantic 요청에서 내려받고 이후 프로세스와 embedding cache에서 재사용합니다.
 
-Example API call:
+## Configuration
 
-```bash
-curl -X POST http://127.0.0.1:8000/v2/course-packs/ask \
-  -H "Content-Type: application/json" \
-  -d '{
-    "pack_id": "pack_static_nlp_11week_demo",
-    "question": "BPE와 OOV는 어떤 관계야?",
-    "mode": "local_graph"
-  }'
+| Variable | Purpose | Default |
+| --- | --- | --- |
+| `COURSEBEE_DATA_ROOT` | Course Pack과 artifact 저장 위치 | `outputs` |
+| `COURSEBEE_API_KEY` | `/v2/*` 요청의 선택적 `X-API-Key` 보호 | empty |
+| `COURSEBEE_MAX_UPLOAD_BYTES` | 파일당 업로드 제한 | 25 MB |
+| `COURSEBEE_MAX_UPLOAD_BATCH_BYTES` | 요청당 전체 업로드 제한 | 100 MB |
+| `COURSEBEE_MAX_UPLOAD_FILES` | 요청당 파일 수 제한 | 20 |
+| `COURSEBEE_EMBEDDING_MODEL` | semantic embedding model | `intfloat/multilingual-e5-small` |
+| `COURSEBEE_RERANKER_MODEL` | Cross-Encoder reranker | `cross-encoder/mmarco-mMiniLMv2-L12-H384-v1` |
+| `OLLAMA_BASE_URL` / `OLLAMA_MODEL` | local LLM provider | local Ollama / `gemma2:2b` |
+| `OPENAI_API_KEY` / `OPENAI_MODEL` | optional managed LLM provider | empty / `gpt-5.4-mini` |
+
+전체 설정은 [.env.example](.env.example)에서 확인할 수 있습니다. 비밀값은 저장소에 커밋하지 않습니다.
+
+## Main API
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| `POST` | `/v2/course-packs/upload` | 브라우저 파일 업로드와 Course Pack 생성/추가 |
+| `POST` | `/v2/course-packs/jobs` | 파일 경로 기반 ingestion job 생성 |
+| `GET` | `/v2/course-packs/jobs/{job_id}` | 진행률과 실패 상태 조회 |
+| `GET` | `/v2/course-packs/{pack_id}` | Course Pack과 source metadata 조회 |
+| `POST` | `/v2/course-packs/ask` | 출처 기반 질의응답 |
+| `POST` | `/v2/course-packs/ask/stream` | SSE 기반 스트리밍 질의응답 |
+| `POST` | `/v2/course-packs/audio-script` | Course Pack 기반 대화 스크립트 생성 |
+| `POST` | `/v2/course-packs/tts` | 대화 스크립트와 음성 artifact 생성 |
+| `GET` | `/v2/course-packs/{pack_id}/artifacts` | 생성 결과 상태 조회 |
+
+Summary, Study Kit, Concept Map 등 전체 API는 실행 후 `/docs`에서 확인할 수 있습니다.
+
+## Reliability and Operations
+
+- `/health`: 프로세스 liveness 확인
+- `/ready`: 데이터 디렉터리 쓰기와 패키지 asset 확인
+- `X-Request-ID`: 요청 상관관계 추적
+- `X-Process-Time-Ms`: HTTP 처리 시간 확인
+- answer `trace`: 라우팅, 단계별 latency, 선택된 chunk/graph edge, fallback 기록
+- upload validation: 확장자, 파일 signature, 크기, 개수, identifier와 경로 검증
+- non-root container: UID `10001`로 실행
+- CI: 정적 검사, 테스트, 3개 평가 suite, wheel 설치, container smoke test
+
+## Scope and Production Path
+
+현재 저장소는 핵심 RAG 동작을 비용 없이 재현하는 local-first 데모입니다. 구현된 범위와 운영 전환 항목을 구분합니다.
+
+| Current | Production upgrade |
+| --- | --- |
+| in-process semantic retrieval and cache | persisted Vector DB and distributed cache |
+| local JSON and file artifacts | relational DB and Object Storage |
+| FastAPI background task | durable queue and worker service |
+| optional API key | user identity, tenant authorization, quota/rate limit |
+| request headers and answer trace | centralized logs, metrics and OpenTelemetry |
+| single-instance local state | stateless API and horizontally scalable workers |
+
+따라서 현재 상태를 운영 완료 서비스가 아니라 **production-shaped, not production-deployed**로 정의합니다. 자세한 경계와 교체 전략은 [Production Readiness](docs/PRODUCTION_READINESS.md)에 정리했습니다.
+
+## Project Evolution
+
+| Area | BeePDF v1 | CourseBee v2 |
+| --- | --- | --- |
+| Main unit | Single PDF | Multi-document Course Pack |
+| Focus | PDF-to-audio cloud backend | Retrieval quality and grounded learning flow |
+| Retrieval | Single-document RAG | Hybrid, semantic, graph and hierarchical routing |
+| Provenance | page/chunk within one file | document/page/chunk across multiple files |
+| Operations | request tracking, cache, object storage/DB design | job state, request trace, CI, container and evaluation |
+| Output | script and TTS centered | grounded chat and AI Audio Overview centered |
+
+v1의 클라우드 백엔드와 요청 처리 경험을 바탕으로, v2에서는 검색 정확도와 답변 신뢰성을 측정 가능한 문제로 확장했습니다. v1 상세 내용은 [Legacy Overview](docs/V1_LEGACY.md)에서 확인할 수 있습니다.
+
+## Repository Guide
+
+```text
+v2/api/                 FastAPI routes and schemas
+v2/providers/           LLM, OCR, semantic retrieval and web providers
+v2/rag/                 chunking, retrieval, answering and citation checks
+v2/assets/              packaged browser demo
+eval/                   retrieval, generalization and robustness benchmarks
+tests/                  unit and HTTP end-to-end tests
+docs/                   architecture and production upgrade notes
 ```
 
-## Expected Endpoints
-
-- `POST /v2/documents/ingest`
-- `POST /v2/ask`
-- `POST /v2/study-kit`
-- `POST /v2/audio-script`
-- `POST /v2/concept-map`
-- `POST /v2/course-packs/jobs`
-- `POST /v2/course-packs/upload`
-- `GET /v2/course-packs`
-- `GET /v2/course-packs/jobs/{job_id}`
-- `GET /v2/course-packs/{pack_id}`
-- `POST /v2/course-packs/ask`
-- `POST /v2/course-packs/study-kit`
-- `POST /v2/course-packs/summary`
-- `POST /v2/course-packs/audio-script`
-- `POST /v2/course-packs/tts`
-- `POST /v2/course-packs/concept-map`
-- `POST /v2/course-packs/mindmap`
-
-## Docs
-
-- [CourseBee v2 Case Study](docs/coursebee-v2-case-study.md)
-- [CourseBee Demo UI](v2/assets/coursebee_demo_ui.html) - run the server and open `http://127.0.0.1:8000/demo`
-- CourseBee demo alias: `http://127.0.0.1:8000/demo-ko` serves the same current UI
-- [Architecture](docs/ARCHITECTURE.md)
-- [Retrieval Router](docs/LIGHTRAG_ROUTER.md)
-- [Multi-level Summary Retrieval](docs/HIERARCHICAL_RETRIEVAL.md)
-- [Concept Graph-assisted Retrieval](docs/GRAPH_RAG.md)
-- [Concept Graph Retrieval Evaluation](docs/GRAPH_RAG_EVALUATION.md)
-- [Evaluation](docs/EVALUATION.md)
-- [Citation and Grounding](docs/CITATION_GROUNDING.md)
-- [Providers](docs/PROVIDERS.md)
-- [Production Readiness](docs/PRODUCTION_READINESS.md)
-- [v1 Legacy Overview](docs/V1_LEGACY.md)
-
-More docs: [docs/README.md](docs/README.md)
-
-## Tests
+## Validation
 
 ```bash
-python -m unittest discover -s tests
+python -m ruff check v2 eval tests
+python -m unittest discover -s tests -v
 python eval/run_eval.py
 python eval/run_generalization_eval.py
 python eval/run_robustness_eval.py
 ```
+
+GitHub Actions는 push와 pull request마다 동일한 검사와 wheel/container smoke test를 실행합니다.
+
+## Documentation
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Semantic Retrieval](docs/SEMANTIC_RETRIEVAL.md)
+- [Evaluation](docs/EVALUATION.md)
+- [Citation and Grounding](docs/CITATION_GROUNDING.md)
+- [Providers](docs/PROVIDERS.md)
+- [Production Readiness](docs/PRODUCTION_READINESS.md)
+- [CourseBee v2 Case Study](docs/coursebee-v2-case-study.md)
+- [All Documentation](docs/README.md)
