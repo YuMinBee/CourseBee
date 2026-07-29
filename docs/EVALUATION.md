@@ -1,6 +1,6 @@
 # Evaluation
 
-CourseBee v2 treats retrieval as a behavior that should be checked, not only described. The evaluation harness validates whether `mode="auto"` chooses the expected retrieval strategy, returns source evidence, uses graph context when appropriate, and falls back clearly when course graph evidence is missing.
+CourseBee v3 treats retrieval and generated artifacts as behaviors that should be checked, not only described. The evaluation harness validates routing and source evidence as well as report and audio grounding.
 
 ## Files
 
@@ -14,12 +14,18 @@ eval/
 - run_generalization_eval.py
 - robustness_suite.json
 - run_robustness_eval.py
+- audio_grounding_suite.json
+- run_audio_grounding_eval.py
+- onboarding_report_suite.json
+- run_onboarding_report_eval.py
 - semantic_retrieval_suite.json
 - run_semantic_retrieval_eval.py
 - results/latest_eval.md
 - results/latest_generalization_eval.md
 - results/latest_robustness_eval.md
 - results/latest_semantic_retrieval_eval.md
+- results/latest_audio_grounding_eval.md
+- results/latest_onboarding_report_eval.md
 ```
 
 The fixture used by `run_eval.py` is synthetic and public. It does not depend on private lecture materials.
@@ -30,11 +36,13 @@ The fixture used by `run_eval.py` is synthetic and public. It does not depend on
 python eval/run_eval.py
 python eval/run_generalization_eval.py
 python eval/run_robustness_eval.py
+python eval/run_audio_grounding_eval.py
+python eval/run_onboarding_report_eval.py
 pip install -e ".[semantic]"
 python eval/run_semantic_retrieval_eval.py
 ```
 
-The first command creates a synthetic NLP Course Pack under `outputs/_eval_runtime`, runs the golden questions through the same v2 service path used by the app, and writes `eval/results/latest_eval.md`. The second command repeats fact and relation checks across biology, economics, and software engineering. The robustness suite adds OCR line-break noise, conflicting source versions, cross-document relations, unrelated distractors, and explicit abstention checks. The optional semantic suite downloads real Sentence Transformers models and compares local, dense+RRF, and Cross-Encoder rankings on paraphrased and cross-lingual questions, so it is intentionally excluded from the lightweight default CI job.
+The first command creates a synthetic NLP Course Pack under `outputs/_eval_runtime`, runs the golden questions through the same service path used by the app, and writes `eval/results/latest_eval.md`. The second command repeats fact and relation checks across biology, economics, and software engineering. The robustness suite adds OCR line-break noise, conflicting source versions, cross-document relations, unrelated distractors, and explicit abstention checks. The audio suite classifies supported claims, conversational transitions, invented model names, numeric claims, and strict Korean grounding. The onboarding report suite checks section grounding, citation coverage, source-document coverage, JSON/Markdown/HTML exports, source-update detection, affected sections, unchanged-section reuse, and post-refresh status. The optional semantic suite downloads real Sentence Transformers models and is intentionally excluded from the lightweight default CI job.
 
 ## Citation Quality
 
@@ -80,7 +88,7 @@ Robustness snapshot:
 | Source recall and precision checks | 5 / 5 |
 | Graph evidence checks | 2 / 2 |
 | Abstention checks | 1 / 1 |
-| Local ask latency p50 / p95 | 9.97 ms / 13.51 ms |
+| Local ask latency p50 / p95 | 14.41 ms / 18.47 ms |
 
 Semantic retrieval snapshot:
 
@@ -89,6 +97,27 @@ Semantic retrieval snapshot:
 | Local hybrid | 0.17 | 0.167 | 2.29 ms | 0 |
 | E5 + RRF | 1.00 | 0.917 | 9.09 ms | 0 |
 | E5 + RRF + Cross-Encoder | 1.00 | 1.000 | 12.03 ms | 0 |
+
+Audio grounding snapshot:
+
+| Metric | Result |
+| --- | --- |
+| Classification accuracy | 6 / 6 |
+| Unsupported-claim detection | 3 / 3 |
+| Public audio checked segments | 35 / 35 |
+| Public audio unsupported segments | 0 |
+
+Onboarding report snapshot:
+
+| Metric | Result |
+| --- | --- |
+| Scenarios | 3 / 3 |
+| Grounded sections | 6 / 6 |
+| Mean citation coverage | 1.00 |
+| Mean source-document coverage | 1.00 |
+| JSON / Markdown / HTML exports | 3 / 3 |
+| Objective-specific source selection | 3 / 3 |
+| Source update impact checks | 4 / 4 |
 
 The semantic snapshot uses six public synthetic cases. It tests retrieval ranking only and does not claim the same gain for generated answers or production lecture data. All local latency values are environment-dependent snapshots; the versioned result files are authoritative for the latest run.
 
@@ -103,6 +132,9 @@ The semantic snapshot uses six public synthetic cases. It tests retrieval rankin
 - Conflict coverage: requires both versioned sources when the question compares conflicting values.
 - Local ask latency: records deterministic local retrieval and composition time; it is not a hosted LLM or network latency benchmark.
 - Semantic Recall@k and MRR: compare expected-source ranking for Korean paraphrases and cross-lingual questions after model warm-up.
+- Audio grounding accuracy: checks lexical support classification and high-risk numeric/model-name detection against fixed expectations. It is not a semantic entailment or listening-quality score.
+- Report grounding: checks that each report section cites source chunks, passes the lexical grounding guard, includes required documents, excludes disallowed documents, and produces all supported exports.
+- Source update impact: checks that an updated document is detected, its report section is identified, unchanged sections are reused, and the refreshed report returns to `current`.
 
 ## Example Golden Case
 

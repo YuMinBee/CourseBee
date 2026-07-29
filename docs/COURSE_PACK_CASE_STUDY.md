@@ -21,7 +21,7 @@ NLP week 11, lecture 3
 In the local demo, this is represented as:
 
 ```text
-outputs/demo_audio_5min/course_packs/pack_static_nlp_11week_demo/
+outputs/course_packs/pack_static_nlp_11week_demo/
 ```
 
 The pack contains source chunks with document-level and lecture-level metadata such as:
@@ -95,14 +95,9 @@ The map is useful in two ways:
 
 ### 3.4 Podcast Script / TTS
 
-The most visible demo artifact is the podcast script and generated audio:
+The most visible demo artifacts are the [speaker transcript](demo-assets/coursebee-audio-overview-transcript.txt), [grounding trace](demo-assets/coursebee-audio-overview-grounding.json), and [generated MP3](demo-assets/coursebee-audio-overview.mp3).
 
-```text
-outputs/demo_audio_5min/course_packs/pack_static_nlp_11week_demo/audio_script_qwen3_14b_podcast_background_staged_6000chars.txt
-outputs/demo_audio_5min/course_packs/pack_static_nlp_11week_demo/audio_script_qwen3_14b_podcast_background_staged_edge_tts.mp3
-```
-
-The generated Edge TTS file was about 10 minutes 45 seconds in the local run. This revealed a practical issue: character count and real TTS duration do not map perfectly. TTS speed must be measured empirically if the product needs an exact target duration.
+The public run used Qwen3 14B, expanded 4,878 raw characters to 6,003 grounded characters, and produced 38 turns. The strict lexical guard passed all 35 checked turns, repaired 16, and left zero unsupported turns. The generated Edge TTS file measured 13 minutes 9 seconds. This confirms that character count and real TTS duration do not map perfectly; exact duration needs a synthesize-and-measure feedback loop.
 
 ## 4. Comparison Table
 
@@ -144,7 +139,7 @@ One-shot LLM generation produced several failure modes:
 The fix was to turn generation into a small orchestration pipeline:
 
 ```text
-outline -> scene generation -> final repair -> TTS
+outline -> scene generation -> length repair -> segment grounding repair -> TTS
 ```
 
 Each step has a narrower job. This made the output longer, more structured, and easier to debug.
@@ -165,7 +160,7 @@ The practical lesson was that prompt orchestration mattered more than simply inc
 
 ### 5.5 TTS duration must be measured, not guessed
 
-The staged script had about 5k visible characters with speaker labels, but Edge TTS produced about 10 minutes 45 seconds of audio. This showed that duration control needs a feedback loop, such as:
+The public script had 6,003 characters, but Edge TTS produced 13 minutes 9 seconds of audio. This showed that duration control needs a feedback loop, such as:
 
 ```text
 target duration -> estimate script length -> synthesize -> measure subtitle end time -> shorten/expand if needed
@@ -178,9 +173,10 @@ The current implementation is intentionally lightweight.
 - It is not full GraphRAG. It is a graph-augmented local retrieval mode using concept edges and evidence chunks.
 - Background knowledge can improve podcast flow, but it must be clearly separated from lecture-source evidence.
 - Local model quality varies heavily. More parameters do not guarantee better podcast structure.
-- The staged podcast pipeline improves long-form output, but it can still repeat concepts and needs stronger duplicate-removal repair.
+- The lexical grounding guard is deterministic, but it is not semantic entailment or a human listening-quality score.
+- Source-grounded repair reduces unsupported claims, while concept repetition still needs human evaluation and stronger duplicate removal.
 - Edge TTS is useful for a free demo, but production use would need clearer voice separation, retry handling, and duration control.
-- Current generated demo artifacts under `outputs/` are local artifacts and are not committed as source-controlled fixtures.
+- Full runtime artifacts stay under `outputs/`; only the synthetic, validated MP3, transcript, and grounding trace are versioned under `docs/demo-assets/`.
 
 ## 7. Portfolio Framing
 

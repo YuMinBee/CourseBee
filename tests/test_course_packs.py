@@ -23,6 +23,7 @@ from v2.api.schemas import (
     CoursePackConceptMapRequest,
     CoursePackIngestRequest,
     CoursePackJobRequest,
+    CoursePackOnboardingReportRequest,
     CoursePackQueryRequest,
     CoursePackStudyKitRequest,
     CoursePackSummaryRequest,
@@ -67,6 +68,8 @@ class CoursePackBehaviorTest(unittest.TestCase):
         self.assertTrue(pack["pack_id"].startswith("pack_"))
         self.assertEqual(pack["document_count"], 2)
         self.assertGreaterEqual(pack["chunk_count"], 2)
+        self.assertEqual(pack["documents"][0]["title"], "Week 1 explains OCR, PDF parsing, source citation, and RAG chunks.")
+        self.assertEqual(pack["documents"][1]["title"], "Week 2")
         self.assertEqual(pack["warnings"], [])
         self.assertTrue((Path(pack["output_dir"]) / "course_pack.json").exists())
         self.assertTrue((Path(pack["output_dir"]) / "chunks.json").exists())
@@ -78,6 +81,7 @@ class CoursePackBehaviorTest(unittest.TestCase):
         first_metadata = chunks[0]["metadata"]
         self.assertIn("doc_id", first_metadata)
         self.assertIn("filename", first_metadata)
+        self.assertEqual(first_metadata["title"], pack["documents"][0]["title"])
         self.assertEqual(first_metadata["pack_id"], pack["pack_id"])
         self.assertIn("page", chunks[0])
         self.assertIn("chunk_id", chunks[0])
@@ -648,6 +652,86 @@ class CoursePackBehaviorTest(unittest.TestCase):
         self.assertTrue(response["key_concepts"])
         self.assertTrue((Path(pack["output_dir"]) / "summary.json").exists())
 
+    def test_v3_onboarding_report_is_grounded_and_exported(self) -> None:
+        pack, root = self._create_pack()
+        response = routes.onboarding_report_course_pack(
+            CoursePackOnboardingReportRequest(
+                pack_id=pack["pack_id"],
+                question="신입 구성원이 알아야 할 문서 처리와 출처 정책",
+                output_root=str(root / "outputs"),
+                title="신입 구성원 온보딩 보고서",
+                audience="신입 구성원",
+                objective="핵심 문서 처리와 출처 정책 이해",
+                max_sections=4,
+            )
+        )
+
+        self.assertEqual(response["pack_id"], pack["pack_id"])
+        self.assertEqual(response["report_type"], "onboarding")
+        self.assertEqual(response["audience"], "신입 구성원")
+        self.assertTrue(response["sections"])
+        self.assertTrue(all(section["sources"] for section in response["sections"]))
+        self.assertTrue(all(section["grounding_check"]["passed"] for section in response["sections"]))
+        self.assertTrue(response["quality"]["passed"])
+        self.assertEqual(response["quality"]["source_document_coverage"], 1.0)
+        self.assertTrue(response["report_url"].startswith("/v3/course-packs/"))
+
+        output_dir = Path(pack["output_dir"])
+        self.assertTrue((output_dir / "onboarding_report.json").exists())
+        self.assertTrue((output_dir / "onboarding_report.md").exists())
+        html_path = output_dir / "onboarding_report.html"
+        self.assertTrue(html_path.exists())
+        html = html_path.read_text(encoding="utf-8")
+        self.assertIn("CourseBee v3", html)
+        self.assertIn("Source register", html)
+
+    def test_v3_onboarding_report_detects_source_updates_and_reuses_unchanged_sections(self) -> None:
+        pack, root = self._create_pack()
+        output_root = root / "outputs"
+        request = CoursePackOnboardingReportRequest(
+            pack_id=pack["pack_id"],
+            output_root=str(output_root),
+            audience="신입 구성원",
+            objective="핵심 문서 처리와 출처 정책 이해",
+            max_sections=4,
+        )
+        first_report = routes.onboarding_report_course_pack(request)
+        current = routes.get_onboarding_report_impact(pack["pack_id"], output_root=str(output_root))
+
+        self.assertFalse(current["requires_regeneration"])
+        self.assertEqual(current["status"], "current")
+
+        updated = root / "week1.txt"
+        updated.write_text(
+            "Week 1 explains updated OCR, PDF parsing, source citation, RAG chunks, and mandatory approval.",
+            encoding="utf-8",
+        )
+        routes.ingest_course_pack(
+            CoursePackIngestRequest(
+                paths=[str(updated)],
+                output_root=str(output_root),
+                pack_id=pack["pack_id"],
+                append=True,
+            )
+        )
+
+        impact = routes.get_onboarding_report_impact(pack["pack_id"], output_root=str(output_root))
+        self.assertTrue(impact["requires_regeneration"])
+        self.assertEqual(impact["status"], "changes_detected")
+        self.assertEqual(len(impact["updated_sources"]), 1)
+        self.assertTrue(any(item["title"].startswith("Week 1") for item in impact["affected_sections"]))
+
+        regenerated = routes.onboarding_report_course_pack(request)
+        self.assertEqual(regenerated["generation"]["mode"], "incremental")
+        self.assertEqual(regenerated["generation"]["reused_section_count"], 1)
+        self.assertEqual(regenerated["generation"]["regenerated_section_count"], 1)
+        self.assertNotEqual(
+            first_report["source_snapshot"]["fingerprint"],
+            regenerated["source_snapshot"]["fingerprint"],
+        )
+        refreshed = routes.get_onboarding_report_impact(pack["pack_id"], output_root=str(output_root))
+        self.assertFalse(refreshed["requires_regeneration"])
+
     def test_v2_course_pack_summary_openai_without_key_falls_back(self) -> None:
         pack, root = self._create_pack()
         with patch.dict("os.environ", {"OPENAI_API_KEY": ""}):
@@ -989,8 +1073,3 @@ class CoursePackBehaviorTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-
-
-
-

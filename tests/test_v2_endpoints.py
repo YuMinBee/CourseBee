@@ -102,6 +102,8 @@ class V2EndpointBehaviorTest(unittest.TestCase):
         self.assertIsNone(response["audio_path"])
         self.assertTrue(response["script"])
         self.assertTrue(all(item["sources"] for item in response["script"]))
+        self.assertTrue(response["grounding_check"]["checked"])
+        self.assertTrue(response["grounding_check"]["passed"])
 
     def test_v2_concept_map_no_crash(self) -> None:
         result = self._ingest_text(".txt")
@@ -124,5 +126,4 @@ class V2EndpointBehaviorTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
 

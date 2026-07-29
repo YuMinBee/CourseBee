@@ -1,6 +1,10 @@
-# CourseBee v2 Architecture
+# CourseBee v3 Architecture
 
-CourseBee groups multiple lecture documents into one source-grounded `Course Pack`. The local runtime is intentionally deterministic and dependency-light; production replacements are kept behind explicit provider and storage boundaries.
+CourseBee groups enterprise documents into one source-grounded `Knowledge Pack`. The local runtime is intentionally deterministic and dependency-light; production replacements are kept behind explicit provider and storage boundaries. The Python package remains under `v2/` to preserve import compatibility, while the current product API is `/v3` and the existing `/v2` contract remains available.
+
+![CourseBee v3 technical block diagram](../images/coursebee-v3-architecture.png)
+
+The renderable source is stored at [`diagrams/coursebee-v3-architecture.html`](diagrams/coursebee-v3-architecture.html).
 
 ## Request Flow
 
@@ -18,7 +22,9 @@ flowchart LR
     Hierarchy --> Ground
     Graph --> Ground
     Ground --> Trace[Sources, sentence citations, and trace]
-    Pack --> Studio[Study Kit / Summary / Audio / Mind Map]
+    Pack --> Report[Grounded Onboarding Report]
+    Report --> Export[JSON / Markdown / HTML]
+    Pack --> Audio[Grounded Audio Briefing]
 ```
 
 ## Runtime Layers
@@ -46,6 +52,8 @@ flowchart LR
 - `course_pack_store.py`: Course Pack paths, metadata, and chunk loading
 - `course_pack_artifacts.py`: artifact persistence, previews, and concept-map export
 - `course_pack_jobs.py`: ingestion job lifecycle and progress
+- `onboarding_report.py`: report structure, source snapshot comparison, grounding, and export
+- `audio_grounding.py`: segment-level audio claim validation and repair signals
 - `api/routes.py`: HTTP boundary and response contracts
 
 ## Provenance Contract
@@ -68,7 +76,9 @@ Answers return source references with bounded evidence excerpts, sentence-level 
 
 The demo chat uses a three-stage grounded-first policy with local `qwen3:14b`: Course Pack evidence produces `course_pack/grounded`; a Course Pack miss can search bounded Wikipedia extracts and produce `external_web/web_grounded` with original URLs; only a web failure or no-result response can produce `general_knowledge/ungrounded`. The generic API request default remains `mock`, with both fallback layers opt-in, so tests and lightweight deployments do not require Ollama or outbound network access.
 
-The center chat keeps chronological turns in the client and sends a bounded `conversation_history`. Follow-up detection builds a standalone retrieval query from the previous user topic while the generation prompt receives the recent dialogue. `/v2/course-packs/ask/stream` exposes retrieval status, Ollama token events, and the final citation payload over SSE; client disconnects propagate a cancellation signal to the provider. Web extracts are capped, plain-text only, restricted to the configured provider, checked for common prompt-injection markers, and treated as untrusted reference content by the LLM prompt.
+The center chat keeps chronological turns in the client and sends a bounded `conversation_history`. Follow-up detection builds a standalone retrieval query from the previous user topic while the generation prompt receives the recent dialogue. `/v3/course-packs/ask/stream` exposes retrieval status, Ollama token events, and the final citation payload over SSE; client disconnects propagate a cancellation signal to the provider. Web extracts are capped, plain-text only, restricted to the configured provider, checked for common prompt-injection markers, and treated as untrusted reference content by the LLM prompt.
+
+Onboarding reports select objective-relevant documents through retrieval plus document-heading matches and expose the selected/total document count in the artifact. They also preserve a fingerprinted source snapshot. `/v3/course-packs/{pack_id}/onboarding-report-impact` compares that snapshot with the latest document versions and identifies added, updated, removed, and affected report sections. Regeneration reuses unchanged sections when the audience and objective are unchanged.
 
 Explicit semantic modes add `retrieval_details` containing the embedding/reranker models, lexical and dense candidate counts, reranking status, and fallback usage. The default router remains dependency-free and does not download models implicitly.
 
@@ -86,6 +96,9 @@ outputs/
 |   |-- chunks.json
 |   |-- hierarchical_summary_index.json
 |   |-- graph.json
+|   |-- onboarding_report.json
+|   |-- onboarding_report.md
+|   |-- onboarding_report.html
 |   |-- answers/
 |   `-- generated artifacts
 `-- course_pack_jobs/{job_id}.json
@@ -102,5 +115,7 @@ The local file system is a reproducible portfolio implementation, not a durabili
 - request IDs and stage latency trace
 - no-context abstention
 - source recall, precision, graph evidence, OCR-noise, conflict, and distractor evaluations
+- report source recall/precision, section grounding, citation coverage, document coverage, and export evaluations
+- audio segment grounding and unsupported-claim repair evaluations
 
 See [Production Readiness](PRODUCTION_READINESS.md) for the intentionally unimplemented production boundaries.

@@ -231,7 +231,7 @@ class SourceGroundedGenerationTest(unittest.TestCase):
         self.assertEqual(script["llm"]["status"], "used")
 
     def test_audio_script_ollama_podcast_preserves_speakers(self) -> None:
-        llm_text = "HOST: 오늘은 BPE가 왜 필요한지 이야기해볼게요.\nGUEST: BPE는 OOV 문제를 줄이기 위해 단어를 subword로 나눕니다."
+        llm_text = "HOST: 오늘은 BeePDF가 page citations를 유지하는 이유를 이야기해볼게요.\nGUEST: OCR fallback은 scanned PDFs를 처리합니다."
         with patch("v2.audio_script.OllamaProvider.generate_script", return_value=llm_text):
             script = generate_audio_script(
                 self._chunks(),
@@ -242,7 +242,7 @@ class SourceGroundedGenerationTest(unittest.TestCase):
 
         self.assertEqual(script["script"][0]["speaker"], "host")
         self.assertEqual(script["script"][1]["speaker"], "guest")
-        self.assertIn("BPE", script["script"][0]["text"])
+        self.assertIn("BeePDF", script["script"][0]["text"])
         self.assertTrue(script["script"][1]["sources"])
 
     def test_audio_script_ollama_maps_each_turn_to_matching_source(self) -> None:
@@ -260,7 +260,7 @@ class SourceGroundedGenerationTest(unittest.TestCase):
         self.assertEqual(script["source_count"], 2)
 
     def test_audio_script_ollama_podcast_splits_inline_speakers(self) -> None:
-        llm_text = "HOST: Opening context. GUEST: Longer explanation. HOST: Smooth bridge. GUEST: Final recap."
+        llm_text = "HOST: BeePDF processing. GUEST: RAG answers. HOST: OCR fallback. GUEST: scanned PDFs."
         with patch("v2.audio_script.OllamaProvider.generate_script", return_value=llm_text):
             script = generate_audio_script(
                 self._chunks(),
@@ -270,8 +270,39 @@ class SourceGroundedGenerationTest(unittest.TestCase):
             )
 
         self.assertEqual([segment["speaker"] for segment in script["script"]], ["host", "guest", "host", "guest"])
-        self.assertEqual(script["script"][1]["text"], "Longer explanation.")
+        self.assertEqual(script["script"][1]["text"], "RAG answers.")
         self.assertTrue(all(segment["sources"] for segment in script["script"]))
+
+    def test_audio_script_reports_segment_grounding(self) -> None:
+        llm_text = "HOST: BeePDF keeps page citations for RAG answers.\nGUEST: OCR fallback handles scanned PDFs."
+        with patch("v2.audio_script.OllamaProvider.generate_script", return_value=llm_text):
+            script = generate_audio_script(
+                self._chunks(),
+                mode="podcast",
+                llm_provider="ollama",
+                llm_model="qwen3:14b",
+            )
+
+        self.assertTrue(script["grounding_check"]["checked"])
+        self.assertTrue(script["grounding_check"]["passed"])
+        self.assertEqual(script["grounding_check"]["unsupported_segment_count"], 0)
+        self.assertTrue(all(segment["grounding"]["passed"] for segment in script["script"]))
+
+    def test_audio_script_repairs_unsupported_concrete_claims(self) -> None:
+        llm_text = "HOST: QuantumTransformer achieves 97 percent accuracy.\nGUEST: OCR fallback handles scanned PDFs."
+        with patch("v2.audio_script.OllamaProvider.generate_script", return_value=llm_text):
+            script = generate_audio_script(
+                self._chunks(),
+                mode="podcast",
+                llm_provider="ollama",
+                llm_model="qwen3:14b",
+            )
+
+        spoken_text = " ".join(segment["text"] for segment in script["script"])
+        self.assertNotIn("QuantumTransformer", spoken_text)
+        self.assertNotIn("97", spoken_text)
+        self.assertGreaterEqual(script["grounding_check"]["repaired_segment_count"], 1)
+        self.assertTrue(script["grounding_check"]["passed"])
 
     def test_audio_script_ollama_removes_spoken_speaker_labels(self) -> None:
         llm_text = "HOST: 반가워요, GUEST.\nGUEST: 감사합니다, HOST!"

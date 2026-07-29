@@ -1,0 +1,50 @@
+{
+  "description": "Public synthetic enterprise onboarding report cases.",
+  "cases": [
+    {
+      "id": "new_hire_overview",
+      "title": "신입 구성원 온보딩 보고서",
+      "audience": "신입 구성원",
+      "objective": "핵심 규정과 업무 흐름을 출처와 함께 이해",
+      "expected_sources": [
+        "enterprise_employee_handbook.txt",
+        "enterprise_security_policy.txt",
+        "enterprise_engineering_workflow.txt"
+      ],
+      "allowed_sources": [
+        "enterprise_employee_handbook.txt",
+        "enterprise_security_policy.txt",
+        "enterprise_engineering_workflow.txt"
+      ],
+      "expected_terms": ["다중 요소 인증", "Pull Request", "인수인계"]
+    },
+    {
+      "id": "engineering_onboarding",
+      "title": "신입 개발자 온보딩 보고서",
+      "audience": "신입 개발자",
+      "objective": "보안 원칙과 개발·배포 절차 이해",
+      "expected_sources": [
+        "enterprise_security_policy.txt",
+        "enterprise_engineering_workflow.txt"
+      ],
+      "allowed_sources": [
+        "enterprise_security_policy.txt",
+        "enterprise_engineering_workflow.txt"
+      ],
+      "expected_terms": ["보안", "배포", "롤백"]
+    },
+    {
+      "id": "policy_briefing",
+      "title": "업무 규정 브리핑",
+      "audience": "신규 입사자",
+      "objective": "근무, 부재 공유, 문서 관리 원칙 확인",
+      "expected_sources": [
+        "enterprise_employee_handbook.txt"
+      ],
+      "allowed_sources": [
+        "enterprise_employee_handbook.txt"
+      ],
+      "expected_terms": ["부재", "문서", "담당자"]
+    }
+  ]
+}

@@ -30,6 +30,10 @@ jobs:
         run: python eval/run_generalization_eval.py --results-path outputs/ci_generalization_eval.md
       - name: Retrieval robustness evaluation
         run: python eval/run_robustness_eval.py --results-path outputs/ci_robustness_eval.md
+      - name: Audio grounding evaluation
+        run: python eval/run_audio_grounding_eval.py --results-path outputs/ci_audio_grounding_eval.md
+      - name: Onboarding report evaluation
+        run: python eval/run_onboarding_report_eval.py --results-path outputs/ci_onboarding_report_eval.md
 
   package:
     runs-on: ubuntu-latest
@@ -49,7 +53,24 @@ jobs:
           python -m venv "$RUNNER_TEMP/coursebee-wheel"
           "$RUNNER_TEMP/coursebee-wheel/bin/python" -m pip install dist/*.whl
           cd "$RUNNER_TEMP"
-          "$RUNNER_TEMP/coursebee-wheel/bin/python" -c "from importlib.resources import files; from v2.main import app; assert app.title == 'CourseBee'; assert files('v2').joinpath('assets', 'coursebee_demo_ui.html').is_file(); assert len(list(files('v2').joinpath('assets', 'demo_fixtures').iterdir())) == 3"
+          "$RUNNER_TEMP/coursebee-wheel/bin/python" -c "from importlib.resources import files; from v2.main import app; assert app.title == 'CourseBee'; assert app.version == '3.0.0'; assert files('v2').joinpath('assets', 'coursebee_demo_ui.html').is_file(); assert len(list(files('v2').joinpath('assets', 'demo_fixtures').iterdir())) >= 6"
+
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install
+        run: python -m pip install --upgrade pip && pip install -e ".[pdf,dev,e2e]"
+      - name: Install Chromium
+        run: python -m playwright install --with-deps chromium
+      - name: Browser workflow
+        run: python -m unittest tests.test_browser_demo -v
 
   container:
     runs-on: ubuntu-latest
@@ -57,11 +78,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build image
-        run: docker build -t coursebee-v2:ci .
+        run: docker build -t coursebee-v3:ci .
       - name: Smoke test image
         shell: bash
         run: |
-          docker run --name coursebee-ci -d -p 8000:8000 coursebee-v2:ci
+          docker run --name coursebee-ci -d -p 8000:8000 coursebee-v3:ci
           trap 'docker rm -f coursebee-ci >/dev/null 2>&1 || true' EXIT
           for attempt in {1..30}; do
             if curl --fail --silent http://127.0.0.1:8000/health >/dev/null; then break; fi

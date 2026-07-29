@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CourseBee v3 Technical Architecture</title>
+  <style>
+    :root {
+      --ink: #18222c;
+      --muted: #61707c;
+      --line: #cfd8de;
+      --paper: #ffffff;
+      --wash: #eef2f4;
+      --blue: #275da8;
+      --blue-soft: #e9f0fa;
+      --teal: #08766d;
+      --teal-soft: #e5f4f1;
+      --amber: #a96708;
+      --amber-soft: #fff2d9;
+      --coral: #a8433c;
+      --coral-soft: #fbeae7;
+      --green: #417337;
+      --green-soft: #eaf4e7;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      width: 1920px;
+      height: 1080px;
+      margin: 0;
+      overflow: hidden;
+      background: var(--wash);
+      color: var(--ink);
+      font-family: "Malgun Gothic", "Segoe UI", Arial, sans-serif;
+      letter-spacing: 0;
+    }
+    .canvas {
+      width: 1920px;
+      height: 1080px;
+      padding: 46px 54px 38px;
+      display: grid;
+      grid-template-rows: 118px 1fr 154px;
+      gap: 24px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+      padding: 0 6px 20px;
+      border-bottom: 2px solid #aeb9c1;
+    }
+    .title-group { min-width: 0; }
+    .kicker {
+      margin: 0 0 7px;
+      color: var(--blue);
+      font-size: 18px;
+      font-weight: 800;
+    }
+    h1 {
+      margin: 0;
+      font-size: 42px;
+      line-height: 1.2;
+    }
+    .subtitle {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 19px;
+    }
+    .version {
+      flex: 0 0 auto;
+      border: 2px solid var(--blue);
+      background: var(--paper);
+      color: var(--blue);
+      padding: 12px 18px;
+      font-size: 18px;
+      font-weight: 900;
+    }
+    .pipeline {
+      display: grid;
+      grid-template-columns: 250px 296px 340px 398px 358px;
+      gap: 42px;
+      align-items: stretch;
+    }
+    .stage {
+      position: relative;
+      min-width: 0;
+      display: grid;
+      grid-template-rows: 74px 1fr;
+      border: 1px solid var(--line);
+      border-top: 7px solid var(--accent);
+      background: var(--paper);
+      box-shadow: 0 12px 28px rgba(23, 34, 44, 0.08);
+    }
+    .stage:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      z-index: 2;
+      top: 49%;
+      right: -31px;
+      width: 20px;
+      height: 20px;
+      border-top: 4px solid #70808b;
+      border-right: 4px solid #70808b;
+      transform: rotate(45deg);
+    }
+    .stage-head {
+      padding: 16px 18px 14px;
+      border-bottom: 1px solid var(--line);
+      background: var(--soft);
+    }
+    .stage-no {
+      display: block;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .stage h2 {
+      margin: 3px 0 0;
+      font-size: 20px;
+      line-height: 1.2;
+    }
+    .stage-body {
+      min-height: 0;
+      padding: 15px;
+      display: grid;
+      align-content: start;
+      gap: 11px;
+    }
+    .block {
+      min-height: 72px;
+      padding: 12px 13px;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--accent);
+      background: #fff;
+    }
+    .block strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 15px;
+      line-height: 1.25;
+    }
+    .block span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .block.emphasis {
+      border-color: var(--accent);
+      background: var(--soft);
+    }
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .tag {
+      border: 1px solid var(--line);
+      background: #f7f9fa;
+      padding: 4px 6px;
+      color: #46545e;
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .source { --accent: var(--blue); --soft: var(--blue-soft); }
+    .ingest { --accent: var(--teal); --soft: var(--teal-soft); }
+    .knowledge { --accent: var(--amber); --soft: var(--amber-soft); }
+    .retrieval { --accent: var(--coral); --soft: var(--coral-soft); }
+    .output { --accent: var(--green); --soft: var(--green-soft); }
+    .platform {
+      display: grid;
+      grid-template-columns: 1.15fr 1.1fr 1fr;
+      gap: 18px;
+    }
+    .band {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      align-items: center;
+      gap: 14px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      padding: 16px 18px;
+    }
+    .band-mark {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      background: var(--band-soft);
+      color: var(--band-accent);
+      font-size: 19px;
+      font-weight: 900;
+    }
+    .band h3 {
+      margin: 0 0 6px;
+      color: var(--band-accent);
+      font-size: 16px;
+    }
+    .band p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .api { --band-accent: var(--blue); --band-soft: var(--blue-soft); }
+    .ops { --band-accent: var(--teal); --band-soft: var(--teal-soft); }
+    .quality { --band-accent: var(--coral); --band-soft: var(--coral-soft); }
+    .metric {
+      color: var(--ink);
+      font-weight: 900;
+    }
+  </style>
+</head>
+<body>
+  <main class="canvas">
+    <header>
+      <div class="title-group">
+        <p class="kicker">COURSEBEE v3 · TECHNICAL BLOCK DIAGRAM</p>
+        <h1>출처 기반 기업 온보딩 지식 자동화 시스템</h1>
+        <p class="subtitle">산업 문서를 질문 가능한 Knowledge Pack으로 구성하고, 검증된 보고서와 오디오 브리핑으로 변환</p>
+      </div>
+      <div class="version">IMPLEMENTED · LOCAL-FIRST</div>
+    </header>
+
+    <section class="pipeline" aria-label="CourseBee v3 processing pipeline">
+      <article class="stage source">
+        <div class="stage-head">
+          <span class="stage-no">01 · INPUT</span>
+          <h2>Enterprise Sources</h2>
+        </div>
+        <div class="stage-body">
+          <div class="block emphasis">
+            <strong>사내 온보딩 문서</strong>
+            <span>취업규칙 · 보안정책 · 개발 프로세스 · SOP</span>
+          </div>
+          <div class="block">
+            <strong>다중 형식 입력</strong>
+            <span>PDF · PPTX · Markdown · TXT</span>
+          </div>
+          <div class="block">
+            <strong>누적 Course Pack</strong>
+            <span>기존 자료를 유지하며 새 문서와 개정본 추가</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="stage ingest">
+        <div class="stage-head">
+          <span class="stage-no">02 · INGESTION</span>
+          <h2>Document Intelligence</h2>
+        </div>
+        <div class="stage-body">
+          <div class="block">
+            <strong>Parser + OCR Fallback</strong>
+            <span>PyMuPDF · PPTX XML · Tesseract</span>
+          </div>
+          <div class="block emphasis">
+            <strong>Sentence-aware Chunking</strong>
+            <span>문장 경계와 OCR 노이즈를 고려한 분할</span>
+          </div>
+          <div class="block">
+            <strong>Provenance Contract</strong>
+            <span>doc_id · filename · page · chunk_id · offsets</span>
+          </div>
+          <div class="block">
+            <strong>Upload Safety</strong>
+            <span>형식·크기·경로·중복 검증과 atomic write</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="stage knowledge">
+        <div class="stage-head">
+          <span class="stage-no">03 · KNOWLEDGE</span>
+          <h2>Course Pack Index</h2>
+        </div>
+        <div class="stage-body">
+          <div class="block emphasis">
+            <strong>Source Metadata Store</strong>
+            <span>문서·chunk·생성 artifact를 파일 기반으로 영속화</span>
+          </div>
+          <div class="block">
+            <strong>Hierarchical Summary</strong>
+            <span>chunk → document → pack 수준의 전체 흐름 검색</span>
+          </div>
+          <div class="block">
+            <strong>Evidence-backed Concept Graph</strong>
+            <span>개념 관계와 relation evidence를 함께 보존</span>
+          </div>
+          <div class="block">
+            <strong>Source Version Snapshot</strong>
+            <span>문서 fingerprint로 개정·추가·삭제 영향 추적</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="stage retrieval">
+        <div class="stage-head">
+          <span class="stage-no">04 · RETRIEVAL</span>
+          <h2>Multi-route Grounded AI</h2>
+        </div>
+        <div class="stage-body">
+          <div class="block">
+            <strong>Query Router</strong>
+            <span>사실 · 관계 · 전체 개요 · 학습 경로 질문 분류</span>
+          </div>
+          <div class="block emphasis">
+            <strong>Hybrid Semantic Retrieval</strong>
+            <span>Local Hybrid + multilingual E5 + RRF</span>
+            <div class="tag-row">
+              <span class="tag">Recall@3 1.00</span>
+              <span class="tag">MRR 1.00</span>
+            </div>
+          </div>
+          <div class="block">
+            <strong>Cross-Encoder Reranking</strong>
+            <span>상위 후보를 query-document pair로 재정렬</span>
+          </div>
+          <div class="block">
+            <strong>Graph / Hierarchical Route</strong>
+            <span>관계형 질문과 전체 개요에 맞는 근거 경로 선택</span>
+          </div>
+          <div class="block">
+            <strong>Grounding Guard</strong>
+            <span>비근거 claim 감지 · section/segment 단위 교정</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="stage output">
+        <div class="stage-head">
+          <span class="stage-no">05 · OUTPUT</span>
+          <h2>Verified Briefing Studio</h2>
+        </div>
+        <div class="stage-body">
+          <div class="block">
+            <strong>출처 기반 Q&amp;A</strong>
+            <span>문장 citation · source preview · retrieval trace</span>
+          </div>
+          <div class="block emphasis">
+            <strong>온보딩 보고서</strong>
+            <span>역할·목적별 section과 source register</span>
+            <div class="tag-row">
+              <span class="tag">JSON</span>
+              <span class="tag">Markdown</span>
+              <span class="tag">HTML</span>
+            </div>
+          </div>
+          <div class="block">
+            <strong>Incremental Refresh</strong>
+            <span>개정 영향 section 탐지 · 변경 없는 section 재사용</span>
+          </div>
+          <div class="block">
+            <strong>AI 오디오 브리핑</strong>
+            <span>Qwen staged script · dual-voice Edge TTS</span>
+          </div>
+          <div class="block">
+            <strong>Segment Grounding</strong>
+            <span>발화별 근거 검사 후 실패 발화만 자동 교정</span>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="platform" aria-label="Platform and quality layers">
+      <article class="band api">
+        <div class="band-mark">API</div>
+        <div>
+          <h3>Application Layer</h3>
+          <p>FastAPI v3 · Pydantic 계약 · SSE streaming · Background job · Browser UI</p>
+        </div>
+      </article>
+      <article class="band ops">
+        <div class="band-mark">OPS</div>
+        <div>
+          <h3>Reliability &amp; Observability</h3>
+          <p>request_id · stage latency · retrieval debug · health/readiness · Docker · GitHub Actions</p>
+        </div>
+      </article>
+      <article class="band quality">
+        <div class="band-mark">QA</div>
+        <div>
+          <h3>Evaluation Evidence</h3>
+          <p><span class="metric">보고서 3/3</span> · source selection 3/3 · update impact 4/4 · audio grounding 6/6 · Playwright E2E</p>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

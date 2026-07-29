@@ -1,0 +1,54 @@
+{
+  "cases": [
+    {
+      "id": "supported_bpe_claim",
+      "source": "BPE splits words into subword units and reduces the OOV problem.",
+      "script": "BPE splits words into subword units and reduces the OOV problem.",
+      "strict": false,
+      "expected_passed": true,
+      "expected_status": "grounded"
+    },
+    {
+      "id": "supported_lstm_claim",
+      "source": "LSTM uses input, forget, and output gates to control information flow.",
+      "script": "LSTM uses forget and output gates to control information flow.",
+      "strict": true,
+      "expected_passed": true,
+      "expected_status": "grounded"
+    },
+    {
+      "id": "conversational_transition",
+      "source": "OCR fallback handles scanned PDF pages.",
+      "script": "지금부터 자료의 핵심을 살펴볼까요?",
+      "strict": false,
+      "expected_passed": true,
+      "expected_status": "context"
+    },
+    {
+      "id": "unsupported_model_name",
+      "source": "Transformers use self-attention to model token relationships.",
+      "script": "QuantumTransformerX uses self-attention to model token relationships.",
+      "strict": false,
+      "expected_passed": false,
+      "expected_status": "unsupported",
+      "expected_high_risk_terms": ["quantumtransformerx"]
+    },
+    {
+      "id": "unsupported_numeric_claim",
+      "source": "The retrieval system returns relevant passages for a question.",
+      "script": "The retrieval system reaches 97 percent accuracy for every question.",
+      "strict": false,
+      "expected_passed": false,
+      "expected_status": "unsupported",
+      "expected_high_risk_terms": ["97"]
+    },
+    {
+      "id": "unsupported_korean_claim_strict",
+      "source": "검색 증강 생성은 질문과 관련된 문서 조각을 검색한다.",
+      "script": "양자 암호화 알고리즘은 위성 통신의 모든 오류를 제거한다.",
+      "strict": true,
+      "expected_passed": false,
+      "expected_status": "unsupported"
+    }
+  ]
+}

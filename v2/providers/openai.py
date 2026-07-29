@@ -46,6 +46,21 @@ class OpenAIProvider:
         )
         return self._responses_text(instructions=instructions, input_text=prompt, max_output_tokens=900)
 
+    def generate_report_overview(self, chunks: list[Chunk], audience: str, objective: str) -> str:
+        instructions = (
+            "Write a Korean enterprise onboarding report overview using only the provided source chunks. "
+            "Do not invent policies, procedures, numbers, responsibilities, or recommendations. "
+            "Omit requested topics that the sources do not support. "
+            "Return three to five connected paragraphs without Markdown headings, bullets, or citation markers."
+        )
+        prompt = (
+            f"대상: {audience}\n"
+            f"목적: {objective}\n\n"
+            "다음 문서 근거만 사용해 핵심 온보딩 브리핑을 작성하세요.\n\n"
+            f"{_context_block(chunks, max_chars_per_chunk=1200)}"
+        )
+        return self._responses_text(instructions=instructions, input_text=prompt, max_output_tokens=1800)
+
     def answer(self, question: str, chunks: list[Chunk], graph_context: list[RelationTriple]) -> AnswerWithSources:
         instructions = (
             "Answer in Korean using only the provided chunks. "

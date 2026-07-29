@@ -121,6 +121,7 @@ class AudioScriptResponse(BaseModel):
     voices: dict[str, str] = Field(default_factory=dict)
     llm: dict[str, Any] = Field(default_factory=dict)
     grounding: str | None = None
+    grounding_check: dict[str, Any] = Field(default_factory=dict)
     knowledge_scope: str | None = None
     background_sources: list[dict[str, Any]] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
@@ -216,6 +217,55 @@ class CoursePackSummaryResponse(BaseModel):
     warnings: list[str] = Field(default_factory=list)
 
 
+class CoursePackOnboardingReportRequest(CoursePackQueryRequest):
+    title: str | None = Field(default=None, min_length=1, max_length=200)
+    audience: str = Field(default="신입 구성원", min_length=1, max_length=200)
+    objective: str = Field(
+        default="핵심 규정과 업무 흐름을 출처와 함께 이해",
+        min_length=1,
+        max_length=500,
+    )
+    max_sections: int = Field(default=6, ge=1, le=20)
+
+
+class CoursePackOnboardingReportResponse(BaseModel):
+    pack_id: str
+    report_type: str = "onboarding"
+    title: str
+    audience: str
+    objective: str
+    generated_at: str | None = None
+    executive_summary: dict[str, Any] = Field(default_factory=dict)
+    sections: list[dict[str, Any]] = Field(default_factory=list)
+    source_register: list[dict[str, Any]] = Field(default_factory=list)
+    selection: dict[str, Any] = Field(default_factory=dict)
+    source_snapshot: dict[str, Any] = Field(default_factory=dict)
+    quality: dict[str, Any] = Field(default_factory=dict)
+    llm: dict[str, Any] = Field(default_factory=dict)
+    impact_at_generation: dict[str, Any] = Field(default_factory=dict)
+    generation: dict[str, Any] = Field(default_factory=dict)
+    artifacts: dict[str, Any] = Field(default_factory=dict)
+    report_url: str | None = None
+    warnings: list[str] = Field(default_factory=list)
+
+
+class CoursePackOnboardingReportImpactResponse(BaseModel):
+    pack_id: str
+    report_exists: bool = False
+    report_generated_at: str | None = None
+    report_title: str | None = None
+    status: str
+    requires_regeneration: bool
+    change_count: int = 0
+    added_sources: list[dict[str, Any]] = Field(default_factory=list)
+    updated_sources: list[dict[str, Any]] = Field(default_factory=list)
+    removed_sources: list[dict[str, Any]] = Field(default_factory=list)
+    unchanged_source_count: int = 0
+    executive_summary_affected: bool = False
+    affected_sections: list[dict[str, Any]] = Field(default_factory=list)
+    current_source_snapshot: dict[str, Any] = Field(default_factory=dict)
+
+
 class CoursePackAudioScriptRequest(CoursePackQueryRequest):
     mode: AudioMode = "briefing_3min"
     llm_provider: LLMProviderName = "mock"
@@ -261,8 +311,4 @@ class CoursePackConceptMapExportResponse(BaseModel):
 class CoursePackConceptMapRequest(BaseModel):
     pack_id: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
     output_root: str = Field(default="outputs", min_length=1, max_length=4096)
-
-
-
-
 

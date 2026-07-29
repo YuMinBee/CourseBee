@@ -1,0 +1,423 @@
+{
+  "report_type": "onboarding",
+  "title": "개발팀 신규 합류자 온보딩 보고서",
+  "audience": "개발팀 신규 합류자",
+  "objective": "보안 원칙, 개발 절차, 코드 검토, 배포와 장애 대응을 출처와 함께 이해",
+  "generated_at": "2026-07-29T17:12:53.681379+00:00",
+  "executive_summary": {
+    "text": "개발 작업은 이슈 번호와 완료 조건을 먼저 확인한 뒤 시작한다. 요구사항이 불명확하면 구현 전에 제품 담당자와 범위를 합의한다. 하나의 변경에는 하나의 명확한 목적을 두고 관련 없는 수정은 별도 작업으로 분리한다.\n\n모든 업무 계정은 다중 요소 인증을 활성화해야 한다. 비밀번호는 개인 서비스와 재사용하지 않으며 동료와 공유하지 않는다. 권한은 업무에 필요한 최소 범위로 요청하고 역할이 변경되면 불필요한 권한을 반납한다.",
+    "sources": [
+      {
+        "page": 1,
+        "chunk_id": "p1_c1",
+        "doc_id": "09345d23124b47ad8bdff3fcca3f31089d39a9749404cc1e7bc468839ecc093c",
+        "filename": "enterprise_engineering_workflow.txt",
+        "excerpt": "CourseBee Labs 개발팀 업무 절차 작업 시작 개발 작업은 이슈 번호와 완료 조건을 먼저 확인한 뒤 시작한다. 요구사항이 불명확하면 구현 전에 제품 담당자와 범위를 합의한다. 하나의 변경에는 하나의 명확한 목적을 두고 관련 없는 수정은 별도 작업으로 분리한다. 코드 변경과 검토 기능 브랜치에서 작업하고 변경 이유, 테스트 방법, 영향 범위를 Pull Request에 기록한다. 작성자는 자동 테스트 결과를 확인한 뒤 검토를 요청한다. 검토자는 동작 오류, 보안 위험, 테스트 누락, 운영 영향을 중심으로 확인한다. 배포 메인 브랜치에 병합된 변경은 CI",
+        "char_start": 0,
+        "char_end": 318,
+        "title": "CourseBee Labs 개발팀 업무 절차"
+      },
+      {
+        "page": 1,
+        "chunk_id": "p1_c2",
+        "doc_id": "09345d23124b47ad8bdff3fcca3f31089d39a9749404cc1e7bc468839ecc093c",
+        "filename": "enterprise_engineering_workflow.txt",
+        "excerpt": "테스트 누락, 운영 영향을 중심으로 확인한다. 배포 메인 브랜치에 병합된 변경은 CI 검증을 통과해야 배포 후보가 된다. 배포 전에는 데이터 변경과 되돌리기 방법을 확인한다. 배포 후에는 핵심 상태 확인과 오류 로그를 점검하고 문제가 발생하면 정해진 롤백 절차를 따른다. 장애 대응 서비스 장애를 발견한 구성원은 장애 채널에 증상, 발생 시각, 영향 범위를 공유한다. 담당자는 복구를 우선하고 확인되지 않은 원인을 단정하지 않는다. 복구 후에는 원인, 대응 과정, 재발 방지 작업을 회고 문서에 기록한다.",
+        "char_start": 270,
+        "char_end": 554,
+        "title": "CourseBee Labs 개발팀 업무 절차"
+      },
+      {
+        "page": 1,
+        "chunk_id": "p1_c1",
+        "doc_id": "246bebcb7018527e4a7f1c252a06b1a39bade6061181f42904e5853c20701df6",
+        "filename": "enterprise_security_policy.txt",
+        "excerpt": "CourseBee Labs 정보보안 온보딩 정책 계정과 인증 모든 업무 계정은 다중 요소 인증을 활성화해야 한다. 비밀번호는 개인 서비스와 재사용하지 않으며 동료와 공유하지 않는다. 권한은 업무에 필요한 최소 범위로 요청하고 역할이 변경되면 불필요한 권한을 반납한다. 업무 기기와 자료 업무 자료는 승인된 기기와 회사가 지정한 저장소에서만 처리한다. 고객 정보와 내부 문서를 개인 이메일, 개인 클라우드, 공개 메신저로 전송하지 않는다. 화면을 비울 때는 기기를 잠그고 운영체제와 보안 업데이트를 미루지 않는다. 피싱과 보안 사고 출처가 불분명한 링크와 첨부파일은",
+        "char_start": 0,
+        "char_end": 318,
+        "title": "CourseBee Labs 정보보안 온보딩 정책"
+      },
+      {
+        "page": 1,
+        "chunk_id": "p1_c2",
+        "doc_id": "246bebcb7018527e4a7f1c252a06b1a39bade6061181f42904e5853c20701df6",
+        "filename": "enterprise_security_policy.txt",
+        "excerpt": "보안 업데이트를 미루지 않는다. 피싱과 보안 사고 출처가 불분명한 링크와 첨부파일은 열지 않는다. 의심스러운 로그인 알림, 계정 탈취 가능성, 자료 오발송을 발견하면 삭제하거나 숨기기 전에 보안 담당 채널로 즉시 신고한다. 신고 내용에는 발생 시각, 사용한 기기, 확인한 현상을 포함한다. 외부 공유 내부 문서를 외부와 공유하려면 문서 소유자와 보안 등급을 확인한다. 공개 가능한 자료인지 불분명하면 공유하지 않고 담당자의 승인을 요청한다. 외부 공유 링크에는 필요한 기간과 대상만 접근할 수 있도록 만료일과 권한을 설정한다.",
+        "char_start": 271,
+        "char_end": 567,
+        "title": "CourseBee Labs 정보보안 온보딩 정책"
+      }
+    ],
+    "grounding_check": {
+      "checked": true,
+      "passed": true,
+      "coverage": 1.0,
+      "matched_terms": [
+        "개발",
+        "작업은",
+        "이슈",
+        "번호와",
+        "완료",
+        "조건을",
+        "먼저",
+        "확인한",
+        "시작한다",
+        "요구사항이",
+        "불명확하면",
+        "구현"
+      ],
+      "unsupported_terms": [],
+      "source_count": 4,
+      "warnings": []
+    }
+  },
+  "sections": [
+    {
+      "index": 1,
+      "title": "CourseBee Labs 개발팀 업무 절차",
+      "summary": "개발 작업은 이슈 번호와 완료 조건을 먼저 확인한 뒤 시작한다. 요구사항이 불명확하면 구현 전에 제품 담당자와 범위를 합의한다. 하나의 변경에는 하나의 명확한 목적을 두고 관련 없는 수정은 별도 작업으로 분리한다. 기능 브랜치에서 작업하고 변경 이유, 테스트 방법, 영향 범위를 Pull Request에 기록한다. 작성자는 자동 테스트 결과를 확인한 뒤 검토를 요청한다. 검토자는 동작 오류, 보안 위험, 테스트 누락, 운영 영향을 중심으로 확인한다. 메인 브랜치에 병합된 변경은 CI 검증을 통과해야 배포 후보가 된다. 배포 전에는 데이터 변경과 되돌리기 방법을 확인한다. 배포 후에는 핵심 상태 확인과 오류 로그를 점검하고 문제가 발생하면 정해진 롤백 절차를 따른다. 서비스 장애를 발견한 구성원은 장애 채널에 증상, 발생 시각, 영향 범위를 공유한다. 담당자는 복구를 우선하고 확인되지 않은 원인을 단정하지 않는다. 복구 후에는 원인, 대응 과정, 재발 방지 작업을 회고 문서에 기록한다.",
+      "key_points": [
+        {
+          "text": "개발 작업은 이슈 번호와 완료 조건을 먼저 확인한 뒤 시작한다. 요구사항이 불명확하면 구현 전에 제품 담당자와 범위를 합의한다. 하나의 변경에는 하나의 명확한 목적을 두고 관련 없는 수정은 별도 작업으로 분리한다.",
+          "sources": [
+            {
+              "page": 1,
+              "chunk_id": "p1_c1",
+              "doc_id": "09345d23124b47ad8bdff3fcca3f31089d39a9749404cc1e7bc468839ecc093c",
+              "filename": "enterprise_engineering_workflow.txt",
+              "excerpt": "CourseBee Labs 개발팀 업무 절차 작업 시작 개발 작업은 이슈 번호와 완료 조건을 먼저 확인한 뒤 시작한다. 요구사항이 불명확하면 구현 전에 제품 담당자와 범위를 합의한다. 하나의 변경에는 하나의 명확한 목적을 두고 관련 없는 수정은 별도 작업으로 분리한다. 코드 변경과 검토 기능 브랜치에서 작업하고 변경 이유, 테스트 방법, 영향 범위를 Pull Request에 기록한다. 작성자는 자동 테스트 결과를 확인한 뒤 검토를 요청한다. 검토자는 동작 오류, 보안 위험, 테스트 누락, 운영 영향을 중심으로 확인한다. 배포 메인 브랜치에 병합된 변경은 CI",
+              "char_start": 0,
+              "char_end": 318,
+              "title": "CourseBee Labs 개발팀 업무 절차"
+            }
+          ]
+        },
+        {
+          "text": "기능 브랜치에서 작업하고 변경 이유, 테스트 방법, 영향 범위를 Pull Request에 기록한다. 작성자는 자동 테스트 결과를 확인한 뒤 검토를 요청한다. 검토자는 동작 오류, 보안 위험, 테스트 누락, 운영 영향을 중심으로 확인한다.",
+          "sources": [
+            {
+              "page": 1,
+              "chunk_id": "p1_c1",
+              "doc_id": "09345d23124b47ad8bdff3fcca3f31089d39a9749404cc1e7bc468839ecc093c",
+              "filename": "enterprise_engineering_workflow.txt",
+              "excerpt": "CourseBee Labs 개발팀 업무 절차 작업 시작 개발 작업은 이슈 번호와 완료 조건을 먼저 확인한 뒤 시작한다. 요구사항이 불명확하면 구현 전에 제품 담당자와 범위를 합의한다. 하나의 변경에는 하나의 명확한 목적을 두고 관련 없는 수정은 별도 작업으로 분리한다. 코드 변경과 검토 기능 브랜치에서 작업하고 변경 이유, 테스트 방법, 영향 범위를 Pull Request에 기록한다. 작성자는 자동 테스트 결과를 확인한 뒤 검토를 요청한다. 검토자는 동작 오류, 보안 위험, 테스트 누락, 운영 영향을 중심으로 확인한다. 배포 메인 브랜치에 병합된 변경은 CI",
+              "char_start": 0,
+              "char_end": 318,
+              "title": "CourseBee Labs 개발팀 업무 절차"
+            }
+          ]
+        },
+        {
+          "text": "메인 브랜치에 병합된 변경은 CI 검증을 통과해야 배포 후보가 된다. 배포 전에는 데이터 변경과 되돌리기 방법을 확인한다. 배포 후에는 핵심 상태 확인과 오류 로그를 점검하고 문제가 발생하면 정해진 롤백 절차를 따른다.",
+          "sources": [
+            {
+              "page": 1,
+              "chunk_id": "p1_c2",
+              "doc_id": "09345d23124b47ad8bdff3fcca3f31089d39a9749404cc1e7bc468839ecc093c",
+              "filename": "enterprise_engineering_workflow.txt",
+              "excerpt": "테스트 누락, 운영 영향을 중심으로 확인한다. 배포 메인 브랜치에 병합된 변경은 CI 검증을 통과해야 배포 후보가 된다. 배포 전에는 데이터 변경과 되돌리기 방법을 확인한다. 배포 후에는 핵심 상태 확인과 오류 로그를 점검하고 문제가 발생하면 정해진 롤백 절차를 따른다. 장애 대응 서비스 장애를 발견한 구성원은 장애 채널에 증상, 발생 시각, 영향 범위를 공유한다. 담당자는 복구를 우선하고 확인되지 않은 원인을 단정하지 않는다. 복구 후에는 원인, 대응 과정, 재발 방지 작업을 회고 문서에 기록한다.",
+              "char_start": 270,
+              "char_end": 554,
+              "title": "CourseBee Labs 개발팀 업무 절차"
+            }
+          ]
+        },
+        {
+          "text": "서비스 장애를 발견한 구성원은 장애 채널에 증상, 발생 시각, 영향 범위를 공유한다. 담당자는 복구를 우선하고 확인되지 않은 원인을 단정하지 않는다. 복구 후에는 원인, 대응 과정, 재발 방지 작업을 회고 문서에 기록한다.",
+          "sources": [
+            {
+              "page": 1,
+              "chunk_id": "p1_c2",
+              "doc_id": "09345d23124b47ad8bdff3fcca3f31089d39a9749404cc1e7bc468839ecc093c",
+              "filename": "enterprise_engineering_workflow.txt",
+              "excerpt": "테스트 누락, 운영 영향을 중심으로 확인한다. 배포 메인 브랜치에 병합된 변경은 CI 검증을 통과해야 배포 후보가 된다. 배포 전에는 데이터 변경과 되돌리기 방법을 확인한다. 배포 후에는 핵심 상태 확인과 오류 로그를 점검하고 문제가 발생하면 정해진 롤백 절차를 따른다. 장애 대응 서비스 장애를 발견한 구성원은 장애 채널에 증상, 발생 시각, 영향 범위를 공유한다. 담당자는 복구를 우선하고 확인되지 않은 원인을 단정하지 않는다. 복구 후에는 원인, 대응 과정, 재발 방지 작업을 회고 문서에 기록한다.",
+              "char_start": 270,
+              "char_end": 554,
+              "title": "CourseBee Labs 개발팀 업무 절차"
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "page": 1,
+          "chunk_id": "p1_c1",
+          "doc_id": "09345d23124b47ad8bdff3fcca3f31089d39a9749404cc1e7bc468839ecc093c",
+          "filename": "enterprise_engineering_workflow.txt",
+          "excerpt": "CourseBee Labs 개발팀 업무 절차 작업 시작 개발 작업은 이슈 번호와 완료 조건을 먼저 확인한 뒤 시작한다. 요구사항이 불명확하면 구현 전에 제품 담당자와 범위를 합의한다. 하나의 변경에는 하나의 명확한 목적을 두고 관련 없는 수정은 별도 작업으로 분리한다. 코드 변경과 검토 기능 브랜치에서 작업하고 변경 이유, 테스트 방법, 영향 범위를 Pull Request에 기록한다. 작성자는 자동 테스트 결과를 확인한 뒤 검토를 요청한다. 검토자는 동작 오류, 보안 위험, 테스트 누락, 운영 영향을 중심으로 확인한다. 배포 메인 브랜치에 병합된 변경은 CI",
+          "char_start": 0,
+          "char_end": 318,
+          "title": "CourseBee Labs 개발팀 업무 절차"
+        },
+        {
+          "page": 1,
+          "chunk_id": "p1_c2",
+          "doc_id": "09345d23124b47ad8bdff3fcca3f31089d39a9749404cc1e7bc468839ecc093c",
+          "filename": "enterprise_engineering_workflow.txt",
+          "excerpt": "테스트 누락, 운영 영향을 중심으로 확인한다. 배포 메인 브랜치에 병합된 변경은 CI 검증을 통과해야 배포 후보가 된다. 배포 전에는 데이터 변경과 되돌리기 방법을 확인한다. 배포 후에는 핵심 상태 확인과 오류 로그를 점검하고 문제가 발생하면 정해진 롤백 절차를 따른다. 장애 대응 서비스 장애를 발견한 구성원은 장애 채널에 증상, 발생 시각, 영향 범위를 공유한다. 담당자는 복구를 우선하고 확인되지 않은 원인을 단정하지 않는다. 복구 후에는 원인, 대응 과정, 재발 방지 작업을 회고 문서에 기록한다.",
+          "char_start": 270,
+          "char_end": 554,
+          "title": "CourseBee Labs 개발팀 업무 절차"
+        }
+      ],
+      "grounding_check": {
+        "checked": true,
+        "passed": true,
+        "coverage": 1.0,
+        "matched_terms": [
+          "개발",
+          "작업은",
+          "이슈",
+          "번호와",
+          "완료",
+          "조건을",
+          "먼저",
+          "확인한",
+          "시작한다",
+          "요구사항이",
+          "불명확하면",
+          "구현"
+        ],
+        "unsupported_terms": [],
+        "source_count": 2,
+        "warnings": []
+      }
+    },
+    {
+      "index": 2,
+      "title": "CourseBee Labs 정보보안 온보딩 정책",
+      "summary": "모든 업무 계정은 다중 요소 인증을 활성화해야 한다. 비밀번호는 개인 서비스와 재사용하지 않으며 동료와 공유하지 않는다. 권한은 업무에 필요한 최소 범위로 요청하고 역할이 변경되면 불필요한 권한을 반납한다. 업무 자료는 승인된 기기와 회사가 지정한 저장소에서만 처리한다. 고객 정보와 내부 문서를 개인 이메일, 개인 클라우드, 공개 메신저로 전송하지 않는다. 화면을 비울 때는 기기를 잠그고 운영체제와 보안 업데이트를 미루지 않는다. 출처가 불분명한 링크와 첨부파일은 열지 않는다. 의심스러운 로그인 알림, 계정 탈취 가능성, 자료 오발송을 발견하면 삭제하거나 숨기기 전에 보안 담당 채널로 즉시 신고한다. 신고 내용에는 발생 시각, 사용한 기기, 확인한 현상을 포함한다. 내부 문서를 외부와 공유하려면 문서 소유자와 보안 등급을 확인한다. 공개 가능한 자료인지 불분명하면 공유하지 않고 담당자의 승인을 요청한다. 외부 공유 링크에는 필요한 기간과 대상만 접근할 수 있도록 만료일과 권한을 설정한다.",
+      "key_points": [
+        {
+          "text": "모든 업무 계정은 다중 요소 인증을 활성화해야 한다. 비밀번호는 개인 서비스와 재사용하지 않으며 동료와 공유하지 않는다. 권한은 업무에 필요한 최소 범위로 요청하고 역할이 변경되면 불필요한 권한을 반납한다.",
+          "sources": [
+            {
+              "page": 1,
+              "chunk_id": "p1_c1",
+              "doc_id": "246bebcb7018527e4a7f1c252a06b1a39bade6061181f42904e5853c20701df6",
+              "filename": "enterprise_security_policy.txt",
+              "excerpt": "CourseBee Labs 정보보안 온보딩 정책 계정과 인증 모든 업무 계정은 다중 요소 인증을 활성화해야 한다. 비밀번호는 개인 서비스와 재사용하지 않으며 동료와 공유하지 않는다. 권한은 업무에 필요한 최소 범위로 요청하고 역할이 변경되면 불필요한 권한을 반납한다. 업무 기기와 자료 업무 자료는 승인된 기기와 회사가 지정한 저장소에서만 처리한다. 고객 정보와 내부 문서를 개인 이메일, 개인 클라우드, 공개 메신저로 전송하지 않는다. 화면을 비울 때는 기기를 잠그고 운영체제와 보안 업데이트를 미루지 않는다. 피싱과 보안 사고 출처가 불분명한 링크와 첨부파일은",
+              "char_start": 0,
+              "char_end": 318,
+              "title": "CourseBee Labs 정보보안 온보딩 정책"
+            }
+          ]
+        },
+        {
+          "text": "업무 자료는 승인된 기기와 회사가 지정한 저장소에서만 처리한다. 고객 정보와 내부 문서를 개인 이메일, 개인 클라우드, 공개 메신저로 전송하지 않는다. 화면을 비울 때는 기기를 잠그고 운영체제와 보안 업데이트를 미루지 않는다.",
+          "sources": [
+            {
+              "page": 1,
+              "chunk_id": "p1_c1",
+              "doc_id": "246bebcb7018527e4a7f1c252a06b1a39bade6061181f42904e5853c20701df6",
+              "filename": "enterprise_security_policy.txt",
+              "excerpt": "CourseBee Labs 정보보안 온보딩 정책 계정과 인증 모든 업무 계정은 다중 요소 인증을 활성화해야 한다. 비밀번호는 개인 서비스와 재사용하지 않으며 동료와 공유하지 않는다. 권한은 업무에 필요한 최소 범위로 요청하고 역할이 변경되면 불필요한 권한을 반납한다. 업무 기기와 자료 업무 자료는 승인된 기기와 회사가 지정한 저장소에서만 처리한다. 고객 정보와 내부 문서를 개인 이메일, 개인 클라우드, 공개 메신저로 전송하지 않는다. 화면을 비울 때는 기기를 잠그고 운영체제와 보안 업데이트를 미루지 않는다. 피싱과 보안 사고 출처가 불분명한 링크와 첨부파일은",
+              "char_start": 0,
+              "char_end": 318,
+              "title": "CourseBee Labs 정보보안 온보딩 정책"
+            }
+          ]
+        },
+        {
+          "text": "출처가 불분명한 링크와 첨부파일은 열지 않는다. 의심스러운 로그인 알림, 계정 탈취 가능성, 자료 오발송을 발견하면 삭제하거나 숨기기 전에 보안 담당 채널로 즉시 신고한다. 신고 내용에는 발생 시각, 사용한 기기, 확인한 현상을 포함한다.",
+          "sources": [
+            {
+              "page": 1,
+              "chunk_id": "p1_c2",
+              "doc_id": "246bebcb7018527e4a7f1c252a06b1a39bade6061181f42904e5853c20701df6",
+              "filename": "enterprise_security_policy.txt",
+              "excerpt": "보안 업데이트를 미루지 않는다. 피싱과 보안 사고 출처가 불분명한 링크와 첨부파일은 열지 않는다. 의심스러운 로그인 알림, 계정 탈취 가능성, 자료 오발송을 발견하면 삭제하거나 숨기기 전에 보안 담당 채널로 즉시 신고한다. 신고 내용에는 발생 시각, 사용한 기기, 확인한 현상을 포함한다. 외부 공유 내부 문서를 외부와 공유하려면 문서 소유자와 보안 등급을 확인한다. 공개 가능한 자료인지 불분명하면 공유하지 않고 담당자의 승인을 요청한다. 외부 공유 링크에는 필요한 기간과 대상만 접근할 수 있도록 만료일과 권한을 설정한다.",
+              "char_start": 271,
+              "char_end": 567,
+              "title": "CourseBee Labs 정보보안 온보딩 정책"
+            }
+          ]
+        },
+        {
+          "text": "내부 문서를 외부와 공유하려면 문서 소유자와 보안 등급을 확인한다. 공개 가능한 자료인지 불분명하면 공유하지 않고 담당자의 승인을 요청한다. 외부 공유 링크에는 필요한 기간과 대상만 접근할 수 있도록 만료일과 권한을 설정한다.",
+          "sources": [
+            {
+              "page": 1,
+              "chunk_id": "p1_c2",
+              "doc_id": "246bebcb7018527e4a7f1c252a06b1a39bade6061181f42904e5853c20701df6",
+              "filename": "enterprise_security_policy.txt",
+              "excerpt": "보안 업데이트를 미루지 않는다. 피싱과 보안 사고 출처가 불분명한 링크와 첨부파일은 열지 않는다. 의심스러운 로그인 알림, 계정 탈취 가능성, 자료 오발송을 발견하면 삭제하거나 숨기기 전에 보안 담당 채널로 즉시 신고한다. 신고 내용에는 발생 시각, 사용한 기기, 확인한 현상을 포함한다. 외부 공유 내부 문서를 외부와 공유하려면 문서 소유자와 보안 등급을 확인한다. 공개 가능한 자료인지 불분명하면 공유하지 않고 담당자의 승인을 요청한다. 외부 공유 링크에는 필요한 기간과 대상만 접근할 수 있도록 만료일과 권한을 설정한다.",
+              "char_start": 271,
+              "char_end": 567,
+              "title": "CourseBee Labs 정보보안 온보딩 정책"
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "page": 1,
+          "chunk_id": "p1_c1",
+          "doc_id": "246bebcb7018527e4a7f1c252a06b1a39bade6061181f42904e5853c20701df6",
+          "filename": "enterprise_security_policy.txt",
+          "excerpt": "CourseBee Labs 정보보안 온보딩 정책 계정과 인증 모든 업무 계정은 다중 요소 인증을 활성화해야 한다. 비밀번호는 개인 서비스와 재사용하지 않으며 동료와 공유하지 않는다. 권한은 업무에 필요한 최소 범위로 요청하고 역할이 변경되면 불필요한 권한을 반납한다. 업무 기기와 자료 업무 자료는 승인된 기기와 회사가 지정한 저장소에서만 처리한다. 고객 정보와 내부 문서를 개인 이메일, 개인 클라우드, 공개 메신저로 전송하지 않는다. 화면을 비울 때는 기기를 잠그고 운영체제와 보안 업데이트를 미루지 않는다. 피싱과 보안 사고 출처가 불분명한 링크와 첨부파일은",
+          "char_start": 0,
+          "char_end": 318,
+          "title": "CourseBee Labs 정보보안 온보딩 정책"
+        },
+        {
+          "page": 1,
+          "chunk_id": "p1_c2",
+          "doc_id": "246bebcb7018527e4a7f1c252a06b1a39bade6061181f42904e5853c20701df6",
+          "filename": "enterprise_security_policy.txt",
+          "excerpt": "보안 업데이트를 미루지 않는다. 피싱과 보안 사고 출처가 불분명한 링크와 첨부파일은 열지 않는다. 의심스러운 로그인 알림, 계정 탈취 가능성, 자료 오발송을 발견하면 삭제하거나 숨기기 전에 보안 담당 채널로 즉시 신고한다. 신고 내용에는 발생 시각, 사용한 기기, 확인한 현상을 포함한다. 외부 공유 내부 문서를 외부와 공유하려면 문서 소유자와 보안 등급을 확인한다. 공개 가능한 자료인지 불분명하면 공유하지 않고 담당자의 승인을 요청한다. 외부 공유 링크에는 필요한 기간과 대상만 접근할 수 있도록 만료일과 권한을 설정한다.",
+          "char_start": 271,
+          "char_end": 567,
+          "title": "CourseBee Labs 정보보안 온보딩 정책"
+        }
+      ],
+      "grounding_check": {
+        "checked": true,
+        "passed": true,
+        "coverage": 1.0,
+        "matched_terms": [
+          "모든",
+          "업무",
+          "계정은",
+          "다중",
+          "요소",
+          "인증을",
+          "활성화해야",
+          "한다",
+          "비밀번호는",
+          "개인",
+          "서비스와",
+          "재사용하지"
+        ],
+        "unsupported_terms": [],
+        "source_count": 2,
+        "warnings": []
+      }
+    }
+  ],
+  "source_register": [
+    {
+      "page": 1,
+      "chunk_id": "p1_c1",
+      "doc_id": "09345d23124b47ad8bdff3fcca3f31089d39a9749404cc1e7bc468839ecc093c",
+      "filename": "enterprise_engineering_workflow.txt",
+      "excerpt": "CourseBee Labs 개발팀 업무 절차 작업 시작 개발 작업은 이슈 번호와 완료 조건을 먼저 확인한 뒤 시작한다. 요구사항이 불명확하면 구현 전에 제품 담당자와 범위를 합의한다. 하나의 변경에는 하나의 명확한 목적을 두고 관련 없는 수정은 별도 작업으로 분리한다. 코드 변경과 검토 기능 브랜치에서 작업하고 변경 이유, 테스트 방법, 영향 범위를 Pull Request에 기록한다. 작성자는 자동 테스트 결과를 확인한 뒤 검토를 요청한다. 검토자는 동작 오류, 보안 위험, 테스트 누락, 운영 영향을 중심으로 확인한다. 배포 메인 브랜치에 병합된 변경은 CI",
+      "char_start": 0,
+      "char_end": 318,
+      "title": "CourseBee Labs 개발팀 업무 절차"
+    },
+    {
+      "page": 1,
+      "chunk_id": "p1_c2",
+      "doc_id": "09345d23124b47ad8bdff3fcca3f31089d39a9749404cc1e7bc468839ecc093c",
+      "filename": "enterprise_engineering_workflow.txt",
+      "excerpt": "테스트 누락, 운영 영향을 중심으로 확인한다. 배포 메인 브랜치에 병합된 변경은 CI 검증을 통과해야 배포 후보가 된다. 배포 전에는 데이터 변경과 되돌리기 방법을 확인한다. 배포 후에는 핵심 상태 확인과 오류 로그를 점검하고 문제가 발생하면 정해진 롤백 절차를 따른다. 장애 대응 서비스 장애를 발견한 구성원은 장애 채널에 증상, 발생 시각, 영향 범위를 공유한다. 담당자는 복구를 우선하고 확인되지 않은 원인을 단정하지 않는다. 복구 후에는 원인, 대응 과정, 재발 방지 작업을 회고 문서에 기록한다.",
+      "char_start": 270,
+      "char_end": 554,
+      "title": "CourseBee Labs 개발팀 업무 절차"
+    },
+    {
+      "page": 1,
+      "chunk_id": "p1_c1",
+      "doc_id": "246bebcb7018527e4a7f1c252a06b1a39bade6061181f42904e5853c20701df6",
+      "filename": "enterprise_security_policy.txt",
+      "excerpt": "CourseBee Labs 정보보안 온보딩 정책 계정과 인증 모든 업무 계정은 다중 요소 인증을 활성화해야 한다. 비밀번호는 개인 서비스와 재사용하지 않으며 동료와 공유하지 않는다. 권한은 업무에 필요한 최소 범위로 요청하고 역할이 변경되면 불필요한 권한을 반납한다. 업무 기기와 자료 업무 자료는 승인된 기기와 회사가 지정한 저장소에서만 처리한다. 고객 정보와 내부 문서를 개인 이메일, 개인 클라우드, 공개 메신저로 전송하지 않는다. 화면을 비울 때는 기기를 잠그고 운영체제와 보안 업데이트를 미루지 않는다. 피싱과 보안 사고 출처가 불분명한 링크와 첨부파일은",
+      "char_start": 0,
+      "char_end": 318,
+      "title": "CourseBee Labs 정보보안 온보딩 정책"
+    },
+    {
+      "page": 1,
+      "chunk_id": "p1_c2",
+      "doc_id": "246bebcb7018527e4a7f1c252a06b1a39bade6061181f42904e5853c20701df6",
+      "filename": "enterprise_security_policy.txt",
+      "excerpt": "보안 업데이트를 미루지 않는다. 피싱과 보안 사고 출처가 불분명한 링크와 첨부파일은 열지 않는다. 의심스러운 로그인 알림, 계정 탈취 가능성, 자료 오발송을 발견하면 삭제하거나 숨기기 전에 보안 담당 채널로 즉시 신고한다. 신고 내용에는 발생 시각, 사용한 기기, 확인한 현상을 포함한다. 외부 공유 내부 문서를 외부와 공유하려면 문서 소유자와 보안 등급을 확인한다. 공개 가능한 자료인지 불분명하면 공유하지 않고 담당자의 승인을 요청한다. 외부 공유 링크에는 필요한 기간과 대상만 접근할 수 있도록 만료일과 권한을 설정한다.",
+      "char_start": 271,
+      "char_end": 567,
+      "title": "CourseBee Labs 정보보안 온보딩 정책"
+    }
+  ],
+  "quality": {
+    "passed": true,
+    "section_count": 2,
+    "grounded_section_count": 2,
+    "unsupported_section_count": 0,
+    "citation_coverage": 1.0,
+    "source_document_count": 2,
+    "represented_document_count": 2,
+    "source_document_coverage": 1.0
+  },
+  "llm": {
+    "provider": "mock",
+    "model": null,
+    "status": "mock"
+  },
+  "warnings": [],
+  "pack_id": "pack_enterprise_onboarding_demo",
+  "selection": {
+    "mode": "objective_relevant",
+    "query": "개발팀 신규 합류자가 알아야 할 보안, 작업, 검토, 배포와 장애 대응 절차",
+    "selected_document_count": 2,
+    "pack_document_count": 3,
+    "selected_filenames": [
+      "enterprise_engineering_workflow.txt",
+      "enterprise_security_policy.txt"
+    ]
+  },
+  "source_snapshot": {
+    "document_count": 3,
+    "fingerprint": "f9eb504e250c96d3c278c51e44383ad8370725b743eaa9a45eefb7bb3e35a2f9",
+    "documents": [
+      {
+        "doc_id": "9bd79b911445fb85f38f7b4795d688f385123843d9b8a547b7c33be99ca52727",
+        "filename": "enterprise_employee_handbook.txt",
+        "chunk_count": 2,
+        "pages": [
+          1
+        ],
+        "fingerprint": "5f15de9ee3df7437e685dcc3b535d11a3757be76fc6050f656416521ac59bf10"
+      },
+      {
+        "doc_id": "09345d23124b47ad8bdff3fcca3f31089d39a9749404cc1e7bc468839ecc093c",
+        "filename": "enterprise_engineering_workflow.txt",
+        "chunk_count": 2,
+        "pages": [
+          1
+        ],
+        "fingerprint": "52d888d1c01ded970cce64d9e34bd897ade0e74d89b25eb7afdf0924c350f8a4"
+      },
+      {
+        "doc_id": "246bebcb7018527e4a7f1c252a06b1a39bade6061181f42904e5853c20701df6",
+        "filename": "enterprise_security_policy.txt",
+        "chunk_count": 2,
+        "pages": [
+          1
+        ],
+        "fingerprint": "4322ea8650a1f111d3a75d7abcb5914f9ccb7ce706c06bdf6c74026e53732dd0"
+      }
+    ]
+  },
+  "impact_at_generation": {
+    "status": "current",
+    "requires_regeneration": false,
+    "change_count": 0,
+    "added_sources": [],
+    "updated_sources": [],
+    "removed_sources": [],
+    "unchanged_source_count": 3,
+    "executive_summary_affected": false,
+    "affected_sections": []
+  },
+  "generation": {
+    "mode": "full",
+    "previous_report_found": true,
+    "reused_section_count": 0,
+    "regenerated_section_count": 2
+  },
+  "artifacts": {
+    "json_path": "outputs\\_portfolio_assets\\course_packs\\pack_enterprise_onboarding_demo\\onboarding_report.json",
+    "markdown_path": "outputs\\_portfolio_assets\\course_packs\\pack_enterprise_onboarding_demo\\onboarding_report.md",
+    "html_path": "outputs\\_portfolio_assets\\course_packs\\pack_enterprise_onboarding_demo\\onboarding_report.html"
+  },
+  "report_url": "/v3/course-packs/pack_enterprise_onboarding_demo/files/onboarding_report.html?output_root=outputs%2F_portfolio_assets"
+}

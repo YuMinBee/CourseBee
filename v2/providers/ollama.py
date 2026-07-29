@@ -44,6 +44,20 @@ class OllamaProvider:
         )
         return self._generate(prompt, max_tokens=900)
 
+    def generate_report_overview(self, chunks: list[Chunk], audience: str, objective: str) -> str:
+        prompt = (
+            "You write the executive overview for a Korean enterprise onboarding report. "
+            "Use only the source chunks below. Do not invent policies, procedures, numbers, responsibilities, or recommendations. "
+            "Write three to five connected Korean paragraphs without Markdown headings or bullet points. "
+            "Prioritize what the stated audience needs for the stated objective, but omit any requested topic that the sources do not support. "
+            "Do not mention that you are an AI and do not write citation markers because the application attaches source references separately.\n\n"
+            f"Audience: {audience}\n"
+            f"Objective: {objective}\n\n"
+            "SOURCE CHUNKS:\n"
+            f"{_context_block(chunks, max_chars_per_chunk=1200)}"
+        )
+        return self._generate(prompt, max_tokens=1800)
+
     def answer(self, question: str, chunks: list[Chunk], graph_context: list[RelationTriple]) -> AnswerWithSources:
         context = _context_block(chunks, max_chars_per_chunk=1300)
         external_web = bool(chunks) and all(chunk.metadata.get("source_type") == "external_web" for chunk in chunks)

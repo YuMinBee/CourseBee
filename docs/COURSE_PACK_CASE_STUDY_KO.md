@@ -21,7 +21,7 @@ NLP 11주차 3차시
 로컬 데모에서는 아래 Course Pack으로 관리된다.
 
 ```text
-outputs/demo_audio_5min/course_packs/pack_static_nlp_11week_demo/
+outputs/course_packs/pack_static_nlp_11week_demo/
 ```
 
 각 chunk는 단순 텍스트 조각이 아니라, 문서와 강의 단위의 source metadata를 함께 가진다.
@@ -181,20 +181,22 @@ BPE, OOV, Tokenizer, subword, RNN, LSTM, CNN
 Podcast script 샘플:
 
 ```text
-HOST: 오늘은 NLP의 복잡한 용어들이 하나의 퍼즐처럼 연결되어 있다는 걸 알아보는 시간이에요. 처음 접하면 헷갈릴 수 있지만, 조금씩 따라오면 다 이해할 수 있어요.
+HOST: 오늘 이야기의 출발점은 자료의 이 문장입니다. 자연어처리 pipeline은 원문을 토큰화하고 숫자 표현으로 바꾼 다음, 모델이 task에 맞는 패턴을 학습하는 흐름입니다.
 
-GUEST: 흔히 BPE, OOV, RNN, LSTM, CNN 같은 용어들이 각각 다른 분야처럼 보이지만, 사실은 AI가 텍스트를 읽는 과정에서 서로 연결된 단계를 이루고 있어요. 예를 들어 lower 같은 단어는 BPE를 통해 low와 er 같은 조각으로 나뉘고, 이 과정에서 모델이 처음 보는 단어를 완전히 무시하지 않도록 도와줘요.
+GUEST: 자료에 따르면 BPE는 단어를 subword 조각으로 표현해 OOV 문제를 줄입니다. 이 설명을 기준으로 다음 모델 단계와의 연결을 살펴보겠습니다.
 ```
 
 TTS 결과:
 
-- podcast script: `audio_script_qwen3_14b_podcast_background_staged_6000chars.txt`
-- 대본 길이: 5,164자 (speaker label 포함)
-- 실제 발화 본문: 4,957자 (공백 포함)
-- Edge TTS mp3: [audio_script_qwen3_14b_podcast_background_staged_edge_tts.mp3](../outputs/demo_audio_5min/course_packs/pack_static_nlp_11week_demo/audio_script_qwen3_14b_podcast_background_staged_edge_tts.mp3)
-- 실제 재생 길이: 약 10분 45초
+- podcast script: [coursebee-audio-overview-transcript.txt](demo-assets/coursebee-audio-overview-transcript.txt)
+- Qwen 원본 / 최종 대본: 4,878자 / 6,003자
+- 발화: 38개, grounding 검사 대상 35개
+- 근거 검증: 35/35 통과, unsupported 0개, source-grounded repair 16개
+- Edge TTS mp3: [coursebee-audio-overview.mp3](demo-assets/coursebee-audio-overview.mp3)
+- segment별 검증 내역: [coursebee-audio-overview-grounding.json](demo-assets/coursebee-audio-overview-grounding.json)
+- 실제 재생 길이: 13분 9초
 
-<audio controls src="../outputs/demo_audio_5min/course_packs/pack_static_nlp_11week_demo/audio_script_qwen3_14b_podcast_background_staged_edge_tts.mp3"></audio>
+<audio controls src="demo-assets/coursebee-audio-overview.mp3"></audio>
 
 이 과정에서 문자 수와 실제 TTS 재생 시간이 정확히 일치하지 않는다는 점도 확인했다. 실제 제품에서 정확한 재생 시간을 맞추려면 TTS 결과를 측정하고 대본을 다시 줄이거나 늘리는 피드백 루프가 필요하다.
 
@@ -240,7 +242,7 @@ TTS 결과:
 이 문제를 해결하기 위해 generation을 작은 orchestration pipeline으로 나눴다.
 
 ```text
-outline -> scene generation -> final repair -> TTS
+outline -> scene generation -> length repair -> segment grounding repair -> TTS
 ```
 
 각 단계의 역할을 분리하니 디버깅이 쉬워졌고, 대본의 길이와 구조도 더 안정화됐다.
@@ -261,7 +263,7 @@ outline -> scene generation -> final repair -> TTS
 
 ### 5.5 TTS 재생 시간은 문자 수만으로 예측하기 어려웠다
 
-staged script는 speaker label 포함 약 5천자 수준이었지만, Edge TTS 결과는 약 10분 45초였다. 즉 “6000자면 몇 분” 같은 단순 계산은 실제 음성 합성과 맞지 않을 수 있다.
+공개 최종 대본은 6,003자였지만 Edge TTS 실측 결과는 13분 9초였다. 즉 “6,000자면 몇 분” 같은 단순 계산은 실제 음성 합성과 맞지 않을 수 있다.
 
 정확한 오디오 길이를 맞추려면 다음과 같은 루프가 필요하다.
 
@@ -276,9 +278,10 @@ target duration -> script length estimate -> TTS synthesize -> subtitle end time
 - full GraphRAG가 아니라 concept edge와 evidence chunk를 활용하는 graph-augmented local retrieval이다.
 - background knowledge는 팟캐스트 흐름을 풍부하게 하지만, lecture source evidence와 분리해 표시할 필요가 있다.
 - 로컬 모델 품질 편차가 크다. 모델 크기만으로 품질이 보장되지 않는다.
-- staged podcast pipeline은 one-shot보다 낫지만, concept repetition 제거는 더 개선할 수 있다.
+- lexical grounding guard는 출처 단어 중첩을 재현 가능하게 검사하지만 semantic entailment나 사람의 청취 품질을 대신하지는 않는다.
+- source-grounded repair의 문형 반복은 줄였지만, 장편 전체의 concept repetition은 사람 평가와 추가 duplicate-removal로 더 개선할 수 있다.
 - Edge TTS는 무료 데모에는 유용하지만, 실제 제품에서는 voice separation, retry, duration control이 더 필요하다.
-- `outputs/` 아래 생성 artifact는 로컬 데모 산출물이며 source-controlled fixture로 커밋하지 않았다.
+- 전체 실행 산출물은 `outputs/`에 두되, 공개 synthetic 자료로 검증한 MP3·대본·grounding JSON만 `docs/demo-assets/`에 고정했다.
 
 ## 7. 포트폴리오용 한 줄 설명
 

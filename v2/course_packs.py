@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import copy
 import hashlib
 import json
 import re
@@ -33,12 +34,18 @@ from v2.graph.concept_map import build_concept_map
 from v2.hierarchical_retrieval import build_hierarchical_summary_index, retrieve_hierarchical_summary
 from v2.ingest import ingest_local_document
 from v2.io_utils import atomic_write_json
+from v2.onboarding_report import (
+    build_source_snapshot,
+    compare_source_snapshots,
+    generate_onboarding_report,
+    write_onboarding_report_artifacts,
+)
 from v2.providers.base import LLMProvider
 from v2.providers.local import MockLLMProvider
 from v2.providers.ollama import OllamaProvider
 from v2.providers.semantic import SemanticHybridRetriever
 from v2.providers.web_search import WebSearchProviderError, WikipediaSearchProvider, web_results_to_chunks
-from v2.rag.answering import _sources_from_chunks, generate_source_grounded_answer
+from v2.rag.answering import _keyword_terms, _sources_from_chunks, generate_source_grounded_answer
 from v2.rag.retrieval import chunks_from_contexts, retrieve_contexts
 from v2.retrieval_router import classify_course_pack_question
 from v2.runtime import current_request_id
@@ -91,11 +98,15 @@ def create_course_pack(
     for index, path in enumerate(paths, start=1):
         result = ingest_local_document(path=path, output_root=output_root, max_chunk_chars=max_chunk_chars)
         document = result.to_dict()
+        document_chunks = load_chunks(result.doc_id, output_root=output_root)
+        document_title = _document_display_title(document_chunks, result.filename)
+        document["title"] = document_title
         new_documents.append(document)
         warnings.extend([f"{result.filename}: {warning}" for warning in result.warnings])
-        for chunk in load_chunks(result.doc_id, output_root=output_root):
+        for chunk in document_chunks:
             chunk.metadata.setdefault("doc_id", result.doc_id)
             chunk.metadata.setdefault("filename", result.filename)
+            chunk.metadata.setdefault("title", document_title)
             new_chunks.append(chunk)
         _report_course_pack_progress(progress_callback, "ingesting_documents", index, total_documents)
 
@@ -166,6 +177,15 @@ def _merge_course_pack_chunks(existing: list[Chunk], incoming: list[Chunk]) -> l
 
 def _document_identity(document: dict) -> str:
     return str(document.get("doc_id") or document.get("filename") or document.get("output_dir") or id(document))
+
+
+def _document_display_title(chunks: list[Chunk], filename: str) -> str:
+    for chunk in chunks:
+        for line in chunk.text.splitlines():
+            title = re.sub(r"^#{1,6}\s*", "", line).strip()
+            if 3 <= len(title) <= 100:
+                return title
+    return Path(filename).stem
 
 
 def _report_course_pack_progress(
@@ -622,6 +642,106 @@ def summary_for_course_pack(
     return payload
 
 
+def onboarding_report_for_course_pack(
+    pack_id: str,
+    query: str = "",
+    output_root: str = "outputs",
+    top_k: int = 8,
+    title: str | None = None,
+    audience: str = "신입 구성원",
+    objective: str = "핵심 규정과 업무 흐름을 출처와 함께 이해",
+    max_sections: int = 6,
+    llm_provider: str = "mock",
+    llm_model: str | None = None,
+) -> dict:
+    all_chunks = _latest_document_version_chunks(load_course_pack_chunks(pack_id, output_root=output_root))
+    output_dir = course_pack_dir(pack_id, output_root=output_root)
+    previous_report = _load_onboarding_report(output_dir)
+    current_snapshot = build_source_snapshot(all_chunks)
+    impact_at_generation = compare_source_snapshots(
+        (previous_report or {}).get("source_snapshot"),
+        current_snapshot,
+        (previous_report or {}).get("sections", []),
+    )
+    target_query = query or objective or "온보딩 핵심 규정 업무 흐름"
+    report_chunks = _select_onboarding_report_chunks(
+        query=target_query,
+        chunks=all_chunks,
+        top_k=max(top_k, max_sections),
+    )
+    payload = generate_onboarding_report(
+        report_chunks,
+        title=title or f"{audience} 온보딩 보고서",
+        audience=audience,
+        objective=objective,
+        max_sections=max_sections,
+        llm_provider=llm_provider,
+        llm_model=llm_model,
+    )
+    reused_sections = _reuse_unchanged_report_sections(
+        previous_report,
+        payload,
+        impact_at_generation,
+    )
+    payload["pack_id"] = pack_id
+    selected_documents = _group_chunks_by_document(report_chunks)
+    payload["selection"] = {
+        "mode": "all_documents" if len(selected_documents) == len(_group_chunks_by_document(all_chunks)) else "objective_relevant",
+        "query": target_query,
+        "selected_document_count": len(selected_documents),
+        "pack_document_count": len(_group_chunks_by_document(all_chunks)),
+        "selected_filenames": [
+            str((group[0].metadata or {}).get("filename") or (group[0].metadata or {}).get("doc_id") or "document")
+            for group in selected_documents.values()
+            if group
+        ],
+    }
+    payload["source_snapshot"] = current_snapshot
+    payload["impact_at_generation"] = impact_at_generation
+    payload["generation"] = {
+        "mode": "incremental" if previous_report and impact_at_generation["requires_regeneration"] else "full",
+        "previous_report_found": bool(previous_report),
+        "reused_section_count": reused_sections,
+        "regenerated_section_count": max(0, len(payload.get("sections", [])) - reused_sections),
+    }
+    payload["artifacts"] = {
+        "json_path": str(output_dir / "onboarding_report.json"),
+        "markdown_path": str(output_dir / "onboarding_report.md"),
+        "html_path": str(output_dir / "onboarding_report.html"),
+    }
+    payload["report_url"] = _course_pack_file_url(
+        pack_id,
+        "onboarding_report.html",
+        output_root,
+        api_version="v3",
+    )
+    write_onboarding_report_artifacts(payload, output_dir)
+    return payload
+
+
+def onboarding_report_impact_for_course_pack(
+    pack_id: str,
+    output_root: str = "outputs",
+) -> dict:
+    output_dir = course_pack_dir(pack_id, output_root=output_root)
+    report = _load_onboarding_report(output_dir)
+    current_chunks = _latest_document_version_chunks(load_course_pack_chunks(pack_id, output_root=output_root))
+    current_snapshot = build_source_snapshot(current_chunks)
+    impact = compare_source_snapshots(
+        (report or {}).get("source_snapshot"),
+        current_snapshot,
+        (report or {}).get("sections", []),
+    )
+    return {
+        "pack_id": pack_id,
+        "report_exists": bool(report),
+        "report_generated_at": (report or {}).get("generated_at"),
+        "report_title": (report or {}).get("title"),
+        "current_source_snapshot": current_snapshot,
+        **impact,
+    }
+
+
 def study_kit_for_course_pack(
     pack_id: str,
     query: str = "",
@@ -677,8 +797,20 @@ def audio_script_for_course_pack(
     return payload
 
 
+def _course_pack_file_url(
+    pack_id: str,
+    filename: str,
+    output_root: str,
+    api_version: str = "v2",
+) -> str:
+    return (
+        f"/{api_version}/course-packs/{quote(pack_id, safe='')}/files/{quote(filename, safe='')}"
+        f"?output_root={quote(output_root, safe='')}"
+    )
+
+
 def _audio_file_url(pack_id: str, filename: str, output_root: str) -> str:
-    return f"/v2/course-packs/{quote(pack_id, safe='')}/files/{quote(filename, safe='')}?output_root={quote(output_root, safe='')}"
+    return _course_pack_file_url(pack_id, filename, output_root)
 
 
 def _audio_script_text(script: list[dict]) -> str:
@@ -947,6 +1079,9 @@ def artifacts_for_course_pack(
     artifact_names = {
         "course_pack": "course_pack.json",
         "summary": "summary.json",
+        "onboarding_report": "onboarding_report.json",
+        "onboarding_report_markdown": "onboarding_report.md",
+        "onboarding_report_html": "onboarding_report.html",
         "study_kit": "study_kit.json",
         "audio_script": "audio_script.json",
         "audio_overview": "audio_overview.json",
@@ -1588,6 +1723,43 @@ def _group_chunks_by_document(chunks: list[Chunk]) -> OrderedDict[str, list[Chun
     return groups
 
 
+def _latest_document_version_chunks(chunks: list[Chunk]) -> list[Chunk]:
+    latest_groups: OrderedDict[str, list[Chunk]] = OrderedDict()
+    for group in _group_chunks_by_document(chunks).values():
+        if not group:
+            continue
+        metadata = group[0].metadata or {}
+        key = str(metadata.get("filename") or metadata.get("doc_id") or "document")
+        latest_groups[key] = group
+    return [chunk for group in latest_groups.values() for chunk in group]
+
+
+def _select_onboarding_report_chunks(query: str, chunks: list[Chunk], top_k: int) -> list[Chunk]:
+    groups = _group_chunks_by_document(chunks)
+    if not groups:
+        return []
+    if _is_overview_query(query):
+        return list(chunks)
+
+    selected = _balanced_chunks(query=query, chunks=chunks, top_k=max(top_k, 1))
+    selected_keys = {_document_key(chunk) for chunk in selected}
+    query_terms = {term.lower() for term in _keyword_terms(query) if len(term) >= 2}
+
+    for key, group in groups.items():
+        if not group:
+            continue
+        metadata = group[0].metadata or {}
+        filename = str(metadata.get("filename") or "")
+        first_line = next((line.strip() for line in group[0].text.splitlines() if line.strip()), "")
+        heading = f"{filename} {first_line}".lower()
+        if any(term in heading for term in query_terms):
+            selected_keys.add(key)
+
+    if not selected_keys:
+        return list(chunks)
+    return [chunk for key, group in groups.items() if key in selected_keys for chunk in group]
+
+
 def _document_key(chunk: Chunk) -> str:
     metadata = chunk.metadata or {}
     return str(metadata.get("doc_id") or metadata.get("filename") or "document")
@@ -1639,6 +1811,65 @@ def _save_pack_artifact(pack_id: str, output_root: str, name: str, payload: dict
     save_artifact(course_pack_dir(pack_id, output_root=output_root), name, payload)
 
 
+def _load_onboarding_report(output_dir: Path) -> dict | None:
+    path = output_dir / "onboarding_report.json"
+    if not path.is_file():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
+def _reuse_unchanged_report_sections(
+    previous_report: dict | None,
+    current_report: dict,
+    impact: dict,
+) -> int:
+    if not previous_report:
+        return 0
+    if (
+        previous_report.get("audience") != current_report.get("audience")
+        or previous_report.get("objective") != current_report.get("objective")
+    ):
+        return 0
+
+    changed_keys = {
+        *(str(item.get("filename") or item.get("doc_id") or "") for item in impact.get("added_sources", [])),
+        *(str(item.get("filename") or item.get("doc_id") or "") for item in impact.get("removed_sources", [])),
+        *(
+            str((item.get("after") or {}).get("filename") or (item.get("after") or {}).get("doc_id") or "")
+            for item in impact.get("updated_sources", [])
+        ),
+    }
+    previous_by_source = {
+        _report_section_source_key(section): section
+        for section in previous_report.get("sections", [])
+        if _report_section_source_key(section)
+    }
+    reused = 0
+    sections = current_report.get("sections", [])
+    for index, section in enumerate(list(sections)):
+        source_key = _report_section_source_key(section)
+        previous = previous_by_source.get(source_key)
+        if not previous or source_key in changed_keys:
+            continue
+        replacement = copy.deepcopy(previous)
+        replacement["index"] = section.get("index")
+        sections[index] = replacement
+        reused += 1
+    return reused
+
+
+def _report_section_source_key(section: dict) -> str:
+    sources = section.get("sources", [])
+    if not sources:
+        return ""
+    source = sources[0]
+    return str(source.get("filename") or source.get("doc_id") or "")
+
+
 def _write_json(path: Path, payload: dict) -> None:
     atomic_write_json(path, payload)
 
@@ -1646,10 +1877,6 @@ def _write_json(path: Path, payload: dict) -> None:
 class _PreselectedIndexProvider:
     def search(self, question: str, chunks: list[Chunk], top_k: int = 4) -> list[Chunk]:
         return chunks[:top_k]
-
-
-
-
 
 
 

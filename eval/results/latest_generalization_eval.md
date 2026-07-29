@@ -1,6 +1,6 @@
 # CourseBee Multi-domain Generalization Evaluation
 
-Generated: 2026-07-16 07:26:58 UTC
+Generated: 2026-07-29 17:19:15 UTC
 
 Synthetic fixtures cover biology, economics, and software engineering.
 

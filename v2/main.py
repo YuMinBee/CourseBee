@@ -18,11 +18,15 @@ except ImportError:  # pragma: no cover - optional when importing the scaffold w
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 
-from v2.api.routes import router as v2_router
+from v2.api.routes import router as v2_router, v3_router
 from v2.demo import ensure_demo_course_pack
 from v2.runtime import DATA_ROOT, DEMO_FIXTURE_ROOT, reset_request_id, set_request_id
 
-app = FastAPI(title="CourseBee", version="2.1.0")
+app = FastAPI(
+    title="CourseBee",
+    version="3.0.0",
+    description="Source-grounded onboarding reports, Q&A, and audio briefings from enterprise documents.",
+)
 DEMO_UI_PATH = Path(__file__).resolve().parent / "assets" / "coursebee_demo_ui.html"
 
 
@@ -41,7 +45,7 @@ async def request_context(request: Request, call_next):
         supplied_api_key = request.headers.get("x-api-key", "")
         if (
             configured_api_key
-            and request.url.path.startswith("/v2")
+            and request.url.path.startswith(("/v2", "/v3"))
             and request.method != "OPTIONS"
             and not secrets.compare_digest(supplied_api_key, configured_api_key)
         ):
@@ -99,3 +103,5 @@ def demo_ui_ko():
 
 if v2_router is not None:
     app.include_router(v2_router)
+if v3_router is not None:
+    app.include_router(v3_router)

@@ -2,6 +2,11 @@
 
 import re
 
+from v2.audio_grounding import (
+    evaluate_audio_script_grounding,
+    report_without_segments,
+    source_chunks_for_segment,
+)
 from v2.providers.ollama import OllamaProvider, OllamaProviderError
 from v2.rag.answering import _best_sentence, _keyword_terms, _sources_from_chunks
 from v2.rag.retrieval import chunks_from_contexts, retrieve_contexts
@@ -58,12 +63,14 @@ def generate_audio_script(
         if llm_payload["script"]:
             raw_char_count = _script_char_count(llm_payload["script"])
             minimum_chars = int(target_chars * 0.9) if target_chars else None
-            script = _expand_script_to_target_chars(
+            script, grounding_check, grounding_warnings = _finalize_audio_script(
                 llm_payload["script"],
                 selected,
                 mode=mode,
+                grounding=grounding,
                 target_chars=target_chars,
             )
+            warnings.extend(grounding_warnings)
             final_char_count = _script_char_count(script)
             if minimum_chars is not None:
                 llm_payload["llm"].update(
@@ -91,6 +98,7 @@ def generate_audio_script(
                 llm=llm_payload["llm"],
                 grounding=grounding,
                 warnings=warnings,
+                grounding_check=grounding_check,
             )
     elif llm_provider not in {"mock", "rule", "local"}:
         warnings.append(f"unsupported audio script llm_provider: {llm_provider}; using rule-based fallback")
@@ -99,7 +107,14 @@ def generate_audio_script(
         script = _podcast_script(selected)
     else:
         script = _single_speaker_script(selected, mode)
-    script = _expand_script_to_target_chars(script, selected, mode=mode, target_chars=target_chars)
+    script, grounding_check, grounding_warnings = _finalize_audio_script(
+        script,
+        selected,
+        mode=mode,
+        grounding=grounding,
+        target_chars=target_chars,
+    )
+    warnings.extend(grounding_warnings)
 
     return _audio_payload(
         mode=mode,
@@ -107,6 +122,7 @@ def generate_audio_script(
         llm={"provider": llm_provider, "model": llm_model, "status": "mock", "target_chars": target_chars},
         grounding=grounding,
         warnings=warnings,
+        grounding_check=grounding_check,
     )
 
 
@@ -244,7 +260,7 @@ def _podcast_script(chunks: list[Chunk]) -> list[dict]:
         {
             "speaker": "host",
             "text": f"정리하면 오늘은 {', '.join(dict.fromkeys(_terms_for_audio(chunk) for chunk in chunks[:3]))}를 중심으로 자료의 흐름을 살펴봤습니다. 마지막으로 각 개념의 정의, 필요한 이유, 서로의 연결 관계를 자료 근거와 함께 다시 확인해보세요.",
-            "sources": [source.to_dict() for source in _sources_from_chunks([chunks[-1]])],
+            "sources": [source.to_dict() for source in _sources_from_chunks(chunks[:3])],
         }
     )
     return script
@@ -258,13 +274,20 @@ def _source_dicts(chunk: Chunk | None) -> list[dict]:
     return [source.to_dict() for source in _sources_from_chunks([chunk])] if chunk else []
 
 
-def _source_chunk_for_text(text: str, chunks: list[Chunk], fallback_index: int = 0) -> Chunk | None:
+def _source_chunk_for_text(
+    text: str,
+    chunks: list[Chunk],
+    fallback_index: int = 0,
+    fallback_chunk: Chunk | None = None,
+) -> Chunk | None:
     if not chunks:
         return None
     contexts = retrieve_contexts(query=text, chunks=chunks, top_k=1).contexts
     matched = chunks_from_contexts(contexts)
     if matched:
         return matched[0]
+    if fallback_chunk is not None:
+        return fallback_chunk
     return chunks[min(max(fallback_index, 0), len(chunks) - 1)]
 
 
@@ -281,7 +304,14 @@ def _script_sources(script: list[dict]) -> list[dict]:
     return sources
 
 
-def _audio_payload(mode: str, script: list[dict], llm: dict, grounding: str, warnings: list[str]) -> dict:
+def _audio_payload(
+    mode: str,
+    script: list[dict],
+    llm: dict,
+    grounding: str,
+    warnings: list[str],
+    grounding_check: dict | None = None,
+) -> dict:
     char_count = _script_char_count(script)
     sources = _script_sources(script)
     return {
@@ -296,8 +326,140 @@ def _audio_payload(mode: str, script: list[dict], llm: dict, grounding: str, war
         "audio_path": None,
         "llm": llm,
         "grounding": grounding,
-        "warnings": warnings,
+        "grounding_check": grounding_check or {},
+        "warnings": list(dict.fromkeys(warnings)),
     }
+
+
+def _finalize_audio_script(
+    script: list[dict],
+    chunks: list[Chunk],
+    *,
+    mode: str,
+    grounding: str,
+    target_chars: int | None,
+) -> tuple[list[dict], dict, list[str]]:
+    finalized = _expand_script_to_target_chars(script, chunks, mode=mode, target_chars=target_chars)
+    finalized, grounding_check, warnings = _apply_audio_grounding_guard(finalized, chunks, grounding=grounding)
+    minimum_chars = int(target_chars * 0.9) if target_chars else None
+    if minimum_chars is not None and _script_char_count(finalized) < minimum_chars:
+        finalized = _expand_script_to_target_chars(finalized, chunks, mode=mode, target_chars=target_chars)
+        finalized, grounding_check, second_warnings = _apply_audio_grounding_guard(
+            finalized,
+            chunks,
+            grounding=grounding,
+        )
+        warnings.extend(second_warnings)
+    return finalized, grounding_check, list(dict.fromkeys(warnings))
+
+
+def _apply_audio_grounding_guard(
+    script: list[dict],
+    chunks: list[Chunk],
+    *,
+    grounding: str,
+) -> tuple[list[dict], dict, list[str]]:
+    strict = grounding == "strict"
+    initial_report = evaluate_audio_script_grounding(script, chunks, strict=strict)
+    initial_results = initial_report.get("segments", [])
+    guarded: list[dict] = []
+    repaired_indices: list[int] = []
+    previously_repaired_indices = {
+        index
+        for index, segment in enumerate(script)
+        if bool((segment.get("grounding") or {}).get("repaired"))
+    }
+
+    for index, segment in enumerate(script):
+        guarded_segment = dict(segment)
+        result = initial_results[index] if index < len(initial_results) else {}
+        should_repair = not result.get("passed", False) and (
+            strict or bool(result.get("high_risk_terms"))
+        )
+        if should_repair:
+            cited_chunks = source_chunks_for_segment(segment, chunks)
+            source_chunk = _source_chunk_for_text(
+                str(segment.get("text") or ""),
+                chunks,
+                fallback_chunk=cited_chunks[0] if cited_chunks else None,
+            )
+            if source_chunk is not None:
+                guarded_segment["text"] = _grounded_repair_text(
+                    source_chunk,
+                    speaker=str(segment.get("speaker") or "narrator"),
+                    original_text=str(segment.get("text") or ""),
+                    variant=index,
+                    is_last=index == len(script) - 1,
+                )
+                guarded_segment["sources"] = _source_dicts(source_chunk)
+                repaired_indices.append(index)
+        guarded.append(guarded_segment)
+
+    final_report = evaluate_audio_script_grounding(guarded, chunks, strict=strict)
+    final_results = final_report.get("segments", [])
+    all_repaired_indices = sorted(previously_repaired_indices | set(repaired_indices))
+    for index, segment in enumerate(guarded):
+        result = dict(final_results[index]) if index < len(final_results) else {}
+        result.pop("index", None)
+        result["repaired"] = index in all_repaired_indices
+        segment["grounding"] = result
+
+    summary = report_without_segments(final_report)
+    summary["repaired_segment_count"] = len(all_repaired_indices)
+    summary["repaired_segments"] = all_repaired_indices
+    warnings: list[str] = []
+    if repaired_indices:
+        warnings.append(
+            f"Audio grounding guard repaired {len(repaired_indices)} segment(s) with source-grounded text."
+        )
+    if summary.get("unsupported_segment_count"):
+        warnings.append(
+            f"Audio grounding check left {summary['unsupported_segment_count']} unsupported segment(s); review required."
+        )
+    return guarded, summary, warnings
+
+
+def _grounded_repair_text(
+    chunk: Chunk,
+    speaker: str,
+    original_text: str = "",
+    variant: int = 0,
+    is_last: bool = False,
+) -> str:
+    query_terms = _keyword_terms(original_text)
+    sentence = _best_sentence(chunk.text, query_terms) if query_terms else ""
+    sentence = sentence or _concise_source_sentence(chunk, variant=variant, max_chars=220)
+    sentence = re.sub(r"^(?:Background:\s*)?[^.!?。！？]{0,80}:\s*", "", sentence).strip()
+    if len(sentence) > 220:
+        complete_endings = [match.end() for match in re.finditer(r"[.!?。！？](?:\s|$)", sentence[:221])]
+        if complete_endings:
+            sentence = sentence[: complete_endings[-1]].strip()
+        else:
+            sentence = _concise_source_sentence(chunk, variant=variant, max_chars=180)
+    sentence = sentence.rstrip(" .")
+
+    if is_last:
+        return f"마지막으로 자료의 핵심 문장을 확인해볼게요. “{sentence}”입니다. 이 근거를 중심으로 오늘의 흐름을 정리하겠습니다."
+    if variant == 0 and speaker.lower() == "host":
+        return f"오늘 이야기의 출발점은 자료의 이 문장입니다. “{sentence}” 이 근거를 바탕으로 개념의 흐름을 따라가 보겠습니다."
+
+    host_templates = (
+        "다음 연결을 보기 전에 자료의 설명을 확인해볼게요. “{sentence}” 이제 이 내용이 앞선 개념과 어떻게 이어지는지 살펴보죠.",
+        "여기서 기준이 되는 설명은 “{sentence}”입니다. 이 문장을 중심으로 다음 질문을 이어가겠습니다.",
+        "자료가 강조하는 대목은 “{sentence}”입니다. 이 내용을 바탕으로 한 단계 더 들어가 볼까요?",
+        "잠시 자료의 근거를 짚어볼게요. “{sentence}”라는 설명을 기준으로 앞뒤 개념을 연결해보겠습니다.",
+    )
+    guest_templates = (
+        "자료의 흐름을 한 문장으로 잡으면 “{sentence}”입니다. 이 정의를 다른 개념과 연결해서 이해하는 것이 핵심입니다.",
+        "근거 문장을 그대로 보면 “{sentence}”라고 되어 있습니다. 이 설명을 기준으로 의미를 정리해보겠습니다.",
+        "자료에서 직접 확인되는 내용은 “{sentence}”입니다. 이 지점을 기억하면 앞뒤 개념의 역할을 구분하기 쉽습니다.",
+        "이 부분은 자료의 표현이 가장 정확합니다. “{sentence}”라는 설명을 중심으로 다시 연결해보죠.",
+    )
+    if speaker.lower() == "host":
+        return host_templates[variant % len(host_templates)].format(sentence=sentence)
+    if speaker.lower() == "guest":
+        return guest_templates[variant % len(guest_templates)].format(sentence=sentence)
+    return f"자료에서는 “{sentence}”라고 설명합니다. 이 근거를 중심으로 내용을 정리하겠습니다."
 
 
 def _terms_for_audio(chunk: Chunk | None) -> str:

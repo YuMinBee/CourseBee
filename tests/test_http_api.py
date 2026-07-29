@@ -38,7 +38,7 @@ class HttpApiWorkflowTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200, response.text)
         self.assertEqual(response.json()["status"], "ready")
         self.assertEqual(response.json()["checks"]["data_root"], "writable")
-        self.assertEqual(response.json()["checks"]["demo_fixtures"], 3)
+        self.assertGreaterEqual(response.json()["checks"]["demo_fixtures"], 6)
 
     def test_optional_api_key_protects_v2_routes(self) -> None:
         with patch.dict(os.environ, {"COURSEBEE_API_KEY": "secret-test-key"}):
@@ -112,6 +112,40 @@ class HttpApiWorkflowTest(unittest.TestCase):
             {document["filename"] for document in loaded.json()["documents"]},
             {"first.txt", "second.txt"},
         )
+
+    def test_v3_onboarding_report_and_impact_contract(self) -> None:
+        pack_id = f"pack_http_report_{uuid4().hex[:8]}"
+        files = [
+            ("files", ("handbook.txt", "신입 구성원은 입사 첫날 인사 시스템에서 비상 연락처를 등록합니다.", "text/plain")),
+            ("files", ("security.txt", "업무 계정은 다중 요소 인증을 활성화하고 비밀번호를 공유하지 않습니다.", "text/plain")),
+        ]
+        with patch.dict(os.environ, {"COURSEBEE_API_KEY": ""}):
+            uploaded = self.client.post(
+                "/v3/course-packs/upload",
+                files=files,
+                data={"pack_id": pack_id, "run_async": "false"},
+            )
+            report = self.client.post(
+                "/v3/course-packs/onboarding-report",
+                json={
+                    "pack_id": pack_id,
+                    "title": "신입 구성원 온보딩 보고서",
+                    "audience": "신입 구성원",
+                    "objective": "핵심 필수 인사 및 보안 절차 이해",
+                    "llm_provider": "mock",
+                },
+            )
+            impact = self.client.get(f"/v3/course-packs/{pack_id}/onboarding-report-impact")
+
+        self.assertEqual(uploaded.status_code, 200, uploaded.text)
+        self.assertEqual(report.status_code, 200, report.text)
+        self.assertEqual(report.json()["quality"]["grounded_section_count"], 2)
+        self.assertEqual(report.json()["source_snapshot"]["document_count"], 2)
+        self.assertEqual(report.json()["generation"]["mode"], "full")
+        self.assertEqual(impact.status_code, 200, impact.text)
+        self.assertTrue(impact.json()["report_exists"])
+        self.assertEqual(impact.json()["status"], "current")
+        self.assertFalse(impact.json()["requires_regeneration"])
 
     def test_invalid_inputs_are_rejected_at_http_boundary(self) -> None:
         chunk = {"chunk_id": "c1", "page": 1, "text": "근거 문장입니다."}

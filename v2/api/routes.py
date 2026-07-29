@@ -34,6 +34,9 @@ from v2.api.schemas import (
     CoursePackIngestRequest,
     CoursePackJobRequest,
     CoursePackJobResponse,
+    CoursePackOnboardingReportImpactResponse,
+    CoursePackOnboardingReportRequest,
+    CoursePackOnboardingReportResponse,
     CoursePackQueryRequest,
     CoursePackResponse,
     CoursePackStudyKitRequest,
@@ -61,6 +64,8 @@ from v2.course_packs import (
     list_course_packs,
     load_course_pack,
     mindmap_view_for_course_pack,
+    onboarding_report_for_course_pack,
+    onboarding_report_impact_for_course_pack,
     study_kit_for_course_pack,
     summary_for_course_pack,
     tts_for_course_pack,
@@ -76,7 +81,8 @@ from v2.runtime import DATA_ROOT, RuntimePathError, resolve_output_root, resolve
 from v2.study_kit import generate_study_kit
 from v2.uploads import save_uploaded_files
 
-router = APIRouter(prefix="/v2", tags=["v2"]) if APIRouter else None
+router = APIRouter(prefix="/v2", tags=["v2-compatible"]) if APIRouter else None
+v3_router = APIRouter(prefix="/v3", tags=["v3"]) if APIRouter else None
 _FILE_REQUIRED = File(...) if File is not None else None
 _FORM_NONE = Form(None) if Form is not None else None
 _FORM_TRUE = Form(True) if Form is not None else True
@@ -460,6 +466,30 @@ def summary_course_pack(request: CoursePackSummaryRequest) -> dict:
     )
 
 
+def onboarding_report_course_pack(request: CoursePackOnboardingReportRequest) -> dict:
+    payload = _payload(request)
+    _ensure_course_pack(payload["pack_id"], output_root=payload.get("output_root", "outputs"))
+    return onboarding_report_for_course_pack(
+        pack_id=payload["pack_id"],
+        query=_query(payload),
+        output_root=payload.get("output_root", "outputs"),
+        top_k=payload.get("top_k", 8),
+        title=payload.get("title"),
+        audience=payload.get("audience", "신입 구성원"),
+        objective=payload.get("objective", "핵심 규정과 업무 흐름을 출처와 함께 이해"),
+        max_sections=payload.get("max_sections", 6),
+        llm_provider=payload.get("llm_provider", "mock"),
+        llm_model=payload.get("llm_model"),
+    )
+
+
+def get_onboarding_report_impact(pack_id: str, output_root: str = "outputs") -> dict:
+    pack_id = _safe_identifier(pack_id, "pack_id")
+    output_root = _safe_output_root(output_root)
+    _ensure_course_pack(pack_id, output_root=output_root)
+    return onboarding_report_impact_for_course_pack(pack_id=pack_id, output_root=output_root)
+
+
 def audio_script_course_pack(request: CoursePackAudioScriptRequest) -> dict:
     payload = _payload(request)
     _ensure_course_pack(payload["pack_id"], output_root=payload.get("output_root", "outputs"))
@@ -549,31 +579,44 @@ def answer_alias(request: QueryRequest) -> dict:
     return ask(request)
 
 
-if router:
-    router.post("/documents/ingest", response_model=DocumentResponse)(ingest_document)
-    router.get("/documents/{doc_id}", response_model=DocumentResponse)(get_document)
-    router.post("/course-packs", response_model=CoursePackResponse)(ingest_course_pack)
-    router.post("/course-packs/upload", response_model=CoursePackJobResponse)(upload_course_pack)
-    router.post("/course-packs/jobs", response_model=CoursePackJobResponse)(create_course_pack_job)
-    router.get("/course-packs/jobs/{job_id}", response_model=CoursePackJobResponse)(get_course_pack_job)
-    router.get("/course-packs")(get_course_packs)
-    router.get("/course-packs/{pack_id}", response_model=CoursePackResponse)(get_course_pack)
-    router.get("/course-packs/{pack_id}/artifacts", response_model=CoursePackArtifactsResponse)(get_course_pack_artifacts)
-    router.post("/course-packs/ask", response_model=AnswerResponse)(ask_course_pack)
-    router.post("/course-packs/ask/stream")(stream_course_pack_answer)
-    router.post("/course-packs/study-kit")(study_kit_course_pack)
-    router.post("/course-packs/summary", response_model=CoursePackSummaryResponse)(summary_course_pack)
-    router.post("/course-packs/audio-script", response_model=AudioScriptResponse)(audio_script_course_pack)
-    router.post("/course-packs/tts", response_model=AudioScriptResponse)(tts_course_pack)
-    router.get("/course-packs/{pack_id}/files/{name}")(get_course_pack_file)
-    router.post("/course-packs/concept-map", response_model=ConceptMapResponse)(concept_map_course_pack)
-    router.post("/course-packs/mindmap")(mindmap_course_pack)
-    router.post("/course-packs/concept-map/export", response_model=CoursePackConceptMapExportResponse)(export_concept_map_course_pack)
-    router.post("/ask", response_model=AnswerResponse)(ask)
-    router.post("/study-kit")(study_kit)
-    router.post("/audio-script", response_model=AudioScriptResponse)(audio_script)
-    router.post("/concept-map", response_model=ConceptMapResponse)(concept_map)
-    router.post("/retrieve")(retrieve)
-    router.post("/ingest", response_model=DocumentResponse)(ingest_alias)
-    router.post("/answer", response_model=AnswerResponse)(answer_alias)
+def _register_api_routes(target_router) -> None:
+    target_router.post("/documents/ingest", response_model=DocumentResponse)(ingest_document)
+    target_router.get("/documents/{doc_id}", response_model=DocumentResponse)(get_document)
+    target_router.post("/course-packs", response_model=CoursePackResponse)(ingest_course_pack)
+    target_router.post("/course-packs/upload", response_model=CoursePackJobResponse)(upload_course_pack)
+    target_router.post("/course-packs/jobs", response_model=CoursePackJobResponse)(create_course_pack_job)
+    target_router.get("/course-packs/jobs/{job_id}", response_model=CoursePackJobResponse)(get_course_pack_job)
+    target_router.get("/course-packs")(get_course_packs)
+    target_router.get("/course-packs/{pack_id}", response_model=CoursePackResponse)(get_course_pack)
+    target_router.get("/course-packs/{pack_id}/artifacts", response_model=CoursePackArtifactsResponse)(get_course_pack_artifacts)
+    target_router.post("/course-packs/ask", response_model=AnswerResponse)(ask_course_pack)
+    target_router.post("/course-packs/ask/stream")(stream_course_pack_answer)
+    target_router.post("/course-packs/study-kit")(study_kit_course_pack)
+    target_router.post("/course-packs/summary", response_model=CoursePackSummaryResponse)(summary_course_pack)
+    target_router.post(
+        "/course-packs/onboarding-report",
+        response_model=CoursePackOnboardingReportResponse,
+    )(onboarding_report_course_pack)
+    target_router.get(
+        "/course-packs/{pack_id}/onboarding-report-impact",
+        response_model=CoursePackOnboardingReportImpactResponse,
+    )(get_onboarding_report_impact)
+    target_router.post("/course-packs/audio-script", response_model=AudioScriptResponse)(audio_script_course_pack)
+    target_router.post("/course-packs/tts", response_model=AudioScriptResponse)(tts_course_pack)
+    target_router.get("/course-packs/{pack_id}/files/{name}")(get_course_pack_file)
+    target_router.post("/course-packs/concept-map", response_model=ConceptMapResponse)(concept_map_course_pack)
+    target_router.post("/course-packs/mindmap")(mindmap_course_pack)
+    target_router.post("/course-packs/concept-map/export", response_model=CoursePackConceptMapExportResponse)(export_concept_map_course_pack)
+    target_router.post("/ask", response_model=AnswerResponse)(ask)
+    target_router.post("/study-kit")(study_kit)
+    target_router.post("/audio-script", response_model=AudioScriptResponse)(audio_script)
+    target_router.post("/concept-map", response_model=ConceptMapResponse)(concept_map)
+    target_router.post("/retrieve")(retrieve)
+    target_router.post("/ingest", response_model=DocumentResponse)(ingest_alias)
+    target_router.post("/answer", response_model=AnswerResponse)(answer_alias)
 
+
+if router:
+    _register_api_routes(router)
+if v3_router:
+    _register_api_routes(v3_router)

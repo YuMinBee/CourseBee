@@ -16,7 +16,7 @@ class FastAPIEntrypointTest(unittest.TestCase):
 
         paths = set(app.openapi()["paths"])
         self.assertEqual(app.title, "CourseBee")
-        self.assertEqual(app.version, "2.1.0")
+        self.assertEqual(app.version, "3.0.0")
         self.assertIn("/health", paths)
         self.assertIn("/ready", paths)
         self.assertIn("/v2/documents/ingest", paths)
@@ -25,6 +25,9 @@ class FastAPIEntrypointTest(unittest.TestCase):
         self.assertIn("/v2/audio-script", paths)
         self.assertIn("/v2/concept-map", paths)
         self.assertIn("/v2/course-packs/ask/stream", paths)
+        self.assertIn("/v3/course-packs/onboarding-report", paths)
+        self.assertIn("/v3/course-packs/{pack_id}/onboarding-report-impact", paths)
+        self.assertIn("/v3/course-packs/ask/stream", paths)
 
     def test_demo_uses_packaged_assets_and_api_backed_sources(self) -> None:
         package_root = files("v2")
@@ -44,8 +47,13 @@ class FastAPIEntrypointTest(unittest.TestCase):
         self.assertIn('guest_voice: "ko-KR-InJoonNeural"', demo_html)
         self.assertIn("addAudioArtifact(data, true)", demo_html)
         self.assertIn('data-action="audio"', demo_html)
-        self.assertIn("<b>AI 오디오 오버뷰</b>", demo_html)
-        self.assertIn('const ENABLED_STUDIO_ACTIONS = new Set(["audio"])', demo_html)
+        self.assertIn("<b>AI 오디오 브리핑</b>", demo_html)
+        self.assertIn("<b>온보딩 보고서</b>", demo_html)
+        self.assertIn('id="briefingAudience"', demo_html)
+        self.assertIn("const BRIEFING_PROFILES = Object.freeze", demo_html)
+        self.assertIn("selectedBriefingProfile()", demo_html)
+        self.assertIn('const API_BASE = "/v3"', demo_html)
+        self.assertIn('const ENABLED_STUDIO_ACTIONS = new Set(["report", "audio"])', demo_html)
         self.assertIn("configureStudioActions()", demo_html)
         self.assertIn("button.hidden = !ENABLED_STUDIO_ACTIONS.has", demo_html)
         self.assertIn(".filter((item) => ENABLED_STUDIO_ACTIONS.has(item.action))", demo_html)
@@ -86,9 +94,17 @@ class FastAPIEntrypointTest(unittest.TestCase):
         self.assertIn('class="panel sources-panel"', demo_html)
         self.assertIn(".sources-panel .sources{min-height:0;overflow-y:auto}", demo_html)
         self.assertIn("height:100dvh", demo_html)
+        self.assertIn("function fileTypeMeta", demo_html)
+        self.assertIn('data-pack-document="${idx}"', demo_html)
+        self.assertIn("openPackDocument(state.packDocuments", demo_html)
+        self.assertIn("data.grounding_check", demo_html)
+        self.assertNotIn('<div class="select-line"', demo_html)
+        self.assertNotIn('class="check', demo_html)
+        self.assertNotIn('class="artifact-menu"', demo_html)
         self.assertNotIn("NLP_week11_lecture1.pptx", demo_html)
         self.assertNotIn("req_ab12c3d4", demo_html)
-        self.assertEqual(len(list(fixture_dir.iterdir())), 3)
+        self.assertGreaterEqual(len(list(fixture_dir.iterdir())), 6)
+        self.assertTrue(fixture_dir.joinpath("enterprise_security_policy.txt").is_file())
 
     def test_semantic_docker_profile_uses_cpu_only_torch(self) -> None:
         dockerfile = (Path(__file__).resolve().parents[1] / "Dockerfile").read_text(encoding="utf-8")
@@ -99,5 +115,3 @@ class FastAPIEntrypointTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-

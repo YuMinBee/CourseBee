@@ -1,6 +1,6 @@
 # CourseBee v2 Evaluation Results
 
-Generated: 2026-07-16 07:26:59 UTC
+Generated: 2026-07-29 17:19:05 UTC
 
 This evaluation uses a public synthetic NLP 11-week Course Pack fixture. It does not use private lecture materials.
 

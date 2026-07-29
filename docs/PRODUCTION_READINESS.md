@@ -1,6 +1,6 @@
 # Production Readiness
 
-CourseBee v2 is currently a local-first portfolio demo with clear production upgrade boundaries. The local path is implemented intentionally so the project can run without paid services or private infrastructure. The production path is separated behind provider interfaces and documented as planned work.
+CourseBee v3 is currently a local-first portfolio demo with clear production upgrade boundaries. The local path is implemented intentionally so the project can run without paid services or private infrastructure. The production path is separated behind provider interfaces and documented as planned work.
 
 ## Current Local Demo
 
@@ -15,13 +15,15 @@ Implemented locally:
 - Concept graph-assisted retrieval over Course Pack concept edges
 - Hierarchical summary retrieval over course structure
 - Evaluation harnesses for route, source recall/precision, graph evidence, OCR noise, conflicts, distractors, and abstention
+- Grounded onboarding reports with objective-specific source selection, source snapshots, change impact analysis, incremental section reuse, and JSON/Markdown/HTML exports
+- Segment-level audio grounding checks and source-based repair
 - File-backed Course Pack job API for ingestion status
 - Browser upload API with extension, signature, per-file size, batch size, count, identifier, and path validation
 - Atomic JSON/artifact writes and in-process duplicate job protection
 - Optional `X-API-Key` boundary plus HTTP request-id and timing headers
 - Answer trace with request id, stage latency, and retrieval debug
 - Separate liveness (`/health`) and storage/asset readiness (`/ready`) checks
-- GitHub Actions checks for tests, three evaluation suites, isolated wheel install, and container smoke tests
+- GitHub Actions checks for tests, five lightweight evaluation suites, isolated wheel install, and container smoke tests
 - Package-owned demo UI and fixtures verified from a built wheel
 - Dockerfile and Compose runtime with a non-root user and readiness health check
 
@@ -29,7 +31,6 @@ Implemented locally:
 
 Planned production replacements:
 
-- Embedding retriever plus vector DB
 - Persisted hybrid lexical + embedding retrieval and reranking
 - Optional reranker with cross-encoder or LLM judge
 - Async ingestion job queue / worker process for distributed production workloads
@@ -54,6 +55,9 @@ Status
 - Retrieval evaluation harness: implemented
 - Multi-domain biology/economics/software evaluation: implemented
 - Retrieval robustness evaluation: implemented for OCR noise, conflicts, cross-document evidence, distractors, and abstention
+- Onboarding report source selection, grounding, and export evaluation: implemented
+- Audio segment grounding evaluation: implemented
+- Source snapshot change impact and incremental report section reuse: implemented locally
 - Production vector DB: planned
 - Async ingestion background task: implemented locally
 - Object storage: planned
@@ -125,4 +129,4 @@ This makes router decisions and retrieval failures inspectable without adding a 
 
 ## Readiness Summary
 
-CourseBee v2 is production-shaped but not production-deployed. The current repository proves the core retrieval and grounding behavior locally, while provider boundaries show how to replace local components with production infrastructure.
+CourseBee v3 is production-shaped but not production-deployed. The current repository proves retrieval, grounding, change impact, and artifact generation behavior locally, while provider boundaries show how to replace local components with production infrastructure.

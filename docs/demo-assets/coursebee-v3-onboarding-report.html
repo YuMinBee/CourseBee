@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>개발팀 신규 합류자 온보딩 보고서</title>
+  <style>
+    :root{--ink:#17212b;--muted:#63717c;--line:#dbe2e6;--blue:#275da8;--green:#0e766e;--paper:#fff;--wash:#f2f5f6}
+    *{box-sizing:border-box} body{margin:0;background:var(--wash);color:var(--ink);font-family:Arial,"Noto Sans KR",sans-serif;line-height:1.65;letter-spacing:0}
+    main{width:min(920px,calc(100% - 32px));margin:32px auto;background:var(--paper);border:1px solid var(--line)}
+    header{padding:48px 52px 40px;border-top:7px solid var(--blue);border-bottom:1px solid var(--line)}
+    .brand,.eyebrow{margin:0 0 10px;color:var(--blue);font-size:12px;font-weight:800;text-transform:uppercase}
+    h1{margin:0;font-size:34px;line-height:1.25} .meta{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:28px}
+    .meta div{border-left:3px solid var(--green);padding-left:12px} .meta b{display:block;font-size:12px;color:var(--muted)} .meta span{display:block;margin-top:3px}
+    .summary{padding:34px 52px;background:#f7fafb;border-bottom:1px solid var(--line)} .summary h2,.report-section h2,.sources h2{margin:0 0 12px;font-size:20px}
+    .summary p{margin:0;font-size:16px} .quality{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px} .quality span{border:1px solid var(--line);padding:5px 9px;font-size:12px}
+    .quality .pass{border-color:#8bc9b8;color:#086253;background:#edf8f4}
+    .report-section{padding:32px 52px;border-bottom:1px solid var(--line)} ul{margin:0;padding-left:20px} li+li{margin-top:10px}
+    sup a{margin-left:4px;color:var(--blue);font-weight:800;text-decoration:none}
+    .sources{padding:34px 52px} .sources ol{list-style:none;margin:0;padding:0} .sources li{display:grid;grid-template-columns:36px 1fr;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+    .sources li span{color:var(--blue);font-weight:800} footer{padding:18px 52px;background:var(--ink);color:#dbe5e9;font-size:12px}
+    @media(max-width:640px){header,.summary,.report-section,.sources{padding-left:24px;padding-right:24px}h1{font-size:27px}.meta{grid-template-columns:1fr}}
+    @media print{body{background:#fff}main{width:100%;margin:0;border:0}.report-section{break-inside:avoid}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="brand">CourseBee v3 · Source-grounded onboarding</p>
+    <h1>개발팀 신규 합류자 온보딩 보고서</h1>
+    <div class="meta">
+      <div><b>대상</b><span>개발팀 신규 합류자</span></div>
+      <div><b>목적</b><span>보안 원칙, 개발 절차, 코드 검토, 배포와 장애 대응을 출처와 함께 이해</span></div>
+    </div>
+  </header>
+  <section class="summary">
+    <p class="eyebrow">Executive briefing</p>
+    <h2>핵심 브리핑</h2>
+    <p>개발 작업은 이슈 번호와 완료 조건을 먼저 확인한 뒤 시작한다. 요구사항이 불명확하면 구현 전에 제품 담당자와 범위를 합의한다. 하나의 변경에는 하나의 명확한 목적을 두고 관련 없는 수정은 별도 작업으로 분리한다.</p><p>모든 업무 계정은 다중 요소 인증을 활성화해야 한다. 비밀번호는 개인 서비스와 재사용하지 않으며 동료와 공유하지 않는다. 권한은 업무에 필요한 최소 범위로 요청하고 역할이 변경되면 불필요한 권한을 반납한다.</p>
+    <div class="quality">
+      <span class="pass">검증 통과</span>
+      <span>근거 섹션 2/2</span>
+      <span>문서 반영률 100%</span>
+      <span>선택 문서 2/3</span>
+    </div>
+  </section>
+  <section class="report-section"><p class="eyebrow">SOURCE 1</p><h2>CourseBee Labs 개발팀 업무 절차</h2><ul><li>개발 작업은 이슈 번호와 완료 조건을 먼저 확인한 뒤 시작한다. 요구사항이 불명확하면 구현 전에 제품 담당자와 범위를 합의한다. 하나의 변경에는 하나의 명확한 목적을 두고 관련 없는 수정은 별도 작업으로 분리한다.<sup><a href="#source-1">[1]</a></sup></li><li>기능 브랜치에서 작업하고 변경 이유, 테스트 방법, 영향 범위를 Pull Request에 기록한다. 작성자는 자동 테스트 결과를 확인한 뒤 검토를 요청한다. 검토자는 동작 오류, 보안 위험, 테스트 누락, 운영 영향을 중심으로 확인한다.<sup><a href="#source-1">[1]</a></sup></li><li>메인 브랜치에 병합된 변경은 CI 검증을 통과해야 배포 후보가 된다. 배포 전에는 데이터 변경과 되돌리기 방법을 확인한다. 배포 후에는 핵심 상태 확인과 오류 로그를 점검하고 문제가 발생하면 정해진 롤백 절차를 따른다.<sup><a href="#source-2">[2]</a></sup></li><li>서비스 장애를 발견한 구성원은 장애 채널에 증상, 발생 시각, 영향 범위를 공유한다. 담당자는 복구를 우선하고 확인되지 않은 원인을 단정하지 않는다. 복구 후에는 원인, 대응 과정, 재발 방지 작업을 회고 문서에 기록한다.<sup><a href="#source-2">[2]</a></sup></li></ul></section><section class="report-section"><p class="eyebrow">SOURCE 2</p><h2>CourseBee Labs 정보보안 온보딩 정책</h2><ul><li>모든 업무 계정은 다중 요소 인증을 활성화해야 한다. 비밀번호는 개인 서비스와 재사용하지 않으며 동료와 공유하지 않는다. 권한은 업무에 필요한 최소 범위로 요청하고 역할이 변경되면 불필요한 권한을 반납한다.<sup><a href="#source-3">[3]</a></sup></li><li>업무 자료는 승인된 기기와 회사가 지정한 저장소에서만 처리한다. 고객 정보와 내부 문서를 개인 이메일, 개인 클라우드, 공개 메신저로 전송하지 않는다. 화면을 비울 때는 기기를 잠그고 운영체제와 보안 업데이트를 미루지 않는다.<sup><a href="#source-3">[3]</a></sup></li><li>출처가 불분명한 링크와 첨부파일은 열지 않는다. 의심스러운 로그인 알림, 계정 탈취 가능성, 자료 오발송을 발견하면 삭제하거나 숨기기 전에 보안 담당 채널로 즉시 신고한다. 신고 내용에는 발생 시각, 사용한 기기, 확인한 현상을 포함한다.<sup><a href="#source-4">[4]</a></sup></li><li>내부 문서를 외부와 공유하려면 문서 소유자와 보안 등급을 확인한다. 공개 가능한 자료인지 불분명하면 공유하지 않고 담당자의 승인을 요청한다. 외부 공유 링크에는 필요한 기간과 대상만 접근할 수 있도록 만료일과 권한을 설정한다.<sup><a href="#source-4">[4]</a></sup></li></ul></section>
+  <section class="sources">
+    <p class="eyebrow">Source register</p>
+    <h2>출처</h2>
+    <ol><li id="source-1"><span>01</span>enterprise_engineering_workflow.txt · p.1 · p1_c1</li><li id="source-2"><span>02</span>enterprise_engineering_workflow.txt · p.1 · p1_c2</li><li id="source-3"><span>03</span>enterprise_security_policy.txt · p.1 · p1_c1</li><li id="source-4"><span>04</span>enterprise_security_policy.txt · p.1 · p1_c2</li></ol>
+  </section>
+  <footer>이 보고서는 Course Pack의 검색 근거만 사용하며, 각 항목은 파일·페이지·chunk 단위로 추적됩니다.</footer>
+</main>
+</body>
+</html>

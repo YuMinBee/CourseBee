@@ -24,25 +24,30 @@
     .sources-panel .sources::-webkit-scrollbar-thumb,.chatbody::-webkit-scrollbar-thumb,.studio>.body::-webkit-scrollbar-thumb{border-radius:8px;background:#56616b}
     @media(min-width:1251px){html,body{height:100%;overflow:hidden}.app{height:100vh;height:100dvh;min-height:0;overflow:hidden}.layout{height:100%;overflow:hidden;align-items:stretch}.panel,.chat{height:100%;min-height:0}}
     @media(min-width:821px) and (max-width:1250px){html,body{min-height:100%;overflow:auto}.app{height:auto;min-height:100vh;min-height:100dvh;overflow:visible}.layout{height:auto;grid-template-rows:max(520px,calc(100vh - 86px)) max(520px,calc(100vh - 86px));grid-template-rows:max(520px,calc(100dvh - 86px)) max(520px,calc(100dvh - 86px));align-items:stretch;overflow:visible}.sources-panel,.chat,.studio{height:100%;min-height:0}}
-    @media(max-width:820px){html,body{overflow:auto}.app{height:auto;min-height:100vh;min-height:100dvh}.layout{height:auto;overflow:visible}.sources-panel{height:min(560px,65vh);height:min(560px,65dvh);min-height:360px}.chat{height:min(720px,78vh);height:min(720px,78dvh);min-height:520px}.studio{max-height:720px}.panel{min-width:0}.sources-panel .sources,.chatbody,.studio>.body{min-height:0;overflow-y:auto}}
+    @media(max-width:820px){html,body{overflow:auto}.app{height:auto;min-height:100vh;min-height:100dvh}.top{flex-wrap:nowrap}.title h1{min-width:0;flex:1}.title .badge{max-width:180px;overflow:hidden;text-overflow:ellipsis}.actions{display:none}.layout{height:auto;overflow:visible}.sources-panel{height:min(560px,65vh);height:min(560px,65dvh);min-height:360px}.chat{height:min(720px,78vh);height:min(720px,78dvh);min-height:520px}.studio{max-height:720px}.panel{min-width:0}.sources-panel .sources,.chatbody,.studio>.body{min-height:0;overflow-y:auto}}
   </style>
   <style>
-    .studio-grid.audio-only{grid-template-columns:minmax(0,1fr)}.studio-card[hidden]{display:none}.studio-card:disabled{cursor:wait}.studio-card[aria-busy="true"]{border-color:#697680}.artifact[data-action],.artifact[data-audio-index],.artifact[data-mindmap-index],.artifact[data-studio-index]{cursor:pointer}.artifact[data-action]:focus-visible,.artifact[data-audio-index]:focus-visible,.artifact[data-mindmap-index]:focus-visible,.artifact[data-studio-index]:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.artifact.is-loading{opacity:.62;cursor:wait}.studio-section-title{margin:4px 0 0;color:#f2f6f8;font-size:12px;font-weight:850}.studio-card-grid{display:grid;gap:8px}.studio-source-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}.studio-source-chip{min-height:25px;border:1px solid #3b4650;border-radius:999px;background:#20272e;color:#dbe5eb;padding:0 9px;cursor:pointer;font-size:11px;font-weight:800}.flashcard-item,.quiz-item{border:1px solid #303944;border-radius:var(--r);background:#171d23;padding:12px}.flashcard-count{display:block;margin-bottom:8px;color:var(--sub);font-size:11px;font-weight:800}.flashcard-face{min-height:88px;display:grid;align-content:center;gap:7px}.flashcard-face[hidden],.quiz-answer[hidden]{display:none}.flashcard-face span{color:var(--rose);font-size:11px;font-weight:850}.flashcard-face p{margin:0;color:#eef3f6;font-size:14px;line-height:1.55}.flashcard-flip,.quiz-reveal{min-height:32px;margin-top:10px;border:1px solid #46515c;border-radius:6px;background:#252d35;color:#f1f5f7;padding:0 11px;cursor:pointer;font-size:12px;font-weight:800}.quiz-item>b{display:block;margin-bottom:9px;font-size:13px;line-height:1.5}.quiz-choices{display:grid;gap:6px}.quiz-choice{display:block;border:1px solid #303944;border-radius:6px;background:#1d242b;padding:7px 9px;color:#d9e3e8;font-size:12px;line-height:1.45}.quiz-answer{margin-top:10px;border-left:3px solid var(--teal);padding:8px 0 8px 10px;color:#dfe8ed;font-size:12px;line-height:1.55}.quiz-answer b{color:#fff}.studio-mini-table{table-layout:auto}.studio-mini-table td{overflow-wrap:anywhere}.artifact-status{font-weight:800}.artifact-status.ok{color:#bdf1e6}.artifact-status.missing{color:#ffc7c5}
+    .studio-grid.audio-only{grid-template-columns:minmax(0,1fr)}.studio-grid.focused{grid-template-columns:repeat(2,minmax(0,1fr))}.studio-card[hidden]{display:none}.studio-card:disabled{cursor:wait}.studio-card[aria-busy="true"]{border-color:#697680}.artifact[data-action],.artifact[data-audio-index],.artifact[data-mindmap-index],.artifact[data-studio-index]{cursor:pointer}.artifact[data-action]:focus-visible,.artifact[data-audio-index]:focus-visible,.artifact[data-mindmap-index]:focus-visible,.artifact[data-studio-index]:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.artifact.is-loading{opacity:.62;cursor:wait}.artifact.needs-update{box-shadow:inset 3px 0 0 var(--amber)}.studio-section-title{margin:4px 0 0;color:#f2f6f8;font-size:12px;font-weight:850}.studio-card-grid{display:grid;gap:8px}.studio-source-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}.studio-source-chip{min-height:25px;border:1px solid #3b4650;border-radius:999px;background:#20272e;color:#dbe5eb;padding:0 9px;cursor:pointer;font-size:11px;font-weight:800}.studio-report-open{min-height:34px;width:max-content;display:inline-flex;align-items:center;border:1px solid #596b7c;border-radius:6px;background:#28333d;color:#f1f6f8;padding:0 11px;text-decoration:none;font-size:12px;font-weight:800}.flashcard-item,.quiz-item{border:1px solid #303944;border-radius:var(--r);background:#171d23;padding:12px}.flashcard-count{display:block;margin-bottom:8px;color:var(--sub);font-size:11px;font-weight:800}.flashcard-face{min-height:88px;display:grid;align-content:center;gap:7px}.flashcard-face[hidden],.quiz-answer[hidden]{display:none}.flashcard-face span{color:var(--rose);font-size:11px;font-weight:850}.flashcard-face p{margin:0;color:#eef3f6;font-size:14px;line-height:1.55}.flashcard-flip,.quiz-reveal{min-height:32px;margin-top:10px;border:1px solid #46515c;border-radius:6px;background:#252d35;color:#f1f5f7;padding:0 11px;cursor:pointer;font-size:12px;font-weight:800}.quiz-item>b{display:block;margin-bottom:9px;font-size:13px;line-height:1.5}.quiz-choices{display:grid;gap:6px}.quiz-choice{display:block;border:1px solid #303944;border-radius:6px;background:#1d242b;padding:7px 9px;color:#d9e3e8;font-size:12px;line-height:1.45}.quiz-answer{margin-top:10px;border-left:3px solid var(--teal);padding:8px 0 8px 10px;color:#dfe8ed;font-size:12px;line-height:1.55}.quiz-answer b{color:#fff}.studio-mini-table{table-layout:auto}.studio-mini-table td{overflow-wrap:anywhere}.artifact-status{font-weight:800}.artifact-status.ok{color:#bdf1e6}.artifact-status.missing{color:#ffc7c5}
+    .briefing-config{display:grid;gap:7px;padding:12px 14px 10px;border-bottom:1px solid var(--line)}.briefing-config label{color:#cbd5db;font-size:11px;font-weight:850}.briefing-config select{width:100%;min-height:36px;border:1px solid #3d4852;border-radius:6px;background:#1a2026;color:#f1f5f7;padding:0 10px;font:inherit;font-size:12px}.briefing-config select:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.briefing-objective{min-height:34px;margin:0;color:#94a1ab;font-size:11px;line-height:1.5}
+    .src{width:100%;grid-template-columns:24px minmax(0,1fr);border:1px solid transparent;background:transparent;color:inherit;text-align:left;cursor:pointer}
+    .src-meta{display:block;margin-top:2px;color:var(--sub);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .fileicon.txt{border:1px solid #2e82ff;background:#12365d;color:#6db2ff}.fileicon.pptx{background:#c84d28;color:#fff}.fileicon.unknown{background:#47515b;color:#eef4f7}
+    .source-empty{border:1px dashed #3b4650;border-radius:7px;padding:16px;color:var(--muted);font-size:12px;text-align:center}
+    .artifact{grid-template-columns:32px minmax(0,1fr)}
   </style>
 </head>
 <body>
   <div class="app">
-    <header class="top"><div class="logo">CB</div><div class="title"><h1>CourseBee</h1><span id="packBadge" class="badge">pack_static_nlp_11week_demo</span></div><div class="actions"><button class="btn primary">Course Pack</button><button class="btn">Analyze</button><button class="btn">Share</button><button class="btn">Source info</button></div></header>
+    <header class="top"><div class="logo">CB</div><div class="title"><h1>CourseBee v3</h1><span id="packBadge" class="badge">pack_enterprise_onboarding_demo</span></div><div class="actions"><button class="btn primary">Knowledge Pack</button><button class="btn">Analyze</button><button class="btn">Share</button><button class="btn">Source info</button></div></header>
     <main class="layout">
-      <aside class="panel sources-panel"><div class="head"><h2>Sources</h2><span id="sourceCount" class="badge">loading</span></div><div class="body">
+      <aside class="panel sources-panel"><div class="head"><h2>Knowledge Sources</h2><span id="sourceCount" class="badge">loading</span></div><div class="body">
         <div class="source-tools">
           <button id="addSource" class="add-source" type="button"><span>+</span><span>자료 추가</span></button>
           <input id="fileInput" class="upload-input" type="file" accept=".pdf,.pptx,.txt,.md" multiple />
           <div id="uploadStatus" class="upload-status" hidden><div class="upload-status-line"><span id="uploadLabel">업로드 준비 중</span><span id="uploadPercent">0%</span></div><div class="upload-progress"><span id="uploadProgress"></span></div></div>
         </div>
-        <div class="select-line"><span class="select-left">+</span><span></span><span>Select all</span><span class="check"></span></div>
         <div id="sourceList" class="sources">
-          <div class="src"><span class="fileicon doc">...</span><div><b>Course Pack 불러오는 중</b><span>실제 source metadata를 기다리고 있습니다.</span></div><span class="check"></span></div>
+          <div class="src"><span class="fileicon doc">...</span><div><b>Course Pack 불러오는 중</b><span class="src-meta">실제 source metadata를 기다리고 있습니다.</span></div></div>
         </div>
       </div></aside>
       <section class="panel chat" id="chatPanel">
@@ -58,14 +63,39 @@
         </div>
         <div id="chatBody" class="body chatbody" aria-live="polite"></div>
         <form id="chatForm" class="composer">
-          <textarea id="questionInput" rows="1" maxlength="8000" placeholder="강의 자료에 대해 질문하세요" aria-label="질문"></textarea>
+          <textarea id="questionInput" rows="1" maxlength="8000" placeholder="사내 문서에 대해 질문하세요" aria-label="질문"></textarea>
           <div class="composer-actions">
             <button id="stopAnswer" class="stop" type="button" aria-label="답변 생성 중지" title="답변 생성 중지" hidden>&#9632;</button>
             <button id="sendQuestion" class="send" type="submit" aria-label="질문 보내기" title="질문 보내기" disabled>&#8593;</button>
           </div>
         </form>
       </section>
-      <aside class="panel studio"><div class="head"><h2>Studio</h2><span class="badge">6 actions</span></div><div class="body"><div class="studio-grid"><button class="studio-card" type="button" data-action="audio"><span style="color:var(--blue)">A</span><div><b>AI 오디오 오버뷰</b><span>audio overview</span></div><span>&gt;</span></button><button class="studio-card" type="button" data-action="mindmap"><span style="color:var(--violet)">M</span><div><b>마인드맵</b><span>concept graph</span></div><span>&gt;</span></button><button class="studio-card" type="button" data-action="report"><span style="color:var(--amber)">R</span><div><b>보고서</b><span>summary report</span></div><span>&gt;</span></button><button class="studio-card" type="button" data-action="flashcards"><span style="color:var(--rose)">F</span><div><b>플래시카드</b><span>study cards</span></div><span>&gt;</span></button><button class="studio-card" type="button" data-action="quiz"><span style="color:var(--teal)">Q</span><div><b>퀴즈</b><span>review quiz</span></div><span>&gt;</span></button><button class="studio-card" type="button" data-action="table"><span style="color:var(--green)">T</span><div><b>데이터표</b><span>metadata table</span></div><span>&gt;</span></button></div><div id="artifactList" class="artifacts"><div class="artifact"><span class="artifact-icon">...</span><div><b>Artifact 불러오는 중</b><span>실제 생성 상태를 확인하고 있습니다.</span></div></div></div><section id="audioPlayer" class="audio-player" hidden><div class="audio-player-title"><b id="audioTitle">AI 오디오 오버뷰</b><button id="audioClose" class="audio-close" type="button" aria-label="close audio player">x</button></div><audio id="audioElement" preload="metadata"></audio><input id="audioRange" class="audio-range" type="range" min="0" max="100" value="0"><div class="audio-controls"><button id="audioPlay" class="audio-play" type="button" aria-label="play audio">Play</button><span id="audioTime" class="audio-time">0:00 / 0:00</span><a id="audioOpen" class="audio-link" href="#" target="_blank" rel="noreferrer">mp3 열기</a></div></section><section id="mindmapViewer" class="mindmap-viewer" hidden><div class="mindmap-head"><b id="mindmapTitle">마인드맵</b><button id="mindmapClose" class="mindmap-close" type="button" aria-label="close mindmap">x</button></div><div id="mindmapCanvas" class="mindmap-canvas"></div><div id="mindmapMeta" class="mindmap-meta"></div></section><section id="studioArtifactViewer" class="studio-artifact-viewer" hidden><div class="studio-artifact-head"><b id="studioArtifactTitle">Artifact</b><button id="studioArtifactClose" class="studio-artifact-close" type="button" aria-label="close artifact">x</button></div><div id="studioArtifactBody" class="studio-artifact-body"></div><div id="studioArtifactMeta" class="studio-artifact-meta"></div></section></div></aside>
+      <aside class="panel studio">
+        <div class="head"><h2>Briefing Studio</h2><span class="badge">2 actions</span></div>
+        <div class="body">
+          <div class="briefing-config">
+            <label for="briefingAudience">브리핑 대상</label>
+            <select id="briefingAudience" aria-label="브리핑 대상">
+              <option value="new_hire">신입 구성원</option>
+              <option value="engineering">개발팀 신규 합류자</option>
+              <option value="security">보안 교육 대상자</option>
+            </select>
+            <p id="briefingObjective" class="briefing-objective">핵심 규정과 업무 흐름을 출처와 함께 이해</p>
+          </div>
+          <div class="studio-grid">
+            <button class="studio-card" type="button" data-action="audio"><span style="color:var(--blue)">A</span><div><b>AI 오디오 브리핑</b><span>role-based audio</span></div><span>&gt;</span></button>
+            <button class="studio-card" type="button" data-action="mindmap"><span style="color:var(--violet)">M</span><div><b>마인드맵</b><span>concept graph</span></div><span>&gt;</span></button>
+            <button class="studio-card" type="button" data-action="report"><span style="color:var(--amber)">R</span><div><b>온보딩 보고서</b><span>grounded briefing</span></div><span>&gt;</span></button>
+            <button class="studio-card" type="button" data-action="flashcards"><span style="color:var(--rose)">F</span><div><b>플래시카드</b><span>study cards</span></div><span>&gt;</span></button>
+            <button class="studio-card" type="button" data-action="quiz"><span style="color:var(--teal)">Q</span><div><b>퀴즈</b><span>review quiz</span></div><span>&gt;</span></button>
+            <button class="studio-card" type="button" data-action="table"><span style="color:var(--green)">T</span><div><b>데이터표</b><span>metadata table</span></div><span>&gt;</span></button>
+          </div>
+          <div id="artifactList" class="artifacts"><div class="artifact"><span class="artifact-icon">...</span><div><b>Artifact 불러오는 중</b><span>실제 생성 상태를 확인하고 있습니다.</span></div></div></div>
+          <section id="audioPlayer" class="audio-player" hidden><div class="audio-player-title"><b id="audioTitle">AI 오디오 브리핑</b><button id="audioClose" class="audio-close" type="button" aria-label="close audio player">x</button></div><audio id="audioElement" preload="metadata"></audio><input id="audioRange" class="audio-range" type="range" min="0" max="100" value="0"><div class="audio-controls"><button id="audioPlay" class="audio-play" type="button" aria-label="play audio">Play</button><span id="audioTime" class="audio-time">0:00 / 0:00</span><a id="audioOpen" class="audio-link" href="#" target="_blank" rel="noreferrer">mp3 열기</a></div></section>
+          <section id="mindmapViewer" class="mindmap-viewer" hidden><div class="mindmap-head"><b id="mindmapTitle">마인드맵</b><button id="mindmapClose" class="mindmap-close" type="button" aria-label="close mindmap">x</button></div><div id="mindmapCanvas" class="mindmap-canvas"></div><div id="mindmapMeta" class="mindmap-meta"></div></section>
+          <section id="studioArtifactViewer" class="studio-artifact-viewer" hidden><div class="studio-artifact-head"><b id="studioArtifactTitle">Artifact</b><button id="studioArtifactClose" class="studio-artifact-close" type="button" aria-label="close artifact">x</button></div><div id="studioArtifactBody" class="studio-artifact-body"></div><div id="studioArtifactMeta" class="studio-artifact-meta"></div></section>
+        </div>
+      </aside>
     </main>
   </div>
   <div id="sourceModal" class="source-modal" hidden>
@@ -82,14 +112,31 @@
     </section>
   </div>
   <script>
-    const DEFAULT_PACK_ID = "pack_static_nlp_11week_demo";
+    const DEFAULT_PACK_ID = "pack_enterprise_onboarding_demo";
     const ACTIVE_PACK_STORAGE_KEY = "coursebee.activePackId";
     let PACK_ID = DEFAULT_PACK_ID;
     const OUTPUT_ROOT = "outputs";
-    const API_BASE = "/v2";
+    const API_BASE = "/v3";
     const CHAT_LLM_PROVIDER = "ollama";
     const CHAT_LLM_MODEL = "qwen3:14b";
-    const ENABLED_STUDIO_ACTIONS = new Set(["audio"]);
+    const ENABLED_STUDIO_ACTIONS = new Set(["report", "audio"]);
+    const BRIEFING_PROFILES = Object.freeze({
+      new_hire: {
+        audience: "신입 구성원",
+        objective: "핵심 규정과 업무 흐름을 출처와 함께 이해",
+        question: "신입 구성원이 반드시 알아야 할 핵심 규정과 업무 흐름",
+      },
+      engineering: {
+        audience: "개발팀 신규 합류자",
+        objective: "보안 원칙, 개발 절차, 코드 검토, 배포와 장애 대응을 출처와 함께 이해",
+        question: "개발팀 신규 합류자가 알아야 할 보안, 작업, 검토, 배포와 장애 대응 절차",
+      },
+      security: {
+        audience: "보안 교육 대상자",
+        objective: "계정, 자료 처리, 사고 신고와 외부 공유 규정을 출처와 함께 이해",
+        question: "보안 교육 대상자가 알아야 할 계정, 자료 처리, 사고 신고와 외부 공유 규정",
+      },
+    });
     const STUDIO_ACTION_STATUS = Object.freeze({
       audio: "오디오 생성 중",
       mindmap: "마인드맵 생성 중",
@@ -109,6 +156,8 @@
       audioArtifacts: [],
       mindmapArtifacts: [],
       studioArtifacts: [],
+      reportImpact: null,
+      packDocuments: [],
     };
 
     const chatPanel = document.getElementById("chatPanel");
@@ -156,10 +205,13 @@
     const uploadLabel = document.getElementById("uploadLabel");
     const uploadPercent = document.getElementById("uploadPercent");
     const uploadProgress = document.getElementById("uploadProgress");
+    const briefingAudience = document.getElementById("briefingAudience");
+    const briefingObjective = document.getElementById("briefingObjective");
 
     function configureStudioActions() {
       const grid = document.querySelector(".studio-grid");
       grid?.classList.toggle("audio-only", ENABLED_STUDIO_ACTIONS.size === 1 && ENABLED_STUDIO_ACTIONS.has("audio"));
+      grid?.classList.toggle("focused", ENABLED_STUDIO_ACTIONS.size === 2);
       grid?.querySelectorAll(".studio-card[data-action]").forEach((button) => {
         button.hidden = !ENABLED_STUDIO_ACTIONS.has(button.dataset.action);
       });
@@ -168,6 +220,18 @@
     }
 
     configureStudioActions();
+
+    function selectedBriefingProfile() {
+      return BRIEFING_PROFILES[briefingAudience?.value] || BRIEFING_PROFILES.new_hire;
+    }
+
+    function syncBriefingProfile() {
+      const profile = selectedBriefingProfile();
+      if (briefingObjective) briefingObjective.textContent = profile.objective;
+    }
+
+    briefingAudience?.addEventListener("change", syncBriefingProfile);
+    syncBriefingProfile();
 
     const emptySource = {
       title: "Source unavailable",
@@ -304,7 +368,7 @@
         path: sourceLabel(source),
         kicker: isWeb ? `${source?.provider || "web"} · 외부 검색` : ([source?.week ? `week ${source.week}` : "", source?.lecture_no ? `lecture ${source.lecture_no}` : ""].filter(Boolean).join(" · ") || "retrieved chunk"),
         heading: source?.title || source?.filename || source?.doc_id || `Source ${index}`,
-        summary: excerpt ? (isWeb ? "외부 검색 답변에 사용된 실제 원문 발췌입니다." : "답변에 연결된 실제 강의자료 발췌문입니다.") : "이 답변에 연결된 출처 위치입니다.",
+        summary: excerpt ? (isWeb ? "외부 검색 답변에 사용된 실제 원문 발췌입니다." : "답변에 연결된 Knowledge Pack 원문 발췌입니다.") : "이 답변에 연결된 출처 위치입니다.",
         evidence: excerpt || "이전 형식의 응답이라 발췌문이 포함되지 않았습니다.",
         chunks: [sourceLabel(source), source?.char_start != null ? `문자 위치 ${source.char_start}-${source.char_end ?? ""}` : ""].filter(Boolean).join("\n"),
         url: source?.url || "",
@@ -399,7 +463,7 @@
         const noContext = (warnings || []).some((warning) => String(warning).includes("No relevant context"));
         const title = noContext ? "현재 자료에서 답을 찾지 못했어요." : "답변을 만들지 못했어요.";
         const detail = noContext
-          ? "이 Course Pack에 질문과 관련된 근거가 없습니다. 관련 강의자료를 추가한 뒤 다시 질문해 주세요."
+          ? "이 Knowledge Pack에 질문과 관련된 근거가 없습니다. 관련 사내 자료를 추가한 뒤 다시 질문해 주세요."
           : "잠시 후 다시 시도하거나 trace에서 처리 상태를 확인해 주세요.";
         return `<div class="no-answer"><b>${title}</b><p>${detail}</p></div>`;
       }
@@ -456,7 +520,7 @@
 
     function renderEmptyChat() {
       state.messages = [];
-      chatBody.innerHTML = `<section class="chat-empty"><div class="chat-empty-mark">CB</div><h3>무엇을 공부할까요?</h3><p>강의자료를 먼저 확인하고, 근거가 없으면 외부 검색으로 확인한 뒤 답합니다.</p><div class="suggestions"><button class="suggestion" type="button" data-question="이 자료의 핵심 개념을 요약해줘">이 자료의 핵심 개념을 요약해줘</button><button class="suggestion" type="button" data-question="BPE와 OOV의 관계를 설명해줘">BPE와 OOV의 관계를 설명해줘</button><button class="suggestion" type="button" data-question="시험에 나올 만한 내용을 알려줘">시험에 나올 만한 내용을 알려줘</button></div></section>`;
+      chatBody.innerHTML = `<section class="chat-empty"><div class="chat-empty-mark">CB</div><h3>어떤 업무 정보를 찾을까요?</h3><p>사내 문서를 먼저 확인하고, 근거가 없으면 외부 검색 여부를 구분해 답합니다.</p><div class="suggestions"><button class="suggestion" type="button" data-question="신입 구성원이 첫 주에 해야 할 일은?">신입 구성원이 첫 주에 해야 할 일은?</button><button class="suggestion" type="button" data-question="업무 계정과 자료 보안 규정을 알려줘">업무 계정과 자료 보안 규정을 알려줘</button><button class="suggestion" type="button" data-question="개발 변경부터 배포까지 절차를 정리해줘">개발 변경부터 배포까지 절차를 정리해줘</button></div></section>`;
     }
 
     function conversationHistory(beforeUserId = "") {
@@ -704,22 +768,27 @@
     function renderAudio(data) {
       updateSourceStore({ ...data, mode: "audio_script", sources: data.sources || [] }, "audio-script");
       const audio = data.audio_url ? `<p class="status-line">mp3 artifact ready: <a class="audio-link" href="${escapeHtml(data.audio_url)}" target="_blank" rel="noreferrer">${escapeHtml(data.artifact_name || "audio_overview_edge_tts.mp3")}</a></p>` : `<p class="status-line">TTS status: ${escapeHtml(data.tts_status || "pending")}</p>`;
+      const grounding = data.grounding_check || {};
+      const groundingSummary = grounding.checked
+        ? `<p class="status-line">근거 검증: ${grounding.passed ? "통과" : "검토 필요"} · ${grounding.grounded_segment_count || 0}/${grounding.checked_segment_count || 0}개 발화 · 평균 일치율 ${Math.round((grounding.mean_coverage || 0) * 100)}%</p>`
+        : "";
       const warnings = (data.warnings || []).map((warning) => `<p class="status-line">${escapeHtml(warning)}</p>`).join("");
       const summary = data.audio_url
         ? `<p>오디오 오버뷰가 준비되었습니다.</p>`
         : data.script?.length
           ? `<p>대본은 생성됐지만 음성 파일 생성에 실패했습니다.</p>`
           : `<p>오디오 대본을 생성하지 못했습니다.</p>`;
-      renderArticle("AI \uC624\uB514\uC624 \uC624\uBC84\uBDF0", `${audio}${warnings}${summary}`, data);
+      renderArticle("AI \uC624\uB514\uC624 \uC624\uBC84\uBDF0", `${audio}${groundingSummary}${warnings}${summary}`, data);
     }
 
     function audioItemFromPayload(data) {
       const url = data.audio_url || "";
       if (!url) return null;
       const model = data.llm?.model || data.llm?.provider || "script";
+      const grounding = data.grounding_check?.checked ? ` · 근거 ${Math.round((data.grounding_check.mean_coverage || 0) * 100)}%` : "";
       return {
         title: "AI 오디오 오버뷰",
-        meta: `${data.tts_status || "mp3"} · ${model} · ${data.script_char_count || 0}자`,
+        meta: `${data.tts_status || "mp3"} · ${model} · ${data.script_char_count || 0}자${grounding}`,
         url,
         path: data.audio_path || "",
       };
@@ -912,8 +981,14 @@
       pushList(payload?.sources);
       pushList(payload?.overview?.sources);
       pushList(payload?.summary?.sources);
+      pushList(payload?.executive_summary?.sources);
+      pushList(payload?.source_register);
       ["lecture_summaries", "key_concepts", "review_points", "key_points", "glossary", "flashcards", "quiz", "expected_questions"].forEach((key) => {
         (payload?.[key] || []).forEach((item) => pushList(item?.sources));
+      });
+      (payload?.sections || []).forEach((section) => {
+        pushList(section?.sources);
+        (section?.key_points || []).forEach((item) => pushList(item?.sources));
       });
       (payload?.connections || []).forEach((item) => pushList(item?.evidence));
       const seen = new Set();
@@ -955,28 +1030,38 @@
 
     function reportArtifact(data) {
       const normalized = withArtifactSources(data);
-      const sources = normalized.sources || [];
-      const lectures = normalized.lecture_summaries || [];
-      const concepts = normalized.key_concepts || [];
-      const connections = normalized.connections || [];
-      const reviewPoints = normalized.review_points || [];
-      const overview = normalized.overview?.text || normalized.overview?.summary || "Course Pack summary report.";
-      const overviewSources = normalized.overview?.sources?.length ? normalized.overview.sources : sources.slice(0, 2);
-      const lectureHtml = lectures.slice(0, 6).map((item, idx) => `<div class="studio-mini-card"><b>${escapeHtml(item.title || item.filename || `Lecture ${idx + 1}`)}</b><p>${escapeHtml(item.summary || item.text || JSON.stringify(item))}</p>${sourceChipsHtml(item.sources, sources)}</div>`).join("");
-      const conceptHtml = concepts.slice(0, 8).map((item) => `<div class="studio-mini-card"><b>${escapeHtml(item.term || item.concept || item.title || "Concept")}</b><p>${escapeHtml(item.description || item.definition || item.summary || item.text || "")}</p>${sourceChipsHtml(item.sources, sources)}</div>`).join("");
-      const connectionHtml = connections.slice(0, 5).map((item) => `<div class="studio-mini-card"><b>${escapeHtml(item.source || "concept")} → ${escapeHtml(item.target || "concept")}</b><p>${escapeHtml(item.relation || "related_in_course_pack")}</p>${sourceChipsHtml(item.evidence, sources)}</div>`).join("");
-      const reviewHtml = reviewPoints.slice(0, 4).map((item) => `<div class="studio-mini-card"><p>${escapeHtml(item.text || item.summary || "")}</p>${sourceChipsHtml(item.sources, sources)}</div>`).join("");
+      const sources = normalized.source_register?.length ? normalized.source_register : (normalized.sources || []);
+      const sections = normalized.sections || [];
+      const quality = normalized.quality || {};
+      const selection = normalized.selection || {};
+      const overview = normalized.executive_summary?.text || normalized.overview?.text || "출처 기반 온보딩 보고서";
+      const overviewPreview = overview.length > 460 ? `${overview.slice(0, 460).trim()}...` : overview;
+      const overviewSources = normalized.executive_summary?.sources?.length ? normalized.executive_summary.sources : sources.slice(0, 2);
+      const sectionHtml = sections.slice(0, 10).map((section, idx) => {
+        const points = (section.key_points || []).map((item) => `<p>${escapeHtml(item.text || "")}</p>${sourceChipsHtml(item.sources, sources)}`).join("");
+        const passed = section.grounding_check?.passed !== false;
+        return `<div class="studio-mini-card"><b>${escapeHtml(section.title || `Section ${idx + 1}`)}</b>${points || `<p>${escapeHtml(section.summary || "")}</p>`}<span class="artifact-status ${passed ? "ok" : "missing"}">${passed ? "근거 확인됨" : "검토 필요"}</span></div>`;
+      }).join("");
+      const selectionLabel = selection.pack_document_count
+        ? `<span>선택 문서 ${Number(selection.selected_document_count || 0)}/${Number(selection.pack_document_count || 0)}</span>`
+        : "";
+      const qualityHtml = `<div class="studio-artifact-meta"><span>${quality.passed ? "검증 통과" : "검토 필요"}</span><span>근거 섹션 ${Number(quality.grounded_section_count || 0)}/${Number(quality.section_count || 0)}</span><span>문서 반영률 ${Math.round(Number(quality.source_document_coverage || 0) * 100)}%</span>${selectionLabel}</div>`;
+      const generation = normalized.generation || {};
+      const generationHtml = generation.previous_report_found
+        ? `<div class="studio-artifact-meta"><span>${generation.mode === "incremental" ? "변경분 갱신" : "전체 생성"}</span><span>재사용 ${Number(generation.reused_section_count || 0)}개</span><span>재생성 ${Number(generation.regenerated_section_count || 0)}개</span></div>`
+        : "";
+      const openLink = normalized.report_url ? `<a class="studio-report-open" href="${escapeHtml(normalized.report_url)}" target="_blank" rel="noreferrer">전체 보고서 열기</a>` : "";
       const html = `
-        <div class="studio-section-title">개요</div>
-        <div class="studio-mini-card accent"><p>${escapeHtml(overview)}</p>${sourceChipsHtml(overviewSources, sources)}</div>
-        ${lectureHtml ? `<div class="studio-section-title">강의별 요약</div><div class="studio-card-grid">${lectureHtml}</div>` : ""}
-        ${conceptHtml ? `<div class="studio-section-title">핵심 개념</div><div class="studio-card-grid">${conceptHtml}</div>` : ""}
-        ${connectionHtml ? `<div class="studio-section-title">개념 연결</div><div class="studio-card-grid">${connectionHtml}</div>` : ""}
-        ${reviewHtml ? `<div class="studio-section-title">복습 포인트</div><div class="studio-card-grid">${reviewHtml}</div>` : ""}`;
+        <div class="studio-section-title">${escapeHtml(normalized.audience || "신입 구성원")} · 출처 기반 온보딩</div>
+        <div class="studio-mini-card accent"><p>${escapeHtml(overviewPreview)}</p>${sourceChipsHtml(overviewSources, sources)}</div>
+        ${qualityHtml}
+        ${generationHtml}
+        ${sectionHtml ? `<div class="studio-section-title">근거별 브리핑</div><div class="studio-card-grid">${sectionHtml}</div>` : ""}
+        ${openLink}`;
       return {
         type: "report",
-        title: "보고서",
-        meta: `강의 ${lectures.length || 0}개 · 개념 ${concepts.length || 0}개 · 출처 ${sources.length}개`,
+        title: normalized.title || "온보딩 보고서",
+        meta: `섹션 ${sections.length}개 · 출처 ${sources.length}개 · ${quality.passed ? "검증 통과" : "검토 필요"}`,
         data: normalized,
         html,
       };
@@ -1062,14 +1147,31 @@
       renderArticle("Evaluation Snapshot", `<div class="result-grid">${rows}</div>`, answer);
     }
 
+    function fileTypeMeta(filename = "") {
+      const extension = String(filename).toLowerCase().split(".").pop();
+      const types = {
+        pdf: { label: "PDF", className: "pdf" },
+        pptx: { label: "PPT", className: "pptx" },
+        txt: { label: "TXT", className: "txt" },
+        md: { label: "MD", className: "md" },
+      };
+      return types[extension] || { label: "DOC", className: "unknown" };
+    }
+
     async function refreshPack() {
       try {
         const data = await api(`/course-packs/${PACK_ID}?output_root=${encodeURIComponent(OUTPUT_ROOT)}`);
         packBadge.textContent = data.pack_id || PACK_ID;
         const docs = data.documents || [];
+        state.packDocuments = docs;
         document.getElementById("sourceCount").textContent = `${data.chunk_count || 0} chunks`;
         const list = document.getElementById("sourceList");
-        list.innerHTML = docs.map((doc, idx) => `<div class="src on" data-source-filename="${escapeHtml(doc.filename || "")}" data-source-doc-id="${escapeHtml(doc.doc_id || "")}"><span class="fileicon ${String(doc.filename || '').endsWith('.pdf') ? 'pdf' : 'md'}">${String(doc.filename || '').endsWith('.pdf') ? 'PDF' : 'TXT'}</span><div><b>${escapeHtml(doc.filename || doc.doc_id || `document ${idx + 1}`)}</b><span>${escapeHtml([doc.week ? `week ${doc.week}` : '', doc.lecture_no ? `lecture ${doc.lecture_no}` : '', doc.chunk_count ? `${doc.chunk_count} chunks` : ''].filter(Boolean).join(' · '))}</span></div><span class="check on">ok</span></div>`).join("") || list.innerHTML;
+        list.innerHTML = docs.map((doc, idx) => {
+          const fileType = fileTypeMeta(doc.filename || "");
+          const metadata = [doc.week ? `week ${doc.week}` : "", doc.lecture_no ? `lecture ${doc.lecture_no}` : "", doc.chunk_count != null ? `${doc.chunk_count} chunks` : ""].filter(Boolean).join(" · ");
+          const title = doc.title || doc.filename || doc.doc_id || `document ${idx + 1}`;
+          return `<button class="src on" type="button" data-pack-document="${idx}" data-source-filename="${escapeHtml(doc.filename || "")}" data-source-doc-id="${escapeHtml(doc.doc_id || "")}" aria-label="${escapeHtml(title)} 자료 정보 열기"><span class="fileicon ${fileType.className}">${fileType.label}</span><div><b>${escapeHtml(title)}</b><span class="src-meta">${escapeHtml(metadata || "source ready")}</span></div></button>`;
+        }).join("") || '<div class="source-empty">아직 추가된 자료가 없습니다.</div>';
         return data;
       } catch (error) {
         document.getElementById("sourceCount").textContent = "offline";
@@ -1078,40 +1180,49 @@
     }
 
     function artifactIcon(name, exists) {
-      const map = { summary: "S", study_kit: "K", audio_script: "A", audio_overview: "A", graph: "G", chunks: "C", course_pack: "P", hierarchical_summary_index: "H", concept_map_html: "M", concept_map_mermaid: "M" };
-      const colors = { summary: "var(--amber)", study_kit: "var(--amber)", audio_script: "var(--blue)", audio_overview: "var(--blue)", graph: "var(--violet)", chunks: "var(--teal)", course_pack: "var(--green)", hierarchical_summary_index: "var(--green)", concept_map_html: "var(--violet)", concept_map_mermaid: "var(--violet)" };
+      const map = { summary: "S", onboarding_report: "R", onboarding_report_markdown: "R", onboarding_report_html: "R", study_kit: "K", audio_script: "A", audio_overview: "A", graph: "G", chunks: "C", course_pack: "P", hierarchical_summary_index: "H", concept_map_html: "M", concept_map_mermaid: "M" };
+      const colors = { summary: "var(--amber)", onboarding_report: "var(--amber)", onboarding_report_markdown: "var(--amber)", onboarding_report_html: "var(--amber)", study_kit: "var(--amber)", audio_script: "var(--blue)", audio_overview: "var(--blue)", graph: "var(--violet)", chunks: "var(--teal)", course_pack: "var(--green)", hierarchical_summary_index: "var(--green)", concept_map_html: "var(--violet)", concept_map_mermaid: "var(--violet)" };
       return { label: map[name] || "D", color: exists ? (colors[name] || "var(--teal)") : "var(--sub)" };
     }
 
     function artifactTitle(name) {
-      const titles = { course_pack: "데이터표", summary: "보고서", study_kit: "퀴즈 / 플래시카드", audio_script: "AI 오디오 대본", audio_overview: "AI 오디오 오버뷰", graph: "마인드맵", chunks: "데이터표", concept_map_mermaid: "마인드맵 Mermaid", concept_map_html: "마인드맵 HTML", hierarchical_summary_index: "Hierarchical Summary Index" };
+      const titles = { course_pack: "데이터표", summary: "기존 요약", onboarding_report: "온보딩 보고서", onboarding_report_markdown: "보고서 Markdown", onboarding_report_html: "보고서 HTML", study_kit: "학습 키트", audio_script: "AI 오디오 대본", audio_overview: "AI 오디오 브리핑", graph: "마인드맵", chunks: "데이터표", concept_map_mermaid: "마인드맵 Mermaid", concept_map_html: "마인드맵 HTML", hierarchical_summary_index: "Hierarchical Summary Index" };
       return titles[name] || name;
     }
 
     async function refreshArtifacts(render = false) {
       const data = await api(`/course-packs/${PACK_ID}/artifacts?output_root=${encodeURIComponent(OUTPUT_ROOT)}&include_content=false`);
       const artifacts = data.artifacts || {};
+      state.reportImpact = null;
+      if (artifacts.onboarding_report?.ready) {
+        try {
+          state.reportImpact = await api(`/course-packs/${PACK_ID}/onboarding-report-impact?output_root=${encodeURIComponent(OUTPUT_ROOT)}`);
+        } catch (_) {
+          state.reportImpact = null;
+        }
+      }
       const artifactList = document.getElementById("artifactList");
-      const generatedAudio = state.audioArtifacts.map((item, index) => `<div class="artifact on" data-audio-index="${index}" role="button" tabindex="0" aria-label="AI 오디오 오버뷰 열기"><span class="artifact-icon" style="color:var(--blue)">A</span><div><b>${escapeHtml(item.title)}</b><span>${escapeHtml(item.meta)}</span></div><button class="artifact-menu" type="button" aria-label="more">⋮</button></div>`);
-      const generatedMindmaps = ENABLED_STUDIO_ACTIONS.has("mindmap") ? state.mindmapArtifacts.map((item, index) => `<div class="artifact on" data-mindmap-index="${index}" role="button" tabindex="0" aria-label="마인드맵 열기"><span class="artifact-icon" style="color:var(--violet)">M</span><div><b>${escapeHtml(item.title)}</b><span>${escapeHtml(item.meta)}</span></div><button class="artifact-menu" type="button" aria-label="more">⋮</button></div>`) : [];
-      const generatedStudio = state.studioArtifacts.map((item, index) => ({ item, index })).filter(({ item }) => ENABLED_STUDIO_ACTIONS.has(item.type)).map(({ item, index }) => { const config = studioArtifactConfig(item.type); return `<div class="artifact on" data-studio-index="${index}" role="button" tabindex="0" aria-label="${escapeHtml(item.title)} 열기"><span class="artifact-icon" style="color:${config.color}">${config.icon}</span><div><b>${escapeHtml(item.title)}</b><span>${escapeHtml(item.meta)}</span></div><button class="artifact-menu" type="button" aria-label="more">⋮</button></div>`; });
+      const generatedAudio = state.audioArtifacts.map((item, index) => `<div class="artifact on" data-audio-index="${index}" role="button" tabindex="0" aria-label="AI 오디오 오버뷰 열기"><span class="artifact-icon" style="color:var(--blue)">A</span><div><b>${escapeHtml(item.title)}</b><span>${escapeHtml(item.meta)}</span></div></div>`);
+      const generatedMindmaps = ENABLED_STUDIO_ACTIONS.has("mindmap") ? state.mindmapArtifacts.map((item, index) => `<div class="artifact on" data-mindmap-index="${index}" role="button" tabindex="0" aria-label="마인드맵 열기"><span class="artifact-icon" style="color:var(--violet)">M</span><div><b>${escapeHtml(item.title)}</b><span>${escapeHtml(item.meta)}</span></div></div>`) : [];
+      const generatedStudio = state.studioArtifacts.map((item, index) => ({ item, index })).filter(({ item }) => ENABLED_STUDIO_ACTIONS.has(item.type)).map(({ item, index }) => { const config = studioArtifactConfig(item.type); return `<div class="artifact on" data-studio-index="${index}" role="button" tabindex="0" aria-label="${escapeHtml(item.title)} 열기"><span class="artifact-icon" style="color:${config.color}">${config.icon}</span><div><b>${escapeHtml(item.title)}</b><span>${escapeHtml(item.meta)}</span></div></div>`; });
       const baseItems = [
-        { key: "audio_overview", action: "audio", icon: "A", color: "var(--blue)", title: "AI 오디오 오버뷰", meta: "대본과 음성 · 생성됨" },
+        { key: "audio_overview", action: "audio", icon: "A", color: "var(--blue)", title: "AI 오디오 브리핑", meta: "대본과 음성 · 생성됨" },
         { key: "graph", action: "mindmap", icon: "M", color: "var(--violet)", title: "마인드맵", meta: "개념과 관계 · 생성됨" },
-        { key: "summary", action: "report", icon: "R", color: "var(--amber)", title: "보고서", meta: "강의별 요약 · 생성됨" },
+        { key: "onboarding_report", action: "report", icon: "R", color: "var(--amber)", title: "온보딩 보고서", meta: state.reportImpact?.requires_regeneration ? `자료 변경 ${state.reportImpact.change_count}건 · 재생성 필요` : "출처와 검증 내역 · 최신" },
         { key: "study_kit", action: "flashcards", icon: "F", color: "var(--rose)", title: "플래시카드", meta: "학습 카드 · 생성됨" },
         { key: "study_kit", action: "quiz", icon: "Q", color: "var(--teal)", title: "퀴즈", meta: "문제와 해설 · 생성됨" },
         { key: "course_pack", action: "table", icon: "T", color: "var(--green)", title: "데이터표", meta: "자료 메타데이터 · 준비됨" },
       ].filter((item) => ENABLED_STUDIO_ACTIONS.has(item.action));
       const generatedTypes = new Set(state.studioArtifacts.map((item) => item.type));
-      const visibleItems = baseItems.filter((item) => !(state.audioArtifacts.length && item.key === "audio_overview") && !(state.mindmapArtifacts.length && item.key === "graph") && !(generatedTypes.has("report") && item.key === "summary") && !(generatedTypes.has("table") && item.key === "course_pack") && !(generatedTypes.has("flashcards") && item.icon === "F") && !(generatedTypes.has("quiz") && item.icon === "Q"));
+      const visibleItems = baseItems.filter((item) => item.action !== "audio" && !(state.audioArtifacts.length && item.key === "audio_overview") && !(state.mindmapArtifacts.length && item.key === "graph") && !(generatedTypes.has("report") && item.key === "onboarding_report") && !(generatedTypes.has("table") && item.key === "course_pack") && !(generatedTypes.has("flashcards") && item.icon === "F") && !(generatedTypes.has("quiz") && item.icon === "Q"));
       const rows = visibleItems.map((item) => {
         const exists = artifacts[item.key]?.ready ?? artifacts[item.key]?.exists === true;
         const color = exists ? item.color : "var(--sub)";
         const meta = exists ? item.meta : "아직 생성 전";
-        return `<div class="artifact ${exists ? 'on' : ''}" data-action="${item.action}" role="button" tabindex="0" aria-label="${escapeHtml(item.title)} ${exists ? '열기' : '생성'}"><span class="artifact-icon" style="color:${color}">${item.icon}</span><div><b>${escapeHtml(item.title)}</b><span>${escapeHtml(meta)}</span></div><button class="artifact-menu" type="button" aria-label="more">⋮</button></div>`;
+        const needsUpdate = item.key === "onboarding_report" && state.reportImpact?.requires_regeneration;
+        return `<div class="artifact ${exists ? 'on' : ''} ${needsUpdate ? 'needs-update' : ''}" data-action="${item.action}" role="button" tabindex="0" aria-label="${escapeHtml(item.title)} ${exists ? '열기' : '생성'}"><span class="artifact-icon" style="color:${color}">${item.icon}</span><div><b>${escapeHtml(item.title)}</b><span>${escapeHtml(meta)}</span></div></div>`;
       });
-      artifactList.innerHTML = [...generatedAudio, ...generatedMindmaps, ...generatedStudio, ...rows].join("");
+      artifactList.innerHTML = [...generatedAudio, ...generatedMindmaps, ...generatedStudio, ...rows].join("") || '<div class="source-empty">생성된 브리핑이 없습니다.</div>';
       if (render) renderArtifacts(data);
     }
 
@@ -1127,7 +1238,8 @@
       closeMediaPanels();
       try {
         if (action === "audio") {
-          const data = await api("/course-packs/tts", { method: "POST", body: packPayload({ question: questionInput.value || "이 Course Pack의 핵심 흐름을 자연스러운 2인 학습 팟캐스트로 설명해줘", mode: "podcast", llm_provider: CHAT_LLM_PROVIDER, llm_model: CHAT_LLM_MODEL, grounding: "creative", knowledge_scope: "course_pack", top_k: 10, target_minutes: 5, target_chars: 2000, voice: "ko-KR-SunHiNeural", guest_voice: "ko-KR-InJoonNeural", reuse_existing: false }) });
+          const profile = selectedBriefingProfile();
+          const data = await api("/course-packs/tts", { method: "POST", body: packPayload({ question: questionInput.value || `${profile.question}을 자연스러운 2인 오디오 브리핑으로 설명해줘`, mode: "podcast", llm_provider: CHAT_LLM_PROVIDER, llm_model: CHAT_LLM_MODEL, grounding: "strict", knowledge_scope: "course_pack", top_k: 10, target_minutes: 5, target_chars: 2000, voice: "ko-KR-SunHiNeural", guest_voice: "ko-KR-InJoonNeural", reuse_existing: false }) });
           const audioItem = addAudioArtifact(data, true);
           if (!audioItem) renderAudio(data);
         }
@@ -1138,7 +1250,10 @@
           ]);
           addMindmapArtifact(mindmap, exported, true);
         }
-        if (action === "report") addStudioArtifact(reportArtifact(await api("/course-packs/summary", { method: "POST", body: packPayload({ question: "Course Pack 전체 흐름을 보고서로 정리해줘", top_k: 8, max_items: 6, llm_provider: "mock" }) })), true);
+        if (action === "report") {
+          const profile = selectedBriefingProfile();
+          addStudioArtifact(reportArtifact(await api("/course-packs/onboarding-report", { method: "POST", body: packPayload({ question: profile.question, title: `${profile.audience} 온보딩 보고서`, audience: profile.audience, objective: profile.objective, top_k: 10, max_sections: 6, llm_provider: CHAT_LLM_PROVIDER, llm_model: CHAT_LLM_MODEL }) })), true);
+        }
         if (action === "flashcards") addStudioArtifact(flashcardArtifact(await api("/course-packs/study-kit", { method: "POST", body: packPayload({ question: "핵심 개념 플래시카드를 만들어줘", top_k: 6, max_items: 6 }) })), true);
         if (action === "quiz") addStudioArtifact(quizArtifact(await api("/course-packs/study-kit", { method: "POST", body: packPayload({ question: "시험 대비 퀴즈를 만들어줘", top_k: 6, max_items: 6 }) })), true);
         if (action === "table") {
@@ -1169,6 +1284,27 @@
       }
     }
 
+    function openPackDocument(documentMetadata = {}) {
+      const title = documentMetadata.title || documentMetadata.filename || documentMetadata.doc_id || "Course Pack document";
+      const details = [
+        documentMetadata.week ? `week ${documentMetadata.week}` : "",
+        documentMetadata.lecture_no ? `lecture ${documentMetadata.lecture_no}` : "",
+        documentMetadata.page_count != null ? `${documentMetadata.page_count} pages` : "",
+        documentMetadata.chunk_count != null ? `${documentMetadata.chunk_count} chunks` : "",
+      ].filter(Boolean);
+      sourceTitle.textContent = title;
+      sourcePath.textContent = documentMetadata.doc_id || "Course Pack source metadata";
+      sourceKicker.textContent = "Course Pack document";
+      sourceHeading.textContent = title;
+      sourceSummary.textContent = details.join(" · ") || "이 자료는 현재 Course Pack의 검색 대상으로 등록되어 있습니다.";
+      sourceEvidence.textContent = "질문과 관련된 chunk가 검색되면 답변의 출처와 함께 이 문서로 연결됩니다.";
+      sourceChunks.textContent = JSON.stringify(documentMetadata, null, 2);
+      sourceOpenUrl.hidden = true;
+      sourceOpenUrl.href = "#";
+      highlightSource(documentMetadata);
+      sourceModal.hidden = false;
+    }
+
     function openSource(key = "overview", groupId = "current") {
       const group = state.sourceGroups[groupId] || state.sources;
       const item = group?.[key] || group?.overview || emptySource;
@@ -1186,6 +1322,12 @@
     }
 
     document.addEventListener("click", async (event) => {
+      const packDocument = event.target.closest("[data-pack-document]");
+      if (packDocument) {
+        openPackDocument(state.packDocuments[Number(packDocument.dataset.packDocument)] || {});
+        return;
+      }
+
       const suggestion = event.target.closest(".suggestion[data-question]");
       if (suggestion) {
         questionInput.value = suggestion.dataset.question || "";
@@ -1245,26 +1387,26 @@
       const sourceButton = event.target.closest(".open-source, [data-source]");
       if (sourceButton && !cite) openSource(sourceButton.dataset.source || "overview", sourceButton.dataset.sourceGroup || "current");
       const audioArtifact = event.target.closest(".artifact[data-audio-index]");
-      if (audioArtifact && !event.target.closest(".artifact-menu")) {
+      if (audioArtifact) {
         const item = state.audioArtifacts[Number(audioArtifact.dataset.audioIndex)];
         if (item) showAudioPlayer(item, false);
       }
       const mindmapArtifact = event.target.closest(".artifact[data-mindmap-index]");
-      if (mindmapArtifact && !event.target.closest(".artifact-menu")) {
+      if (mindmapArtifact) {
         const item = state.mindmapArtifacts[Number(mindmapArtifact.dataset.mindmapIndex)];
         if (item) showMindmapViewer(item);
       }
       const studioArtifact = event.target.closest(".artifact[data-studio-index]");
-      if (studioArtifact && !event.target.closest(".artifact-menu")) {
+      if (studioArtifact) {
         const item = state.studioArtifacts[Number(studioArtifact.dataset.studioIndex)];
         if (item) showStudioArtifact(item);
       }
       const studio = event.target.closest(".studio-card[data-action], .artifact[data-action]");
-      if (studio && !event.target.closest(".artifact-menu")) handleStudioAction(studio.dataset.action, studio);
+      if (studio) handleStudioAction(studio.dataset.action, studio);
     });
 
     document.addEventListener("keydown", (event) => {
-      if (!['Enter', ' '].includes(event.key) || event.target.closest(".artifact-menu")) return;
+      if (!['Enter', ' '].includes(event.key)) return;
       const artifact = event.target.closest('.artifact[role="button"]');
       if (!artifact) return;
       event.preventDefault();
@@ -1328,6 +1470,7 @@
       try {
         await restoreActivePack();
         await refreshPack();
+        await refreshArtifacts(false);
         routeBadge.textContent = "ready";
         renderEmptyChat();
         resizeComposer();
