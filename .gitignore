@@ -4,6 +4,8 @@
 build/
 dist/
 outputs/
+output/
+tmp/
 .tmp-tests/
 .env
 .venv/
@@ -11,4 +13,3 @@ venv/
 _backups/
 *.log
 /자연어처리 강의자료/
-

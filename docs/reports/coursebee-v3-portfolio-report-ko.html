@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CourseBee v3 포트폴리오 프로젝트 보고서</title>
+  <style>
+    :root {
+      --ink: #111820;
+      --muted: #5d6a74;
+      --line: #ccd5dc;
+      --paper: #ffffff;
+      --canvas: #e9eef1;
+      --navy: #173c67;
+      --blue: #245fae;
+      --teal: #087f73;
+      --green: #3e7444;
+      --amber: #aa6500;
+      --coral: #b4443e;
+      --soft-blue: #eaf2fb;
+      --soft-teal: #e6f3f0;
+      --soft-amber: #fff2d9;
+      --soft-coral: #fae9e7;
+      --soft-green: #eaf2e7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    @page {
+      size: A3 portrait;
+      margin: 0;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    body {
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+
+    .page {
+      position: relative;
+      width: 297mm;
+      height: 420mm;
+      margin: 0 auto 10mm;
+      overflow: hidden;
+      background: var(--paper);
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .page:last-child {
+      margin-bottom: 0;
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    .page::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4mm;
+      background: var(--navy);
+    }
+
+    .page::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 34mm;
+      height: 5mm;
+      background: var(--teal);
+    }
+
+    .content {
+      position: relative;
+      height: 100%;
+      padding: 14mm 15mm 11mm 18mm;
+    }
+
+    .kicker {
+      margin: 0 0 2mm;
+      color: var(--blue);
+      font-size: 3.2mm;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 220mm;
+      margin-bottom: 3mm;
+      font-size: 12mm;
+      line-height: 1.12;
+      font-weight: 900;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 57mm;
+      gap: 11mm;
+      align-items: end;
+      min-height: 47mm;
+      border-bottom: 0.6mm solid var(--ink);
+      padding-bottom: 5mm;
+    }
+
+    .hero-copy {
+      max-width: 205mm;
+      margin: 0;
+      color: #33414d;
+      font-size: 4mm;
+      line-height: 1.55;
+      font-weight: 650;
+    }
+
+    .identity {
+      border-left: 1.2mm solid var(--teal);
+      padding-left: 5mm;
+      font-size: 3.4mm;
+      line-height: 1.6;
+    }
+
+    .identity strong {
+      display: block;
+      font-size: 4.8mm;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      margin: 5mm 0 6mm;
+      border-top: 0.35mm solid var(--line);
+      border-bottom: 0.35mm solid var(--line);
+    }
+
+    .stat {
+      min-height: 17mm;
+      border-right: 0.35mm solid var(--line);
+      padding: 3.2mm 4mm;
+    }
+
+    .stat:last-child {
+      border-right: 0;
+    }
+
+    .stat strong {
+      display: block;
+      margin-bottom: 0.6mm;
+      color: var(--navy);
+      font-size: 6mm;
+      line-height: 1;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 2.9mm;
+      font-weight: 700;
+    }
+
+    .section {
+      margin-top: 6mm;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 3mm;
+      min-height: 11mm;
+      margin: 0 0 4mm;
+      border-bottom: 0.55mm solid var(--navy);
+      color: var(--navy);
+      font-size: 6.2mm;
+      font-weight: 900;
+    }
+
+    .section-no {
+      width: 8mm;
+      height: 8mm;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--navy);
+      color: white;
+      font-size: 3.5mm;
+    }
+
+    .problem-solution {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8mm;
+    }
+
+    .column-label {
+      margin: 0 0 3mm;
+      color: var(--coral);
+      font-size: 4.3mm;
+      font-weight: 900;
+    }
+
+    .solution-label {
+      color: var(--teal);
+    }
+
+    .number-list {
+      display: grid;
+      gap: 2.5mm;
+    }
+
+    .number-row {
+      display: grid;
+      grid-template-columns: 8mm minmax(0, 1fr);
+      gap: 3mm;
+      align-items: start;
+      min-height: 16mm;
+    }
+
+    .number-row .num {
+      width: 7mm;
+      height: 7mm;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--soft-coral);
+      color: var(--coral);
+      font-size: 3.2mm;
+      font-weight: 900;
+    }
+
+    .solution-list .num {
+      background: var(--soft-teal);
+      color: var(--teal);
+    }
+
+    .number-row b {
+      display: block;
+      margin-bottom: 1mm;
+      font-size: 3.8mm;
+      line-height: 1.35;
+    }
+
+    .number-row p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 3mm;
+      line-height: 1.5;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4mm;
+    }
+
+    .flow-step {
+      position: relative;
+      min-height: 26mm;
+      border-top: 1.3mm solid var(--blue);
+      background: var(--soft-blue);
+      padding: 4mm;
+    }
+
+    .flow-step:nth-child(2) {
+      border-color: var(--teal);
+      background: var(--soft-teal);
+    }
+
+    .flow-step:nth-child(3) {
+      border-color: var(--amber);
+      background: var(--soft-amber);
+    }
+
+    .flow-step:nth-child(4) {
+      border-color: var(--coral);
+      background: var(--soft-coral);
+    }
+
+    .flow-step:nth-child(5) {
+      border-color: var(--green);
+      background: var(--soft-green);
+    }
+
+    .flow-step:not(:last-child)::after {
+      content: "›";
+      position: absolute;
+      z-index: 2;
+      top: 8mm;
+      right: -3.3mm;
+      color: #6d7983;
+      font-size: 7mm;
+      font-weight: 900;
+    }
+
+    .flow-step small {
+      display: block;
+      margin-bottom: 1.5mm;
+      color: var(--muted);
+      font-size: 2.6mm;
+      font-weight: 800;
+    }
+
+    .flow-step b {
+      display: block;
+      margin-bottom: 1.5mm;
+      font-size: 3.5mm;
+      line-height: 1.3;
+    }
+
+    .flow-step p {
+      margin: 0;
+      color: #46535d;
+      font-size: 2.7mm;
+      line-height: 1.45;
+    }
+
+    .architecture-frame {
+      height: 128mm;
+      display: flex;
+      align-items: center;
+      border: 0.35mm solid #b9c5ce;
+      background: #eef3f5;
+      padding: 2mm;
+    }
+
+    .architecture-frame img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .principles {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5mm;
+      margin-top: 4mm;
+    }
+
+    .principle {
+      min-height: 33mm;
+      border-top: 1mm solid var(--navy);
+      padding: 3.5mm 1.5mm 0;
+    }
+
+    .principle:nth-child(2) {
+      border-color: var(--teal);
+    }
+
+    .principle:nth-child(3) {
+      border-color: var(--amber);
+    }
+
+    .principle b {
+      display: block;
+      margin-bottom: 1.5mm;
+      font-size: 3.7mm;
+    }
+
+    .principle p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 2.9mm;
+      line-height: 1.5;
+    }
+
+    .page-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      min-height: 26mm;
+      border-bottom: 0.7mm solid var(--ink);
+      padding-bottom: 4mm;
+    }
+
+    .page-head h2 {
+      margin: 0;
+      font-size: 9mm;
+      line-height: 1.15;
+    }
+
+    .page-head p {
+      max-width: 90mm;
+      margin: 0;
+      color: var(--muted);
+      font-size: 3.1mm;
+      line-height: 1.5;
+      text-align: right;
+    }
+
+    .implementation {
+      display: grid;
+      grid-template-columns: 92mm minmax(0, 1fr);
+      gap: 7mm;
+    }
+
+    .tech-stack {
+      display: grid;
+      gap: 3mm;
+    }
+
+    .tech-block {
+      min-height: 29mm;
+      border-left: 1.2mm solid var(--blue);
+      background: var(--soft-blue);
+      padding: 4mm;
+    }
+
+    .tech-block:nth-child(2) {
+      border-color: var(--teal);
+      background: var(--soft-teal);
+    }
+
+    .tech-block:nth-child(3) {
+      border-color: var(--coral);
+      background: var(--soft-coral);
+    }
+
+    .tech-block:nth-child(4) {
+      border-color: var(--amber);
+      background: var(--soft-amber);
+    }
+
+    .tech-block h3 {
+      margin: 0 0 1.6mm;
+      font-size: 3.8mm;
+    }
+
+    .tech-block p {
+      margin: 0;
+      color: #3f4b55;
+      font-size: 2.8mm;
+      line-height: 1.5;
+    }
+
+    .tech-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2mm;
+      margin-top: 2.2mm;
+    }
+
+    .tech-tags span {
+      border: 0.25mm solid rgba(17, 24, 32, 0.22);
+      background: rgba(255, 255, 255, 0.68);
+      padding: 1mm 1.8mm;
+      font-size: 2.35mm;
+      font-weight: 800;
+    }
+
+    .product-evidence {
+      display: grid;
+      grid-template-rows: 64mm 57mm;
+      gap: 4mm;
+    }
+
+    .shot {
+      position: relative;
+      overflow: hidden;
+      border: 0.35mm solid #bdc7cf;
+      background: #f2f5f7;
+    }
+
+    .shot img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      object-position: top center;
+    }
+
+    .shot.report img {
+      object-fit: contain;
+      object-position: center 7%;
+      background: #edf1f3;
+    }
+
+    .shot-label {
+      position: absolute;
+      left: 3mm;
+      bottom: 3mm;
+      border: 0.3mm solid white;
+      background: rgba(17, 24, 32, 0.9);
+      color: white;
+      padding: 1.8mm 2.6mm;
+      font-size: 2.6mm;
+      font-weight: 800;
+    }
+
+    .evaluation {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 7mm;
+    }
+
+    .metric-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 2.8mm;
+    }
+
+    .metric-table th,
+    .metric-table td {
+      border-bottom: 0.25mm solid var(--line);
+      padding: 2.2mm 2.4mm;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .metric-table th {
+      background: var(--navy);
+      color: white;
+      font-weight: 800;
+    }
+
+    .metric-table th:last-child,
+    .metric-table td:last-child {
+      width: 31mm;
+      text-align: center;
+    }
+
+    .pass {
+      color: var(--teal);
+      font-weight: 900;
+    }
+
+    .eval-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3mm;
+    }
+
+    .eval-card {
+      display: grid;
+      align-content: center;
+      min-height: 23mm;
+      border-top: 1mm solid var(--teal);
+      background: var(--soft-teal);
+      padding: 3mm;
+      text-align: center;
+    }
+
+    .eval-card:nth-child(2) {
+      border-color: var(--blue);
+      background: var(--soft-blue);
+    }
+
+    .eval-card:nth-child(3) {
+      border-color: var(--coral);
+      background: var(--soft-coral);
+    }
+
+    .eval-card:nth-child(4) {
+      border-color: var(--amber);
+      background: var(--soft-amber);
+    }
+
+    .eval-card strong {
+      color: var(--navy);
+      font-size: 7mm;
+      line-height: 1;
+    }
+
+    .eval-card span {
+      margin-top: 1.5mm;
+      color: var(--muted);
+      font-size: 2.55mm;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .guard-note {
+      grid-column: 1 / -1;
+      border-left: 1.2mm solid var(--coral);
+      background: #f5f7f8;
+      padding: 3.5mm 4mm;
+      color: #3e4b54;
+      font-size: 2.75mm;
+      line-height: 1.5;
+    }
+
+    .guard-note strong {
+      color: var(--coral);
+    }
+
+    .industry {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8mm;
+    }
+
+    .use-cases {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3mm;
+    }
+
+    .use-case {
+      min-height: 26mm;
+      border-top: 0.9mm solid var(--navy);
+      background: #f5f7f8;
+      padding: 3.5mm;
+    }
+
+    .use-case b {
+      display: block;
+      margin-bottom: 1mm;
+      font-size: 3.2mm;
+    }
+
+    .use-case p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 2.65mm;
+      line-height: 1.45;
+    }
+
+    .boundary {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 2.65mm;
+    }
+
+    .boundary th {
+      background: #263544;
+      color: white;
+      padding: 2.2mm;
+      text-align: left;
+    }
+
+    .boundary td {
+      border-bottom: 0.25mm solid var(--line);
+      padding: 2.1mm 2.2mm;
+      color: #3e4b54;
+      line-height: 1.4;
+      vertical-align: top;
+    }
+
+    .takeaway {
+      display: grid;
+      grid-template-columns: 1fr 61mm;
+      gap: 8mm;
+      align-items: center;
+      margin-top: 3mm;
+      border-top: 1.5mm solid var(--navy);
+      border-bottom: 1.5mm solid var(--navy);
+      padding: 3.5mm 1mm;
+    }
+
+    .takeaway strong {
+      display: block;
+      margin-bottom: 1.5mm;
+      color: var(--navy);
+      font-size: 4.5mm;
+    }
+
+    .takeaway p {
+      margin: 0;
+      font-size: 3mm;
+      line-height: 1.5;
+      font-weight: 700;
+    }
+
+    .repo {
+      border-left: 1mm solid var(--teal);
+      padding-left: 4mm;
+      color: var(--muted);
+      font-size: 2.7mm;
+      line-height: 1.55;
+    }
+
+    .repo b {
+      display: block;
+      color: var(--ink);
+      font-size: 3.2mm;
+    }
+
+    .footer {
+      position: absolute;
+      left: 18mm;
+      right: 15mm;
+      bottom: 5mm;
+      display: flex;
+      justify-content: space-between;
+      border-top: 0.25mm solid var(--line);
+      padding-top: 2mm;
+      color: #71808b;
+      font-size: 2.35mm;
+    }
+
+    .page:nth-of-type(2) .section {
+      margin-top: 4mm;
+    }
+
+    .page:nth-of-type(2) .section-title {
+      margin-bottom: 3mm;
+    }
+
+    @media screen {
+      body {
+        padding: 10mm 0;
+      }
+
+      .page {
+        box-shadow: 0 8mm 18mm rgba(17, 24, 32, 0.2);
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      .page {
+        margin: 0;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="page">
+    <div class="content">
+      <p class="kicker">CourseBee v3 · AI Backend Portfolio Report</p>
+      <header class="hero">
+        <div>
+          <h1>사내 문서를<br>검증 가능한 온보딩 지식으로</h1>
+          <p class="hero-copy">
+            다중 문서 RAG와 Grounding Guard를 결합해 흩어진 규정과 업무 절차를
+            출처 기반 Q&amp;A, 온보딩 보고서, 오디오 브리핑으로 변환하는 local-first 지식 자동화 서비스
+          </p>
+        </div>
+        <div class="identity">
+          <strong>CourseBee v3</strong>
+          YuMinBee<br>
+          AI Backend Portfolio<br>
+          2026
+        </div>
+      </header>
+
+      <div class="stats">
+        <div class="stat"><strong>128</strong><span>자동화 테스트</span></div>
+        <div class="stat"><strong>5</strong><span>품질 평가 스위트</span></div>
+        <div class="stat"><strong>3</strong><span>검증된 핵심 산출물</span></div>
+        <div class="stat"><strong>100%</strong><span>보고서 인용 포함률</span></div>
+      </div>
+
+      <section class="section">
+        <h2 class="section-title"><span class="section-no">1</span>문제 정의와 제품 전환</h2>
+        <div class="problem-solution">
+          <div>
+            <h3 class="column-label">Problem</h3>
+            <div class="number-list">
+              <div class="number-row">
+                <span class="num">1</span>
+                <div><b>분산된 사내 지식</b><p>취업규칙, 보안 정책, 개발 절차가 여러 파일에 흩어져 필요한 규정을 찾기 어렵다.</p></div>
+              </div>
+              <div class="number-row">
+                <span class="num">2</span>
+                <div><b>내부 정책처럼 보이는 환각</b><p>일반 LLM이 자료에 없는 절차를 실제 회사 규정처럼 생성하면 업무 위험으로 이어진다.</p></div>
+              </div>
+              <div class="number-row">
+                <span class="num">3</span>
+                <div><b>문서 개정 이후의 반복 작업</b><p>원문이 바뀔 때 보고서와 교육 자료를 다시 확인하고 배포하는 비용이 반복된다.</p></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="column-label solution-label">Solution</h3>
+            <div class="number-list solution-list">
+              <div class="number-row">
+                <span class="num">1</span>
+                <div><b>누적형 Knowledge Pack</b><p>PDF, PPTX, Markdown, TXT를 하나의 질의 가능한 지식 묶음으로 구성한다.</p></div>
+              </div>
+              <div class="number-row">
+                <span class="num">2</span>
+                <div><b>하나의 근거 모델</b><p>Q&amp;A, 보고서, 오디오가 같은 문서·페이지·chunk provenance 계약을 공유한다.</p></div>
+              </div>
+              <div class="number-row">
+                <span class="num">3</span>
+                <div><b>변경 영향과 증분 갱신</b><p>source fingerprint로 영향 섹션을 찾고 바뀌지 않은 섹션은 재사용한다.</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title"><span class="section-no">2</span>서비스 흐름</h2>
+        <div class="flow">
+          <div class="flow-step"><small>STEP 01</small><b>자료 수집</b><p>다중 형식 문서를 누적 업로드하고 안전성을 검사한다.</p></div>
+          <div class="flow-step"><small>STEP 02</small><b>대상·목적 설정</b><p>신입, 개발팀, 보안 교육 등 브리핑 대상을 선택한다.</p></div>
+          <div class="flow-step"><small>STEP 03</small><b>근거 검색</b><p>라우터가 hybrid, semantic, graph 경로를 선택한다.</p></div>
+          <div class="flow-step"><small>STEP 04</small><b>산출물 생성</b><p>보고서를 기본으로 Q&amp;A와 오디오를 함께 제공한다.</p></div>
+          <div class="flow-step"><small>STEP 05</small><b>검증·갱신</b><p>근거 검사와 변경 영향 추적으로 최신성을 관리한다.</p></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title"><span class="section-no">3</span>기술 블록도</h2>
+        <div class="architecture-frame">
+          <img src="../../images/coursebee-v3-architecture.png" alt="CourseBee v3 기술 블록도">
+        </div>
+        <div class="principles">
+          <div class="principle">
+            <b>Evidence First</b>
+            <p>LLM 출력보다 검색 근거를 먼저 확정한다. 근거 검사를 통과하지 못한 섹션과 발화는 source-grounded 결과로 복구한다.</p>
+          </div>
+          <div class="principle">
+            <b>Product Before Feature Count</b>
+            <p>퀴즈와 카드 기능은 숨기고, 기업 업무에 직접 연결되는 보고서와 오디오 흐름의 완성도를 우선했다.</p>
+          </div>
+          <div class="principle">
+            <b>Production-shaped Boundary</b>
+            <p>현재는 재현 가능한 local-first 구현이며, 저장소·작업 큐·권한 계층을 운영 인프라로 교체할 계약을 분리했다.</p>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer"><span>CourseBee v3 · Source-grounded Enterprise Onboarding</span><span>01 / 02</span></footer>
+    </div>
+  </section>
+
+  <section class="page">
+    <div class="content">
+      <header class="page-head">
+        <div>
+          <p class="kicker">Implementation · Evidence · Evaluation</p>
+          <h2>구현 세부와 핵심 기술</h2>
+        </div>
+        <p>“RAG를 넣었다”가 아니라, 검색 근거가 실제 산출물과 운영 변화까지 어떻게 이어지는지를 검증했다.</p>
+      </header>
+
+      <section class="section">
+        <h2 class="section-title"><span class="section-no">4</span>근거 기반 생성 파이프라인</h2>
+        <div class="implementation">
+          <div class="tech-stack">
+            <article class="tech-block">
+              <h3>01 · Document Intelligence</h3>
+              <p>문장 경계 기반 chunking과 OCR fallback을 적용하고, 문서·페이지·chunk metadata를 끝까지 보존한다.</p>
+              <div class="tech-tags"><span>PyMuPDF</span><span>PPTX XML</span><span>Tesseract</span><span>Provenance</span></div>
+            </article>
+            <article class="tech-block">
+              <h3>02 · Multi-route Retrieval</h3>
+              <p>질문 유형에 따라 local hybrid, multilingual E5, RRF, Cross-Encoder, graph 및 hierarchical 경로를 선택한다.</p>
+              <div class="tech-tags"><span>Hybrid RAG</span><span>E5</span><span>RRF</span><span>Reranker</span><span>Graph</span></div>
+            </article>
+            <article class="tech-block">
+              <h3>03 · Grounded Generation</h3>
+              <p>Qwen 기반 장문 생성에 단계형 prompt를 적용하고, section·segment 단위 근거 검사와 deterministic fallback을 결합했다.</p>
+              <div class="tech-tags"><span>Qwen</span><span>Ollama</span><span>OpenAI-compatible</span><span>Grounding Guard</span></div>
+            </article>
+            <article class="tech-block">
+              <h3>04 · API &amp; Reliability</h3>
+              <p>v3 API 계약과 v2 하위 호환, 요청 trace, Docker smoke test, 브라우저 E2E와 5개 평가 스위트를 CI에 연결했다.</p>
+              <div class="tech-tags"><span>FastAPI</span><span>Pydantic</span><span>Playwright</span><span>Docker</span><span>GitHub Actions</span></div>
+            </article>
+          </div>
+          <div class="product-evidence">
+            <figure class="shot">
+              <img src="../demo-assets/coursebee-v3-demo.png" alt="CourseBee v3 서비스 화면">
+              <figcaption class="shot-label">실제 서비스 화면 · 자료 / Q&amp;A / Briefing Studio</figcaption>
+            </figure>
+            <figure class="shot report">
+              <img src="../demo-assets/coursebee-v3-onboarding-report.png" alt="출처 기반 온보딩 보고서">
+              <figcaption class="shot-label">구조화 artifact · JSON / Markdown / Print-ready HTML</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title"><span class="section-no">5</span>구현 결과 및 성능 평가</h2>
+        <div class="evaluation">
+          <table class="metric-table">
+            <thead><tr><th>검증 영역</th><th>고정 fixture 결과</th></tr></thead>
+            <tbody>
+              <tr><td>기본 retrieval router / 필수 출처 recall</td><td class="pass">10/10 · 9/9</td></tr>
+              <tr><td>온보딩 시나리오 / 근거 섹션</td><td class="pass">3/3 · 6/6</td></tr>
+              <tr><td>목적별 문서 선택 recall·precision</td><td class="pass">3/3</td></tr>
+              <tr><td>문서 변경 영향·증분 갱신</td><td class="pass">4/4</td></tr>
+              <tr><td>오디오 grounding / 비근거 탐지</td><td class="pass">6/6 · 3/3</td></tr>
+              <tr><td>Desktop·Mobile 브라우저 E2E</td><td class="pass">PASS</td></tr>
+            </tbody>
+          </table>
+          <div class="eval-summary">
+            <div class="eval-card"><strong>1.00</strong><span>보고서 인용 포함률</span></div>
+            <div class="eval-card"><strong>1.00</strong><span>선택 문서 반영률</span></div>
+            <div class="eval-card"><strong>128</strong><span>전체 자동화 테스트</span></div>
+            <div class="eval-card"><strong>4/4</strong><span>CI jobs 성공</span></div>
+          </div>
+          <div class="guard-note">
+            <strong>Failure Guard 검증:</strong>
+            자료에 없는 모델명, 임의 정확도 수치, 엄격한 한국어 비근거 문장을 별도 실패 사례로 구성했다.
+            LLM 출력을 그대로 확정하지 않고 비근거 claim을 탐지해 교정하는 흐름을 회귀 테스트한다.
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title"><span class="section-no">6</span>산업 활용과 운영 확장</h2>
+        <div class="industry">
+          <div>
+            <h3 class="column-label solution-label">적용 가능한 업무</h3>
+            <div class="use-cases">
+              <article class="use-case"><b>신규 입사자 온보딩</b><p>취업규칙과 필수 업무 절차를 대상별 보고서로 제공</p></article>
+              <article class="use-case"><b>보안·컴플라이언스 교육</b><p>계정, 자료 공유, 사고 신고 규정을 출처와 함께 전달</p></article>
+              <article class="use-case"><b>프로젝트 인수인계</b><p>개발·검토·배포·장애 대응 흐름을 역할별로 재구성</p></article>
+              <article class="use-case"><b>규정 개정 브리핑</b><p>변경된 문서와 영향 섹션만 찾아 보고서와 오디오 갱신</p></article>
+            </div>
+          </div>
+          <div>
+            <h3 class="column-label">현재 구현과 운영 확장</h3>
+            <table class="boundary">
+              <thead><tr><th>현재 포트폴리오 구현</th><th>운영 환경 확장</th></tr></thead>
+              <tbody>
+                <tr><td>프로세스 내부 semantic index</td><td>Vector DB · 분산 cache</td></tr>
+                <tr><td>로컬 JSON · file artifact</td><td>RDB · Object Storage</td></tr>
+                <tr><td>FastAPI background task</td><td>Durable queue · worker</td></tr>
+                <tr><td>선택적 API key</td><td>조직·사용자·문서별 RBAC</td></tr>
+                <tr><td>요청 trace · health check</td><td>OpenTelemetry · 중앙 metric</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div>
+            <strong>Portfolio Takeaway</strong>
+            <p>
+              CourseBee v3의 핵심은 신기술의 개수가 아니다.
+              하나의 provenance 계약을 Q&amp;A, 보고서, 오디오가 공유하고,
+              비근거 생성과 문서 개정이라는 실제 운영 문제를 자동 평가로 통제한 점이다.
+            </p>
+          </div>
+          <div class="repo">
+            <b>Repository</b>
+            github.com/YuMinBee/CourseBee<br>
+            Main branch · GitHub CI verified<br>
+            Status: production-shaped, local-first
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer"><span>CourseBee v3 · Portfolio Project Report</span><span>02 / 02</span></footer>
+    </div>
+  </section>
+</body>
+</html>

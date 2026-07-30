@@ -23,6 +23,7 @@ v3의 제품 범위는 세 가지입니다. `출처 기반 Q&A`, `직무별 온�
 
 | 공개 산출물 | 확인 |
 | --- | --- |
+| 포트폴리오 프로젝트 보고서 | [A3 2페이지 PDF](docs/reports/coursebee-v3-portfolio-report-ko.pdf) · [1페이지](docs/reports/coursebee-v3-portfolio-report-ko-page-1.png) · [2페이지](docs/reports/coursebee-v3-portfolio-report-ko-page-2.png) · [HTML 원본](docs/reports/coursebee-v3-portfolio-report-ko.html) |
 | v3 온보딩 보고서 | [HTML](docs/demo-assets/coursebee-v3-onboarding-report.html) · [Markdown](docs/demo-assets/coursebee-v3-onboarding-report.md) · [JSON](docs/demo-assets/coursebee-v3-onboarding-report.json) · [전체 화면](docs/demo-assets/coursebee-v3-onboarding-report.png) |
 | v3 반응형 화면 | [모바일 전체 화면](docs/demo-assets/coursebee-v3-demo-mobile.png) |
 | v3 보고서 평가 | [근거·인용·문서 반영 평가](eval/results/latest_onboarding_report_eval.md) |
