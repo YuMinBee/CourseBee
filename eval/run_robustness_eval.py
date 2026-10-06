@@ -16,6 +16,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from v2.course_packs import ask_course_pack, create_course_pack  # noqa: E402
 from v2.io_utils import atomic_write_text  # noqa: E402
+from v2.rag.lexical_index import warm_up as warm_up_retrieval  # noqa: E402
 
 DEFAULT_SUITE_PATH = REPO_ROOT / "eval" / "robustness_suite.json"
 DEFAULT_RESULTS_PATH = REPO_ROOT / "eval" / "results" / "latest_robustness_eval.md"
@@ -65,6 +66,10 @@ def main() -> int:
     args = parser.parse_args()
 
     suite = json.loads(args.suite.read_text(encoding="utf-8"))
+    # 형태소 분석기 로딩은 서버 시작 시 한 번만 일어나므로 질문별 지연시간에서 빼고 따로 기록한다.
+    started = time.perf_counter()
+    tokenizer = warm_up_retrieval()
+    warm_up_ms = (time.perf_counter() - started) * 1000
     results: list[CaseResult] = []
     for scenario in suite.get("scenarios", []):
         scenario_id = str(scenario["id"])
@@ -78,7 +83,7 @@ def main() -> int:
         for case in scenario.get("cases", []):
             results.append(_run_case(args.runtime_dir, scenario_id, pack_id, case))
 
-    markdown = _render_markdown(results)
+    markdown = _render_markdown(results, tokenizer=tokenizer, warm_up_ms=warm_up_ms)
     atomic_write_text(args.results_path, markdown)
     print(markdown)
     return 0 if results and all(result.passed for result in results) else 1
@@ -165,7 +170,7 @@ def _source_filenames(response: dict[str, Any]) -> list[str]:
     return filenames
 
 
-def _render_markdown(results: list[CaseResult]) -> str:
+def _render_markdown(results: list[CaseResult], *, tokenizer: str, warm_up_ms: float) -> str:
     passed = sum(result.passed for result in results)
     route_hits = sum(result.route_pass for result in results)
     source_hits = sum(result.source_pass for result in results)
@@ -189,6 +194,7 @@ def _render_markdown(results: list[CaseResult]) -> str:
         f"| Graph evidence checks | {sum(result.graph_pass for result in graph_results)} / {len(graph_results)} |",
         f"| Abstention checks | {sum(result.abstention_pass for result in abstention_results)} / {len(abstention_results)} |",
         f"| Ask latency p50 / p95 | {p50:.2f} ms / {p95:.2f} ms |",
+        f"| Tokenizer warm-up (once per process, excluded above) | {tokenizer}, {warm_up_ms:.0f} ms |",
         "",
         "| Scenario | Case | Route | Recall | Precision | Forbidden | Terms | Abstain | Graph | Latency | Status |",
         "| --- | --- | --- | ---: | ---: | --- | --- | --- | --- | ---: | --- |",

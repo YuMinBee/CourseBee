@@ -5,6 +5,8 @@ uvicorn>=0.30,<1
 pydantic>=2.7,<3
 python-dotenv>=1.0,<2
 python-multipart>=0.0.9,<1
+# Korean morphological analyzer for the BM25 index (falls back to a regex tokenizer if missing)
+kiwipiepy>=0.21,<1
 
 # Optional PDF/text extraction and local OCR fallback:
 PyMuPDF>=1.27,<2

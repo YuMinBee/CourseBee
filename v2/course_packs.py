@@ -52,6 +52,7 @@ from v2.providers.ollama import OllamaProvider
 from v2.providers.semantic import SemanticHybridRetriever
 from v2.providers.web_search import WebSearchProviderError, WikipediaSearchProvider, web_results_to_chunks
 from v2.rag.answering import _keyword_terms, _sources_from_chunks, generate_source_grounded_answer
+from v2.rag.lexical_index import index_for
 from v2.rag.retrieval import chunks_from_contexts, retrieve_contexts
 from v2.retrieval_router import classify_course_pack_question
 from v2.runtime import current_request_id
@@ -141,6 +142,8 @@ def create_course_pack(
 
     _write_json(output_dir / "course_pack.json", response)
     _write_json(output_dir / "chunks.json", {"chunks": [asdict(chunk) for chunk in chunks]})
+    # 첫 질문이 검색 인덱스 생성(청크 1,300개 기준 약 2초)을 떠안지 않게 미리 만든다.
+    index_for(chunks)
     _report_course_pack_progress(progress_callback, "building_concept_map", total_documents, total_documents)
     build_concept_map(chunks, output_dir=str(output_dir))
     _report_course_pack_progress(progress_callback, "building_summary_index", total_documents, total_documents)
@@ -1666,34 +1669,63 @@ def _select_pack_chunks(pack_id: str, query: str, output_root: str, top_k: int) 
     return _balanced_chunks(query=query, chunks=chunks, top_k=top_k)
 
 
+BALANCED_CANDIDATE_MULTIPLIER = 3
+
+
 def _balanced_chunks(query: str, chunks: list[Chunk], top_k: int) -> list[Chunk]:
+    """질문에 맞는 청크를 고른다.
+
+    일반 질문은 관련도 순서를 그대로 따르되 한 문서가 모든 자리를 차지하지 않게 한다.
+    이전에는 문서마다 1등 청크를 업로드 순서대로 넣고 잘라서, 정답이 다섯 번째 문서에 있으면
+    top_k=3에서 첫 세 문서만 돌아왔다. 개요 질문만 문서별 대표 청크를 고르게 펼친다.
+    """
     if not chunks or top_k <= 0:
         return []
+    if _is_overview_query(query):
+        return _overview_chunks(query, chunks, top_k)
+    contexts = retrieve_contexts(
+        query=query,
+        chunks=chunks,
+        top_k=top_k * BALANCED_CANDIDATE_MULTIPLIER,
+    ).contexts
+    return _diversify_by_document(chunks_from_contexts(contexts), top_k)
 
-    groups = _group_chunks_by_document(chunks)
-    is_overview = _is_overview_query(query)
-    group_selected: list[Chunk] = []
+
+def _diversify_by_document(ranked: list[Chunk], top_k: int) -> list[Chunk]:
+    """관련도 순서를 유지하면서 문서 하나가 최대 top_k-1자리까지만 먼저 차지하게 한다."""
+    if len({_document_key(chunk) for chunk in ranked}) <= 1:
+        return ranked[:top_k]
+    per_document_cap = max(1, top_k - 1)
     selected: list[Chunk] = []
-
-    for group in groups.values():
-        contexts = retrieve_contexts(query=query, chunks=group, top_k=1).contexts if query else []
-        if contexts:
-            group_selected.extend(chunks_from_contexts(contexts))
+    deferred: list[Chunk] = []
+    taken: Counter[str] = Counter()
+    for chunk in ranked:
+        key = _document_key(chunk)
+        if taken[key] >= per_document_cap:
+            deferred.append(chunk)
             continue
-        if is_overview:
-            representative = _representative_chunk(group)
-            if representative is not None:
-                group_selected.append(representative)
+        selected.append(chunk)
+        taken[key] += 1
+        if len(selected) == top_k:
+            return selected
+    return [*selected, *deferred][:top_k]
 
-    selected.extend(_spread_chunks(group_selected, top_k) if is_overview else group_selected)
 
-    global_contexts = retrieve_contexts(query=query, chunks=chunks, top_k=max(top_k, 1)).contexts if query else []
-    if not is_overview or len(selected) < top_k:
-        selected.extend(chunks_from_contexts(global_contexts))
+def _overview_chunks(query: str, chunks: list[Chunk], top_k: int) -> list[Chunk]:
+    groups = _group_chunks_by_document(chunks)
+    ranked = (
+        chunks_from_contexts(retrieve_contexts(query=query, chunks=chunks, top_k=len(chunks)).contexts)
+        if query.strip()
+        else []
+    )
+    best_by_document: dict[str, Chunk] = {}
+    for chunk in ranked:
+        best_by_document.setdefault(_document_key(chunk), chunk)
 
-    if not selected and is_overview:
-        selected.extend(chunk for chunk in (_representative_chunk(group) for group in groups.values()) if chunk is not None)
-
+    per_document = [best_by_document.get(key) or _representative_chunk(group) for key, group in groups.items()]
+    selected = _spread_chunks([chunk for chunk in per_document if chunk is not None], top_k)
+    if len(selected) < top_k:
+        selected.extend(ranked[:top_k])
     return _dedupe_chunks(selected)[:top_k]
 
 
@@ -1727,6 +1759,11 @@ def _latest_document_version_chunks(chunks: list[Chunk]) -> list[Chunk]:
     return [chunk for group in latest_groups.values() for chunk in group]
 
 
+# 리포트 목표와 관련된 문서: 1등 문서 최고점의 60% 이상. 공용 단어 하나만 겹친 문서를 빼기 위한 값으로,
+# eval/onboarding_report_suite.json의 세 목표에서 정했다(데이터가 적어 더 큰 평가셋으로 다시 확인할 것).
+ONBOARDING_DOCUMENT_RELATIVE_CUTOFF = 0.6
+
+
 def _select_onboarding_report_chunks(query: str, chunks: list[Chunk], top_k: int) -> list[Chunk]:
     groups = _group_chunks_by_document(chunks)
     if not groups:
@@ -1734,8 +1771,15 @@ def _select_onboarding_report_chunks(query: str, chunks: list[Chunk], top_k: int
     if _is_overview_query(query):
         return list(chunks)
 
-    selected = _balanced_chunks(query=query, chunks=chunks, top_k=max(top_k, 1))
-    selected_keys = {_document_key(chunk) for chunk in selected}
+    best_by_document: dict[str, float] = {}
+    for chunk in chunks_from_contexts(retrieve_contexts(query=query, chunks=chunks, top_k=len(chunks)).contexts):
+        best_by_document.setdefault(_document_key(chunk), float(chunk.metadata.get("retrieval_score") or 0.0))
+    top_score = max(best_by_document.values(), default=0.0)
+    selected_keys = {
+        key
+        for key, score in best_by_document.items()
+        if top_score and score >= ONBOARDING_DOCUMENT_RELATIVE_CUTOFF * top_score
+    }
     query_terms = {term.lower() for term in _keyword_terms(query) if len(term) >= 2}
 
     for key, group in groups.items():

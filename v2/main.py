@@ -15,17 +15,28 @@ try:
 except ImportError:  # pragma: no cover - optional when importing the scaffold without API dependencies
     pass
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 
 from v2.api.routes import router as v2_router, v3_router
 from v2.demo import ensure_demo_course_pack
+from v2.rag.lexical_index import warm_up as warm_up_retrieval
 from v2.runtime import DATA_ROOT, DEMO_FIXTURE_ROOT, reset_request_id, set_request_id
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    warm_up_retrieval()
+    yield
+
 
 app = FastAPI(
     title="CourseBee",
     version="3.0.0",
     description="Source-grounded onboarding reports, Q&A, and audio briefings from enterprise documents.",
+    lifespan=lifespan,
 )
 DEMO_UI_PATH = Path(__file__).resolve().parent / "assets" / "coursebee_demo_ui.html"
 
