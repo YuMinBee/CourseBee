@@ -36,6 +36,8 @@ v2 = ["prompts/*.txt", "assets/*.html", "assets/demo_fixtures/*.txt"]
 [tool.ruff]
 target-version = "py310"
 line-length = 120
+# 외부에서 작성된 벤치마크 데이터와 그 검증 스크립트는 원본 그대로 둔다.
+extend-exclude = ["eval/ragbench"]
 
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F", "I"]

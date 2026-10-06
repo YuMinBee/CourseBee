@@ -1,6 +1,6 @@
 # CourseBee v3 Onboarding Report Evaluation
 
-Generated: 2026-07-29 17:19:48 UTC
+Generated: 2026-10-06 10:29:58 UTC
 
 Public synthetic enterprise documents verify source recall and precision, section grounding, change impact, and export readiness.
 

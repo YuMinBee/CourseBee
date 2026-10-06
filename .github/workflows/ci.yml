@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
@@ -34,13 +34,15 @@ jobs:
         run: python eval/run_audio_grounding_eval.py --results-path outputs/ci_audio_grounding_eval.md
       - name: Onboarding report evaluation
         run: python eval/run_onboarding_report_eval.py --results-path outputs/ci_onboarding_report_eval.md
+      - name: Korean RAG benchmark retrieval (blind corpus, Hit@5 gate)
+        run: python eval/run_ragbench_retrieval.py --results-path outputs/ci_ragbench_retrieval.md --min-hit-at-5 0.80
 
   package:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
@@ -59,8 +61,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
@@ -76,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Build image
         run: docker build -t coursebee-v3:ci .
       - name: Smoke test image

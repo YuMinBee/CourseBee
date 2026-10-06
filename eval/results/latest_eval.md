@@ -1,6 +1,6 @@
 # CourseBee v2 Evaluation Results
 
-Generated: 2026-07-29 17:19:05 UTC
+Generated: 2026-10-06 10:29:51 UTC
 
 This evaluation uses a public synthetic NLP 11-week Course Pack fixture. It does not use private lecture materials.
 
@@ -22,7 +22,7 @@ This evaluation uses a public synthetic NLP 11-week Course Pack fixture. It does
 | `relation_bpe_oov` | relation_question / local_graph / local_graph | relation_question / local_graph / local_graph | 자연어처리_11주차_1차시.txt | BPE, OOV, subword tokenization, NLP pipeline, Tokenizer, subword, oov through | PASS |
 | `learning_path_bpe` | learning_path_question / local_graph / course_graph_path | learning_path_question / local_graph / course_graph_path | 자연어처리_11주차_1차시.txt | BPE, Tokenizer, subword tokenization, subword | PASS |
 | `overview_week11` | overview_question / hierarchical / hierarchical_summary | overview_question / hierarchical / hierarchical_summary | 자연어처리_11주차_1차시.txt, 자연어처리_11주차_2차시.txt, 자연어처리_11주차_3차시.txt | - | PASS |
-| `pipeline_relation` | relation_question / local_graph / course_graph_path | relation_question / local_graph / course_graph_path | 자연어처리_11주차_3차시.txt, 자연어처리_11주차_2차시.txt, 자연어처리_11주차_1차시.txt | CNN, LSTM, NLP, NLP pipeline, RNN, nlp pipeline | PASS |
+| `pipeline_relation` | relation_question / local_graph / course_graph_path | relation_question / local_graph / course_graph_path | 자연어처리_11주차_3차시.txt, 자연어처리_11주차_2차시.txt | CNN, LSTM, NLP, NLP pipeline, RNN, nlp pipeline | PASS |
 | `fact_lstm` | fact_question / vector / vector | fact_question / vector / vector | 자연어처리_11주차_2차시.txt | - | PASS |
 | `fact_cnn` | fact_question / vector / vector | fact_question / vector / vector | 자연어처리_11주차_3차시.txt | - | PASS |
 | `mixed_overview_relation` | mixed_question / hierarchical / hierarchical_summary | mixed_question / hierarchical / hierarchical_summary | 자연어처리_11주차_1차시.txt, 자연어처리_11주차_2차시.txt, 자연어처리_11주차_3차시.txt | - | PASS |

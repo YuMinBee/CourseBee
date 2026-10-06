@@ -1,6 +1,6 @@
 # CourseBee Audio Grounding Evaluation
 
-Generated: 2026-07-29 17:19:37 UTC
+Generated: 2026-10-06 10:29:56 UTC
 
 Deterministic cases verify supported claims, conversational transitions, invented model names, numeric claims, and strict Korean grounding.
 
