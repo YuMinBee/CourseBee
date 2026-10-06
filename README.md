@@ -287,7 +287,7 @@ Semantic 모델을 이미지에 포함하려면 빌드 전에 `COURSEBEE_INSTALL
 | `COURSEBEE_MAX_UPLOAD_FILES` | 요청당 파일 수 제한 | 20 |
 | `COURSEBEE_EMBEDDING_MODEL` | semantic embedding model | `intfloat/multilingual-e5-small` |
 | `COURSEBEE_RERANKER_MODEL` | Cross-Encoder reranker | `cross-encoder/mmarco-mMiniLMv2-L12-H384-v1` |
-| `OLLAMA_BASE_URL` / `OLLAMA_MODEL` | local LLM provider | local Ollama / `gemma2:2b` |
+| `OLLAMA_BASE_URL` / `OLLAMA_MODEL` / `OLLAMA_THINK` | local LLM provider | local Ollama / `qwen3:14b` / `false` |
 | `OPENAI_API_KEY` / `OPENAI_MODEL` | optional managed LLM provider | empty / `gpt-5.4-mini` |
 
 전체 설정은 [.env.example](.env.example)에서 확인할 수 있습니다. 비밀값은 저장소에 커밋하지 않습니다.

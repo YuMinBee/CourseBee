@@ -84,9 +84,10 @@ class SourceGroundedAnswer:
     answer_scope: str = "course_pack"
     grounding_status: str = "grounded"
     general_knowledge_used: bool = False
+    support_check: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        payload = {
             "answer": self.answer,
             "sources": [source.to_dict() for source in self.sources],
             "warnings": self.warnings,
@@ -94,6 +95,9 @@ class SourceGroundedAnswer:
             "grounding_status": self.grounding_status,
             "general_knowledge_used": self.general_knowledge_used,
         }
+        if self.support_check is not None:
+            payload["support_check"] = self.support_check
+        return payload
 
 
 @dataclass(slots=True)

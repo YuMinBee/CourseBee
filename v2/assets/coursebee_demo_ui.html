@@ -454,7 +454,8 @@
           if (!raw) return "";
           const isBullet = /^[-*]\s*/.test(raw);
           const clean = raw.replace(/^[-*]\s*/, "");
-          const cite = item.source_index ? citation(item.source_index, groupId) : "";
+          const indices = Array.isArray(item.source_indices) && item.source_indices.length ? item.source_indices : (item.source_index ? [item.source_index] : []);
+          const cite = indices.map((index) => citation(index, groupId)).join("");
           return `<p class="answer-line">${isBullet ? "&bull; " : ""}${formatAnswerText(clean)}${cite}</p>`;
         }).join("");
       }

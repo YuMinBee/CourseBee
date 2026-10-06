@@ -1,13 +1,19 @@
 ﻿from __future__ import annotations
 
+import os
 import re
 
 from v2.providers.base import IndexProvider, LLMProvider
+from v2.rag.grounded_prompt import unsupported_answer
 from v2.rag.retrieval import normalize_retrieval_text
 from v2.schemas import Chunk, SourceGroundedAnswer, SourceRef
 
 NO_CONTEXT_WARNING = "No relevant context was found in the document. Answer generation was skipped."
 GENERAL_FALLBACK_WARNING = "No relevant course context was found. The answer was generated from the LLM general knowledge without source citations."
+UNSUPPORTED_ANSWER_WARNING = (
+    "The draft answer was not supported by the retrieved sources for the question asked, "
+    "so it was rewritten to say the documents do not confirm it."
+)
 
 
 def generate_source_grounded_answer(
@@ -46,11 +52,14 @@ def generate_source_grounded_answer(
 
     sources = _sources_from_chunks(selected_chunks)
     answer = ""
+    support_check: dict | None = None
     if llm_provider is not None and llm_provider.__class__.__name__ != "MockLLMProvider":
         try:
             answer = llm_provider.answer(query, selected_chunks, []).answer.strip()
         except Exception as exc:  # pragma: no cover - provider failures are runtime-dependent
             warnings.append(f"LLM answer generation failed; falling back to source composer: {exc}")
+        if answer:
+            answer, support_check = _check_answer_support(llm_provider, query, selected_chunks, answer, warnings)
     if not answer:
         answer = _compose_grounded_answer(query, selected_chunks)
     if not answer.strip():
@@ -61,7 +70,36 @@ def generate_source_grounded_answer(
             answer_scope="none",
             grounding_status="not_answered",
         )
-    return SourceGroundedAnswer(answer=answer, sources=sources, warnings=warnings)
+    return SourceGroundedAnswer(answer=answer, sources=sources, warnings=warnings, support_check=support_check)
+
+
+def _check_answer_support(
+    llm_provider: LLMProvider,
+    query: str,
+    chunks: list[Chunk],
+    answer: str,
+    warnings: list[str],
+) -> tuple[str, dict | None]:
+    """답변 초안이 질문의 핵심에 근거가 없으면 '문서에서 확인되지 않습니다'로 다시 쓴다.
+
+    근거 문서에 비슷한 규정이 있으면 LLM이 그것을 끌어다 단정하는 일이 잦다(답 없는 질문에서 특히).
+    COURSEBEE_SUPPORT_CHECK=off로 끌 수 있다. 판정 기능이 없는 provider는 건너뛴다.
+    """
+    check = getattr(llm_provider, "check_support", None)
+    if not callable(check) or os.environ.get("COURSEBEE_SUPPORT_CHECK", "on").lower() in {"0", "off", "false"}:
+        return answer, None
+    try:
+        verdict, reason = check(query, chunks, answer)
+    except Exception as exc:  # pragma: no cover - provider failures are runtime-dependent
+        warnings.append(f"Answer support check failed; the draft answer was kept: {exc}")
+        return answer, None
+    result = {"verdict": verdict, "reason": reason, "revised": False}
+    if verdict != "not_supported":
+        return answer, result
+    result["revised"] = True
+    result["draft_answer"] = answer
+    warnings.append(UNSUPPORTED_ANSWER_WARNING)
+    return unsupported_answer(chunks), result
 
 
 def _compose_grounded_answer(query: str, chunks: list[Chunk]) -> str:

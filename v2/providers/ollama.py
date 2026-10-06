@@ -9,6 +9,7 @@ from pathlib import Path
 from threading import Event
 
 from v2.providers.openai import _configured_value, _context_block, _read_dotenv
+from v2.rag.grounded_prompt import grounded_answer_prompt, support_check_prompt
 from v2.schemas import AnswerWithSources, Chunk, RelationTriple
 
 PODCAST_TEMPLATE_PATH = Path(__file__).resolve().parents[1] / "prompts" / "5min_podcast_script_template_long.txt"
@@ -19,7 +20,8 @@ class OllamaProviderError(RuntimeError):
 
 
 class OllamaProvider:
-    DEFAULT_MODEL = "gemma2:2b"
+    # docs/COURSE_PACK_CASE_STUDY.md: gemma2:2b는 placeholder를 복사하는 등 너무 작았다.
+    DEFAULT_MODEL = "qwen3:14b"
 
     def __init__(
         self,
@@ -32,6 +34,9 @@ class OllamaProvider:
         dotenv = _read_dotenv()
         self.model = model or _configured_value("OLLAMA_MODEL", dotenv, self.DEFAULT_MODEL)
         self.base_url = (base_url or _configured_value("OLLAMA_BASE_URL", dotenv, "http://127.0.0.1:11434")).rstrip("/")
+        # 추론 모델(qwen3 등)의 사고 과정은 답변 품질 대비 지연이 크다(같은 답에 토큰 188개 대 23개).
+        # 켜고 싶으면 OLLAMA_THINK=true. 사고 과정 토큰은 어떤 경우에도 답변에 넣지 않는다.
+        self.think = str(_configured_value("OLLAMA_THINK", dotenv, "false")).lower() in {"1", "true", "yes"}
         self.timeout = timeout
         self.stream_callback = stream_callback
         self.cancel_event = cancel_event
@@ -61,6 +66,9 @@ class OllamaProvider:
     def answer(self, question: str, chunks: list[Chunk], graph_context: list[RelationTriple]) -> AnswerWithSources:
         context = _context_block(chunks, max_chars_per_chunk=1300)
         external_web = bool(chunks) and all(chunk.metadata.get("source_type") == "external_web" for chunk in chunks)
+        if chunks and not external_web:
+            prompt = grounded_answer_prompt(question, chunks)
+            return AnswerWithSources(answer=self._generate(prompt, max_tokens=1200), vector_sources=[], graph_context=graph_context)
         if external_web:
             grounding_instruction = (
                 "Answer conversationally using only the external web extracts provided below. "
@@ -264,17 +272,46 @@ class OllamaProvider:
             return repaired
         return combined
 
-    def _generate(self, prompt: str, max_tokens: int = 1000) -> str:
-        streaming = self.stream_callback is not None
+    def check_support(self, question: str, chunks: list[Chunk], answer: str) -> tuple[str, str]:
+        """답변 초안이 질문의 핵심에 근거를 갖췄는지 판정한다. ("supported" | "not_supported", 이유)"""
+        raw = self._generate(
+            support_check_prompt(question, chunks, answer),
+            max_tokens=200,
+            stream=False,
+            json_format=True,
+            temperature=0.1,
+        )
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError:
+            return "supported", "support check returned invalid JSON"
+        verdict = str(data.get("verdict", "")).strip().lower()
+        if verdict not in {"supported", "not_supported"}:
+            verdict = "supported"
+        return verdict, str(data.get("reason", ""))[:300]
+
+    def _generate(
+        self,
+        prompt: str,
+        max_tokens: int = 1000,
+        *,
+        stream: bool | None = None,
+        json_format: bool = False,
+        temperature: float = 0.4,
+    ) -> str:
+        streaming = self.stream_callback is not None and stream is not False
         payload = {
             "model": self.model,
             "prompt": prompt,
             "stream": streaming,
+            "think": self.think,
             "options": {
                 "num_predict": max_tokens,
-                "temperature": 0.4,
+                "temperature": temperature,
             },
         }
+        if json_format:
+            payload["format"] = "json"
         request = urllib.request.Request(
             f"{self.base_url}/api/generate",
             data=json.dumps(payload).encode("utf-8"),
@@ -285,6 +322,7 @@ class OllamaProvider:
             with urllib.request.urlopen(request, timeout=self.timeout) as response:
                 if streaming:
                     parts: list[str] = []
+                    think_filter = _ThinkFilter()
                     for raw_line in response:
                         if self.cancel_event is not None and self.cancel_event.is_set():
                             raise OllamaProviderError("Ollama generation was cancelled.")
@@ -293,16 +331,20 @@ class OllamaProvider:
                         event = json.loads(raw_line.decode("utf-8"))
                         if event.get("error"):
                             raise OllamaProviderError(f"Ollama stream failed: {event['error']}")
-                        piece = str(event.get("response") or "")
+                        piece = think_filter.feed(str(event.get("response") or ""))
                         if piece:
                             parts.append(piece)
                             self.stream_callback(piece)
                         if event.get("done"):
                             break
+                    tail = think_filter.flush()
+                    if tail:
+                        parts.append(tail)
+                        self.stream_callback(tail)
                     text = "".join(parts).strip()
                 else:
                     data = json.loads(response.read().decode("utf-8"))
-                    text = str(data.get("response") or "").strip()
+                    text = strip_think_blocks(str(data.get("response") or "")).strip()
         except urllib.error.HTTPError as exc:
             detail = exc.read().decode("utf-8", errors="ignore")
             raise OllamaProviderError(f"Ollama request failed with HTTP {exc.code}: {detail[:500]}") from exc
@@ -312,6 +354,56 @@ class OllamaProvider:
         if not text:
             raise OllamaProviderError("Ollama returned an empty response.")
         return text
+
+
+_THINK_BLOCK_RE = re.compile(r"<think>.*?(?:</think>|\Z)", re.DOTALL | re.IGNORECASE)
+
+
+def strip_think_blocks(text: str) -> str:
+    """사고 과정을 별도 필드로 분리하지 않는 Ollama 버전은 <think>…</think>를 응답 본문에 넣는다."""
+    return _THINK_BLOCK_RE.sub("", text)
+
+
+class _ThinkFilter:
+    """스트리밍 조각에서 <think> 블록을 걸러낸다. 태그가 조각 경계에 걸쳐도 동작한다."""
+
+    def __init__(self) -> None:
+        self._buffer = ""
+        self._inside = False
+
+    def feed(self, piece: str) -> str:
+        self._buffer += piece
+        output: list[str] = []
+        while self._buffer:
+            lower = self._buffer.lower()
+            if self._inside:
+                end = lower.find("</think>")
+                if end == -1:
+                    self._buffer = self._buffer[-len("</think>") :]
+                    break
+                self._buffer = self._buffer[end + len("</think>") :]
+                self._inside = False
+                continue
+            start = lower.find("<think>")
+            if start == -1:
+                # 태그 앞부분만 도착했을 수 있으니 '<'부터는 다음 조각까지 기다린다.
+                partial = lower.rfind("<")
+                if partial != -1 and "<think>".startswith(lower[partial:]):
+                    output.append(self._buffer[:partial])
+                    self._buffer = self._buffer[partial:]
+                else:
+                    output.append(self._buffer)
+                    self._buffer = ""
+                break
+            output.append(self._buffer[:start])
+            self._buffer = self._buffer[start + len("<think>") :]
+            self._inside = True
+        return "".join(output)
+
+    def flush(self) -> str:
+        remaining = "" if self._inside else self._buffer
+        self._buffer = ""
+        return remaining
 
 
 def _clean_dialogue_text(text: str) -> str:

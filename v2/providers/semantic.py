@@ -56,9 +56,14 @@ class SemanticHybridRetriever:
         use_reranker: bool = False,
         candidate_multiplier: int = 4,
         minimum_dense_score: float = 0.1,
+        dense_weight: float | None = None,
         encoder: Any | None = None,
         reranker: Any | None = None,
     ) -> None:
+        # RRF에서 dense 순위에 곱하는 가중치. 1이면 어휘·dense 동등.
+        self.dense_weight = dense_weight if dense_weight is not None else float(
+            os.environ.get("COURSEBEE_DENSE_WEIGHT", "1")
+        )
         self.embedding_model = embedding_model or os.environ.get(
             "COURSEBEE_EMBEDDING_MODEL", DEFAULT_EMBEDDING_MODEL
         )
@@ -116,7 +121,9 @@ class SemanticHybridRetriever:
             )
 
         if self.include_lexical:
-            candidates = reciprocal_rank_fusion(("lexical", lexical), ("dense", dense))
+            candidates = reciprocal_rank_fusion(
+                ("lexical", lexical), ("dense", dense), weights={"dense": self.dense_weight}
+            )
             retrieval_mode = "semantic_hybrid"
             implementation = "rrf_lexical_dense"
         else:
@@ -216,15 +223,20 @@ class EmbeddingRetriever:
         return self._retriever.search(question, chunks, top_k=top_k)
 
 
-def reciprocal_rank_fusion(*rankings: tuple[str, list[Chunk]], rank_constant: int = 60) -> list[Chunk]:
+def reciprocal_rank_fusion(
+    *rankings: tuple[str, list[Chunk]],
+    rank_constant: int = 60,
+    weights: dict[str, float] | None = None,
+) -> list[Chunk]:
     scores: dict[tuple[Any, ...], float] = {}
     sources: dict[tuple[Any, ...], list[str]] = {}
     chunks_by_key: dict[tuple[Any, ...], Chunk] = {}
     for name, chunks in rankings:
+        weight = (weights or {}).get(name, 1.0)
         for rank, chunk in enumerate(chunks, start=1):
             key = _chunk_key(chunk)
             chunks_by_key.setdefault(key, chunk)
-            scores[key] = scores.get(key, 0.0) + (1.0 / (rank_constant + rank))
+            scores[key] = scores.get(key, 0.0) + weight / (rank_constant + rank)
             if name not in sources.setdefault(key, []):
                 sources[key].append(name)
     ordered = sorted(scores, key=lambda key: scores[key], reverse=True)

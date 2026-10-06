@@ -6,6 +6,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+from v2.rag.grounded_prompt import grounded_answer_prompt
 from v2.schemas import AnswerWithSources, Chunk, RelationTriple, VectorSource
 
 
@@ -68,8 +69,7 @@ class OpenAIProvider:
         )
         graph_lines = "\n".join(" - " + " / ".join(triple.as_list()) for triple in graph_context)
         prompt = (
-            f"질문: {question}\n\n"
-            f"문서 근거:\n{_context_block(chunks)}\n\n"
+            f"{grounded_answer_prompt(question, chunks)}\n\n"
             f"그래프 맥락:\n{graph_lines or '- 없음'}"
         )
         text = self._responses_text(instructions=instructions, input_text=prompt, max_output_tokens=700)

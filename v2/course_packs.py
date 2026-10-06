@@ -4,6 +4,7 @@ import asyncio
 import copy
 import hashlib
 import json
+import os
 import re
 import time
 from collections import Counter, OrderedDict
@@ -49,9 +50,11 @@ from v2.onboarding_report import (
 from v2.providers.base import LLMProvider
 from v2.providers.local import MockLLMProvider
 from v2.providers.ollama import OllamaProvider
+from v2.providers.openai import OpenAIProvider
 from v2.providers.semantic import SemanticHybridRetriever
 from v2.providers.web_search import WebSearchProviderError, WikipediaSearchProvider, web_results_to_chunks
 from v2.rag.answering import _keyword_terms, _sources_from_chunks, generate_source_grounded_answer
+from v2.rag.grounded_prompt import cited_indices, strip_citation_markers
 from v2.rag.lexical_index import index_for
 from v2.rag.retrieval import chunks_from_contexts, retrieve_contexts
 from v2.retrieval_router import classify_course_pack_question
@@ -298,11 +301,16 @@ def _answer_provider(
     provider = (llm_provider or "mock").lower()
     if provider in {"ollama", "qwen", "qwen3"}:
         return OllamaProvider(
-            model=llm_model or "qwen3:14b",
+            model=llm_model,
             timeout=180,
             stream_callback=token_callback,
             cancel_event=cancel_event,
         )
+    if provider == "openai":
+        # 키가 없으면 mock으로 떨어지고, 응답의 llm.status가 "fallback"으로 알린다.
+        openai_provider = OpenAIProvider(model=llm_model)
+        if openai_provider.available:
+            return openai_provider
     return MockLLMProvider()
 
 
@@ -507,9 +515,19 @@ def _sentence_citations(answer: str, chunks: list[Chunk]) -> list[dict]:
     sentences = _split_answer_for_citations(answer)
     sources = _sources_from_chunks(chunks)
     source_index_by_key = {_source_key_from_source(source): index for index, source in enumerate(sources, start=1)}
+    # LLM이 [번호]로 직접 인용했으면 그 번호를 쓴다. 단어 겹침 추정은 인용이 없는 답변(규칙 기반 composer 등)에만 쓴다.
+    marker_mode = bool(cited_indices(answer))
     citations: list[dict] = []
     for sentence in sentences:
         item = {"sentence": sentence, "grounded": False}
+        if marker_mode:
+            indices = [index for index in cited_indices(sentence) if 1 <= index <= len(sources)]
+            # 화면은 문장 뒤에 출처 버튼을 붙이므로 본문의 [번호] 표기는 뺀다.
+            item["sentence"] = strip_citation_markers(sentence)
+            if indices:
+                item.update({"grounded": True, "source_index": indices[0], "source_indices": indices, "citation": "marker"})
+            citations.append(item)
+            continue
         source_index, matched_terms = _best_sentence_source(sentence, chunks, source_index_by_key)
         if source_index is not None:
             item.update({"grounded": True, "source_index": source_index, "matched_terms": matched_terms})
@@ -1148,6 +1166,17 @@ def select_balanced_course_pack_chunks(pack_id: str, query: str, output_root: st
 
 
 
+VECTOR_RETRIEVAL_ALIASES = {
+    "lexical": "vector",
+    "bm25": "vector",
+    "semantic": "semantic",
+    "dense": "semantic",
+    "semantic_hybrid": "semantic_hybrid",
+    "hybrid": "semantic_hybrid",
+    "semantic_rerank": "semantic_rerank",
+}
+
+
 def _ask_course_pack_with_vector(
     pack_id: str,
     question: str,
@@ -1162,6 +1191,10 @@ def _ask_course_pack_with_vector(
     all_chunks = load_course_pack_chunks(pack_id, output_root=output_root)
     search_question = retrieval_question or question
     started = time.perf_counter()
+    if mode == "vector":
+        # 기본 경로(라우터의 사실 질문 포함)에서 쓸 검색기. sentence-transformers가 있으면 semantic 권장
+        # (eval/ragbench dev: KURE-v1 dense Hit@5 97.3% vs BM25 81.3%).
+        mode = VECTOR_RETRIEVAL_ALIASES.get(os.environ.get("COURSEBEE_RETRIEVAL", "lexical").lower(), "vector")
     if mode in {"semantic", "semantic_hybrid", "semantic_rerank"}:
         semantic_run = SemanticHybridRetriever(
             include_lexical=mode != "semantic",
