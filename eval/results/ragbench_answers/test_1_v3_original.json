@@ -1,0 +1,2657 @@
+[
+ {
+  "question_id": "q002",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "집에서 사내망 붙으려면 vpn 프로그램 뭐 쓰고 주소는 뭐 넣어야 돼?",
+  "reference": "GlobalProtect 클라이언트에서 포털 주소 vpn.hanbitdata.co.kr 입력 후 SSO 계정으로 로그인",
+  "answer": "집에서 사내망에 접속하려면 **GlobalProtect**라는 VPN 프로그램을 사용해야 해. 먼저 해당 프로그램을 실행한 뒤, 포털 주소에 **vpn.hanbitdata.co.kr**을 입력하고 SSO 계정으로 로그인하면 됐어. 회사 노트북에는 이 프로그램이 기본으로 설치되어 있으니, 따로 설치할 필요는 없을 거야. 연결 후 30분 이상 사용하지 않으면 자동으로 연결이 끊기니 주의해.",
+  "verdict": "correct",
+  "judge_reason": "The answer matches the reference answer with correct details.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [
+   "it_helpdesk_faq.md"
+  ],
+  "retrieved_docs": [
+   "it_helpdesk_faq.md",
+   "onboarding_checklist.md",
+   "security_policy_v1_2025.md",
+   "manual_hanbitwork.md"
+  ],
+  "cited_docs": [
+   "it_helpdesk_faq.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 5473.306299999422,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States GlobalProtect with portal vpn.hanbitdata.co.kr and SSO login."
+ },
+ {
+  "question_id": "q004",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "밤 10시 넘어서까지 일해야 하는데 이건 누구 승인 받아야 해?",
+  "reference": "야간근로(22시~06시)는 본부장 승인, 당일 오후 5시까지 신청",
+  "answer": "현재 제공된 자료에는 \"밤 10시 넘어서까지 일해야 하는 경우\"에 대한 승인 절차나 관련 규정이 명시되어 있지 않습니다. 회사의 근무 시간, 업무 시간 외 근무 승인 절차, 또는 관련 부서에 대한 정보는 포함된 문서에서 확인할 수 없습니다. 해당 사항은 별도의 규정이나 팀 내 협의를 통해 결정될 수 있으므로, 직접 팀장이나 관리자와 상의하는 것이 가장 정확한 방법입니다.",
+  "verdict": "abstained",
+  "judge_reason": "The answer states that the documents do not contain the required information.",
+  "numbers_expected": [
+   "22시",
+   "06시",
+   "5시"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "hr_attendance.md"
+  ],
+  "retrieved_docs": [
+   "org_team_rnr.md",
+   "hr_leave_policy_2025.md",
+   "security_account_management.md",
+   "security_privacy_handling.md"
+  ],
+  "cited_docs": [
+   "hr_leave_policy_2025.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4667.276500000298,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says the materials do not state the approval procedure and suggests asking the team lead."
+ },
+ {
+  "question_id": "q005",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "어제 퇴근 태깅을 깜빡했는데 정정 신청 언제까지 해야돼요?",
+  "reference": "해당일로부터 3영업일 이내에 한빛워크 [근태] > [근태 정정 신청]으로 요청",
+  "answer": "근태 정정 신청은 출퇴근 태깅 누락 등으로 기록이 잘못된 경우, 해당일로부터 **3영업일 이내**에 한빛워크 [근태] > [근태 정정 신청]에서 요청해야 합니다. 3영업일이 지난 경우 팀장 사유서를 첨부해야 합니다. 다만, 월간 근태가 마감된 이후에는 정정 메뉴가 잠기므로 수정이 불가능합니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states the 3-business-day rule and additional details without contradicting the reference.",
+  "numbers_expected": [
+   "3영업일"
+  ],
+  "numbers_found": [
+   "3영업일"
+  ],
+  "gold_docs": [
+   "hr_attendance.md"
+  ],
+  "retrieved_docs": [
+   "manual_hanbitwork.md",
+   "hr_attendance.md",
+   "facilities_parking_access.md"
+  ],
+  "cited_docs": [
+   "hr_attendance.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 5654.443100000208,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States the correction must be requested within 3 business days via 한빛워크 [근태 정정 신청]."
+ },
+ {
+  "question_id": "q009",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "전기차 충전 어디서하고 얼마나 세워둘수있어?",
+  "reference": "지하 2층 충전 구역, 충전 중인 차량만 한 번에 최대 3시간",
+  "answer": "전기차 충전은 지하 2층 충전 구역에서만 가능합니다. 충전 중인 차량만 이용할 수 있으며, 한 번에 최대 3시간까지 이용할 수 있습니다. 충전이 끝나면 일반 주차면으로 차량을 옮겨야 하며, 3시간을 넘겨 3회 이상 적발되면 해당 분기 충전 구역 이용이 제한됩니다.",
+  "verdict": "correct",
+  "judge_reason": "The assistant answer correctly states the key facts from the reference answer.",
+  "numbers_expected": [
+   "3시간"
+  ],
+  "numbers_found": [
+   "3시간"
+  ],
+  "gold_docs": [
+   "facilities_parking_access.md"
+  ],
+  "retrieved_docs": [
+   "facilities_parking_access.md"
+  ],
+  "cited_docs": [
+   "facilities_parking_access.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4049.1685999995752,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States charging in the B2 charging area, charging vehicles only, up to 3 hours."
+ },
+ {
+  "question_id": "q010",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "사원증 찍고 건물 들어갈 수 있는 시간대가 어떻게 돼?",
+  "reference": "평일 오전 6시~밤 11시",
+  "answer": "사원증으로 건물에 들어가는 시간대에 대해서는 제공된 자료에 명시된 내용이 없습니다. 건물 출입 시간은 회사의 별도 정책이나 보안 규정에 따라 결정되며, 해당 정보는 위 자료에서 확인할 수 없습니다.",
+  "verdict": "abstained",
+  "judge_reason": "The assistant correctly stated that the information is not available in the provided documents.",
+  "numbers_expected": [
+   "6시",
+   "11시"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "facilities_parking_access.md"
+  ],
+  "retrieved_docs": [
+   "it_helpdesk_faq.md",
+   "manual_hanbitwork.md",
+   "facilities_parking_access.md",
+   "security_policy_v2_2026.md"
+  ],
+  "cited_docs": [
+   "facilities_parking_access.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 5346.3794999997845,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says building access hours are not in the provided materials."
+ },
+ {
+  "question_id": "q011",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "급한데 내 PR 내가 approve 하고 머지해도 됨?",
+  "reference": "안 됨. 본인이 올린 PR은 본인이 승인할 수 없음",
+  "answer": "아니요, 본인이 올린 PR을 본인이 승인할 수 없습니다. PR은 최소 1명의 승인(Approve)이 있어야 머지할 수 있으며, 승인은 본인 외부의 리뷰어가 해야 합니다. 또한 CI(빌드, 단위 테스트, lint)가 모두 통과해야 머지 버튼이 활성화됩니다. 급한 경우라도 이 규칙을 어기면 안 되며, 반드시 다른 사람의 승인과 CI 통과가 필수입니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states that the user cannot approve their own PR and aligns with the reference answer.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [
+   "eng_code_review.md"
+  ],
+  "retrieved_docs": [
+   "eng_branch_strategy.md",
+   "eng_code_review.md",
+   "eng_monitoring_alerts.md"
+  ],
+  "cited_docs": [
+   "eng_code_review.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 3947.846600000048,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States you cannot approve your own PR."
+ },
+ {
+  "question_id": "q013",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "리뷰 코멘트에 [nit] 달린 건 꼭 고쳐야 머지돼?",
+  "reference": "아니요. [nit]은 사소한 스타일·오타로 반영은 선택",
+  "answer": "리뷰 코멘트에 [nit]가 달린 사항은 **선택적으로 수정**하면 됩니다. [nit]는 스타일이나 오타 등 사소한 문제를 지칭하며, 반드시 고쳐야 하는 의무는 없습니다. 다만, 팀 내에서 스타일 가이드라인이나 lint 규칙이 정해져 있다면 해당 기준에 맞게 수정하는 것이 좋습니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly explains that [nit] comments are optional and do not need to be fixed.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [
+   "eng_code_review.md"
+  ],
+  "retrieved_docs": [
+   "eng_code_review.md"
+  ],
+  "cited_docs": [
+   "eng_code_review.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4466.90849999959,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "Says [nit] comments are optional to fix."
+ },
+ {
+  "question_id": "q014",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "기능 개발 브랜치 이름 규칙 알려줘",
+  "reference": "feature/<Jira키>-<요약> (main에서 분기해 main으로 머지)",
+  "answer": "기능 개발 브랜치의 이름 규칙은 `feature/<Jira키>-<요약>` 형식을 따릅니다. 예를 들어, `feature/DH-1532-dashboard-filter`와 같은 형태입니다. 브랜치 이름에는 영문 소문자, 숫자, 하이픈(-)만 사용할 수 있으며, 특수문자나 공백은 허용되지 않습니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states the branch naming rule and additional details without contradiction.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [
+   "eng_branch_strategy.md"
+  ],
+  "retrieved_docs": [
+   "eng_branch_strategy.md",
+   "eng_code_review.md",
+   "eng_monitoring_alerts.md"
+  ],
+  "cited_docs": [
+   "eng_branch_strategy.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4135.699499999646,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States the feature/<Jira키>-<요약> naming pattern."
+ },
+ {
+  "question_id": "q015",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "PR 머지하고 나서 원격 브랜치 내가 직접 지워야 하나?",
+  "reference": "아니요. 머지 후 원격 기능 브랜치는 자동 삭제됨",
+  "answer": "PR을 머지한 후 원격 기능 브랜치는 자동으로 삭제됩니다. 따라서 직접 지우는 것은 필요하지 않습니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states that the remote feature branch is automatically deleted after a PR merge.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [
+   "eng_branch_strategy.md"
+  ],
+  "retrieved_docs": [
+   "eng_branch_strategy.md",
+   "eng_code_review.md",
+   "eng_monitoring_alerts.md"
+  ],
+  "cited_docs": [
+   "eng_branch_strategy.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 2932.404299999689,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "Says the remote feature branch is deleted automatically after merge."
+ },
+ {
+  "question_id": "q020",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "1차 온콜이 호출을 안 받으면 어떻게 되는데?",
+  "reference": "15분 안에 확인하지 않으면 PagerDuty가 2차 on-call을 자동 호출",
+  "answer": "1차 온콜이 호출을 받지 않으면 2차 온콜이 대신 호출됩니다. 2차 온콜은 P1·P2 장애 발생 시 기본적으로 **Incident Commander(IC)** 역할을 맡아 장애 대응을 주도하게 됩니다. 다만, 1차 온콜의 응답 지연으로 인한 구체적인 제재나 추가 절차에 대해서는 제공된 자료에 명시되지 않았습니다.",
+  "verdict": "partial",
+  "judge_reason": "The answer mentions 2nd on-call taking over but does not specify the 15-minute timeframe from the reference answer.",
+  "numbers_expected": [
+   "15분"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "eng_incident_runbook.md"
+  ],
+  "retrieved_docs": [
+   "eng_oncall.md",
+   "eng_incident_runbook.md",
+   "hr_remote_work_2024.md"
+  ],
+  "cited_docs": [
+   "eng_oncall.md",
+   "eng_incident_runbook.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4022.708099999363,
+  "support_revised": false,
+  "claude_verdict": "partial",
+  "claude_reason": "Says the secondary on-call is paged but omits the 15-minute automatic PagerDuty escalation."
+ },
+ {
+  "question_id": "q021",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "온콜 교대 요일이랑 시간?",
+  "reference": "매주 월요일 오전 10시 (1주 단위 로테이션)",
+  "answer": "",
+  "verdict": "abstained",
+  "judge_reason": "empty answer: nothing was retrieved, so the UI shows a no-answer message",
+  "numbers_expected": [
+   "10시"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "eng_oncall.md"
+  ],
+  "retrieved_docs": [],
+  "cited_docs": [],
+  "answer_scope": "none",
+  "latency_ms": 301.57559999952355,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Empty answer."
+ },
+ {
+  "question_id": "q022",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "prometheus 메트릭 며칠까지 남아있어?",
+  "reference": "Prometheus는 15일 보관, 장기 지표는 Thanos에 13개월 보관",
+  "answer": "",
+  "verdict": "abstained",
+  "judge_reason": "empty answer: nothing was retrieved, so the UI shows a no-answer message",
+  "numbers_expected": [
+   "15일",
+   "13개월"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "eng_monitoring_alerts.md"
+  ],
+  "retrieved_docs": [],
+  "cited_docs": [],
+  "answer_scope": "none",
+  "latency_ms": 299.67630000010104,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Empty answer."
+ },
+ {
+  "question_id": "q025",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "IT지원팀 요즘 어느 본부 소속이에요? 기술본부 아니었나",
+  "reference": "경영지원본부 (2026년 7월 조직 개편으로 기술본부에서 이동)",
+  "answer": "최근 조직 개편에 따라 IT지원팀은 기술본부에서 **경영지원본부**로 이동했습니다. 다만, 헬프데스크 채널(#it-helpdesk)과 내선 번호(1500)는 변경되지 않았습니다. 따라서 현재 IT지원팀은 **경영지원본부** 소속이며, 기술본부 소속이었던 것은 과거의 사항입니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states that IT지원팀 is now part of 경영지원본부 due to the 2026 July reorganization.",
+  "numbers_expected": [
+   "2026년"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "org_team_rnr.md"
+  ],
+  "retrieved_docs": [
+   "org_team_rnr.md"
+  ],
+  "cited_docs": [
+   "org_team_rnr.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4259.129799999755,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States IT support moved to 경영지원본부."
+ },
+ {
+  "question_id": "q033",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "해외 출장 가는데 여행자보험 개인적으로 들어야 하나?",
+  "reference": "아니요. 회사 해외여행자보험이 자동 적용 (보험 증권은 출발 3일 전 이메일 발송)",
+  "answer": "해외 출장 시 회사가 가입한 해외여행자보험은 자동으로 적용되며, 보험 증권은 출발 3일 전 이메일로 발송됩니다. 따라서 개인적으로 별도의 여행자보험을 들지 않아도 됩니다. 다만, 출장 중 부상이나 사고 발생 시 인사팀과 협의하여 해외여행자보험 또는 산업재해 처리 절차를 따르면 됩니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states that the company's travel insurance is automatically applied and mentions the email sending procedure as in the reference answer.",
+  "numbers_expected": [
+   "3일"
+  ],
+  "numbers_found": [
+   "3일"
+  ],
+  "gold_docs": [
+   "hr_business_trip.md"
+  ],
+  "retrieved_docs": [
+   "hr_business_trip.md",
+   "onboarding_checklist.md",
+   "finance_expense_settlement.md"
+  ],
+  "cited_docs": [
+   "hr_business_trip.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4794.500099999823,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States company travel insurance applies automatically so no personal insurance is needed."
+ },
+ {
+  "question_id": "q034",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "해외에서 카드 쓴 거 정산할 때 환율은 언제 기준이야?",
+  "reference": "카드 결제일의 환율 (정산일 환율 아님)",
+  "answer": "해외에서 카드로 결제한 금액을 정산할 때 적용되는 환율은 **카드 결제일의 환율**을 기준으로 합니다. 출장 정산일이 아닌, 실제로 카드로 결제한 날짜의 환율이 사용됩니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states that the exchange rate is based on the card payment date, matching the reference answer.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [
+   "hr_business_trip.md"
+  ],
+  "retrieved_docs": [
+   "finance_expense_settlement.md",
+   "hr_business_trip.md",
+   "manual_hanbitwork.md",
+   "hr_remote_work_2026.md"
+  ],
+  "cited_docs": [
+   "hr_business_trip.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4400.245200000427,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States the card payment date exchange rate is used."
+ },
+ {
+  "question_id": "q035",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "회사 주차 등록 어떻게 해? 정기권 같은 거 있어?",
+  "reference": "정기주차는 분기 단위 추첨 배정. 분기 시작 2주 전까지 한빛워크 [예약] > [정기주차 신청]으로 신청",
+  "answer": "회사 주차 등록이나 정기권 관련 정보는 제공된 자료에 명시되어 있지 않습니다. IT 헬프데스크 FAQ나 재택근무 정책 문서에서 주차 관련 내용은 확인할 수 없으며, 해당 사항은 회사의 별도 정책이나 HR/경비팀을 통해 확인해야 합니다.",
+  "verdict": "incorrect",
+  "judge_reason": "The assistant answer contradicts the reference by stating that the information is not available, while the reference provides specific details about the process.",
+  "numbers_expected": [
+   "2주"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "facilities_parking_access.md"
+  ],
+  "retrieved_docs": [
+   "hr_remote_work_2024.md",
+   "it_helpdesk_faq.md"
+  ],
+  "cited_docs": [
+   "it_helpdesk_faq.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4335.2679999998145,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says parking registration information is not in the provided materials."
+ },
+ {
+  "question_id": "q036",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "남편 건강검진도 회사에서 지원돼요?",
+  "reference": "배우자 검진 비용은 50% 지원",
+  "answer": "네, 남편의 건강검진은 회사에서 연 1회 종합건강검진을 비용 지원해 드립니다. 또한, 배우자(예: 남편)의 검진 비용은 50%까지 회사가 지원합니다. 검진 당일은 공가(유급)로 처리되며, 한빛워크에서 '건강검진' 휴가 유형으로 신청하면 됩니다.",
+  "verdict": "incorrect",
+  "judge_reason": "The assistant answer contradicts the reference answer by stating that the company supports the husband's health checkup fully, while the reference answer states that only 50% of the spouse's checkup cost is supported.",
+  "numbers_expected": [
+   "50%"
+  ],
+  "numbers_found": [
+   "50%"
+  ],
+  "gold_docs": [
+   "hr_benefits.md"
+  ],
+  "retrieved_docs": [
+   "hr_benefits.md",
+   "manual_hanbitwork.md",
+   "training_program.md"
+  ],
+  "cited_docs": [
+   "hr_benefits.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4606.425699999818,
+  "support_revised": false,
+  "claude_verdict": "partial",
+  "claude_reason": "States the 50% spouse checkup support but first wrongly implies the husband gets the annual comprehensive checkup paid."
+ },
+ {
+  "question_id": "q039",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "월급날 언제에요?",
+  "reference": "매월 25일 (휴일이면 직전 영업일)",
+  "answer": "",
+  "verdict": "abstained",
+  "judge_reason": "empty answer: nothing was retrieved, so the UI shows a no-answer message",
+  "numbers_expected": [
+   "25일"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "onboarding_checklist.md"
+  ],
+  "retrieved_docs": [],
+  "cited_docs": [],
+  "answer_scope": "none",
+  "latency_ms": 304.1165999993609,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Empty answer."
+ },
+ {
+  "question_id": "q040",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "수습 기간엔 월급 덜 나와?",
+  "reference": "아니요. 수습 기간에도 급여 100% 지급",
+  "answer": "",
+  "verdict": "abstained",
+  "judge_reason": "empty answer: nothing was retrieved, so the UI shows a no-answer message",
+  "numbers_expected": [
+   "100%"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "onboarding_checklist.md"
+  ],
+  "retrieved_docs": [],
+  "cited_docs": [],
+  "answer_scope": "none",
+  "latency_ms": 309.1496000006373,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Empty answer."
+ },
+ {
+  "question_id": "q042",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "스타트업 캠프 1주차 보안교육은 몇 시간짜리야?",
+  "reference": "정보보안 교육 2시간 (필수, 정보보호팀 진행)",
+  "answer": "스타트업 캠프 1주차의 보안교육은 **2시간**짜리입니다. 교육 내용은 정보보안 교육으로, 필수 과정이며, 판교 본사 9층 대회의실 '누리'에서 진행됩니다.",
+  "verdict": "partial",
+  "judge_reason": "The assistant answer includes an extra detail about the location that is not in the reference answer.",
+  "numbers_expected": [
+   "2시간"
+  ],
+  "numbers_found": [
+   "2시간"
+  ],
+  "gold_docs": [
+   "training_program.md"
+  ],
+  "retrieved_docs": [
+   "onboarding_checklist.md",
+   "training_program.md"
+  ],
+  "cited_docs": [
+   "onboarding_checklist.md",
+   "training_program.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 3786.5810000002966,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States the security training is 2 hours."
+ },
+ {
+  "question_id": "q044",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "캠프 수료 발표 언제 하고 몇 분이야?",
+  "reference": "4주차 금요일 오후 4시, 1인 10분",
+  "answer": "수료 발표는 4주차 금요일 오후 4시에 진행되며, 발표 시간은 1인당 10분입니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer matches the reference answer exactly in terms of date, time, and duration.",
+  "numbers_expected": [
+   "4주",
+   "4시",
+   "10분"
+  ],
+  "numbers_found": [
+   "4주",
+   "4시",
+   "10분"
+  ],
+  "gold_docs": [
+   "training_program.md"
+  ],
+  "retrieved_docs": [
+   "training_program.md",
+   "onboarding_checklist.md",
+   "eng_branch_strategy.md"
+  ],
+  "cited_docs": [
+   "training_program.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4130.517999999938,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States the presentation is Friday of week 4 at 4pm, 10 minutes per person."
+ },
+ {
+  "question_id": "q045",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "반반차 4번 썼는데 연차가 0.5일만 빠져있음.. 버그임?",
+  "reference": "예, 알려진 오류였고 한빛워크 v3.4.1(2026-08-18)에서 수정됨 (4회 사용 시 1일 차감이 정상)",
+  "answer": "아니요, 버그가 아닙니다. 한빛워크의 **v3.4.1** 버전에서 \"반반차를 4회 사용했을 때 잔여 연차가 1일이 아닌 0.5일만 차감되던 오류\"를 수정한 기록이 있습니다. 이는 반반차 4회가 연차 1일에 해당하는 규정에 따라, 시스템이 오류로 0.5일만 차감하는 문제가 있었던 것으로 확인되며, 해당 버그는 이미 수정되었습니다.  \n\n따라서, 현재 시스템이 정상적으로 동작하고 있다면 반반차 4회 사용 시 연차 1일이 차감되어야 합니다. 문제가 지속된다면, 사용 중인 한빛워크 버전이 v3.4.1 이상인지 확인해 보시기 바랍니다.",
+  "verdict": "incorrect",
+  "judge_reason": "The assistant answer incorrectly states that the system is now working correctly, while the reference answer indicates the bug was fixed in v3.4.1, implying that if the issue persists, it may still be a problem.",
+  "numbers_expected": [
+   "4회"
+  ],
+  "numbers_found": [
+   "4회"
+  ],
+  "gold_docs": [
+   "release_notes_hanbitwork.md"
+  ],
+  "retrieved_docs": [
+   "release_notes_hanbitwork.md",
+   "hr_leave_policy_2026.md",
+   "manual_hanbitwork.md"
+  ],
+  "cited_docs": [
+   "release_notes_hanbitwork.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 5899.217700000008,
+  "support_revised": false,
+  "claude_verdict": "partial",
+  "claude_reason": "Explains the 0.5-day deduction was the error fixed in v3.4.1 and 1 day is correct, but opens by wrongly saying it is not a bug."
+ },
+ {
+  "question_id": "q050",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "결재 올린 문서 잘못 써서 다시 가져오고 싶은데 가능?",
+  "reference": "첫 번째 결재자가 승인하기 전까지 [회수] 가능",
+  "answer": "결재가 완료된 문서는 시스템에서 자동으로 처리되며, 현재 제공된 자료에 따르면 결재 후 문서를 다시 가져오는 기능은 명시적으로 지원되지 않습니다. 문서 작성 오류로 인해 결재를 다시 진행하고 싶다면, 해당 문서를 수정한 후 **재차 결재 신청**을 진행해야 합니다.  \n\n또한, 결재 요청과 관련된 문의는 #it-helpdesk로 문의하거나, 헬프데스크 포털을 통해 지원을 요청하는 것이 좋습니다.",
+  "verdict": "incorrect",
+  "judge_reason": "The assistant answer contradicts the reference answer by stating that the document cannot be recovered after approval, while the reference answer says it can be recovered before the first approver approves.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [
+   "manual_hanbitwork.md"
+  ],
+  "retrieved_docs": [
+   "manual_hanbitwork.md",
+   "it_helpdesk_faq.md",
+   "release_notes_hanbitwork.md"
+  ],
+  "cited_docs": [
+   "manual_hanbitwork.md",
+   "it_helpdesk_faq.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 5171.814899999845,
+  "support_revised": false,
+  "claude_verdict": "incorrect",
+  "claude_reason": "Says retrieving a submitted document is not supported and suggests resubmitting, missing the recall before first approval."
+ },
+ {
+  "question_id": "q051",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "맥북 사파리에서 결재선 편집이 안 먹어요",
+  "reference": "사파리에서는 결재선 편집 드래그가 동작하지 않는 알려진 문제. 크롬이나 엣지 사용",
+  "answer": "맥북의 사파리 브라우저에서 결재선 편집 시 드래그 기능이 작동하지 않는 문제는 알려진 이슈입니다. 이는 사파리의 브라우저 기능 한계로 인한 것으로, **크롬이나 엣지 브라우저를 사용하시면 정상적으로 편집이 가능**합니다.  \n기타 브라우저 관련 문제는 캐시 삭제 후 재접속하거나, #it-helpdesk로 화면 캡처와 함께 문의해 주세요.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states the known issue with Safari and recommends using Chrome or Edge.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [
+   "manual_hanbitwork.md"
+  ],
+  "retrieved_docs": [
+   "manual_hanbitwork.md",
+   "release_notes_hanbitwork.md"
+  ],
+  "cited_docs": [
+   "manual_hanbitwork.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4143.0456000007325,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "Explains the known Safari drag issue and advises Chrome or Edge."
+ },
+ {
+  "question_id": "q053",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "보안사고 S1 등급이면 대표님께 몇 시간 안에 보고 올라가?",
+  "reference": "2시간 이내 대표이사 보고",
+  "answer": "보안사고 S1 등급이 발생하면, **2시간 이내에 대표이사께 보고**해야 합니다. 이는 제공된 자료에서 명시된 보안사고 등급 기준에 따라 정해진 절차입니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states the 2-hour reporting requirement to the CEO for an S1 security incident.",
+  "numbers_expected": [
+   "2시간"
+  ],
+  "numbers_found": [
+   "2시간"
+  ],
+  "gold_docs": [
+   "security_incident_report.md"
+  ],
+  "retrieved_docs": [
+   "hr_business_trip.md",
+   "manual_hanbitwork.md",
+   "release_notes_hanbitwork.md",
+   "security_incident_report.md",
+   "security_privacy_handling.md"
+  ],
+  "cited_docs": [
+   "security_incident_report.md",
+   "release_notes_hanbitwork.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 3528.0124999999316,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States S1 incidents are reported to the CEO within 2 hours."
+ },
+ {
+  "question_id": "q056",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "2만원 쓴 거 간이영수증밖에 없는데 정산 돼?",
+  "reference": "가능. 3만원 이하 지출은 간이영수증으로도 정산 가능",
+  "answer": "2만원은 3만원 이하 지출에 해당하므로, 간이영수증으로도 정산이 가능합니다. 다만, 증빙으로 사용한 간이영수증이 흐려져 금액이나 사업자번호가 보이지 않는 경우 반려될 수 있으니, 사진은 선명하게 찍어 첨부하는 것이 좋습니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states that 2만원 is within the 3만원 limit for simplified receipts and matches the reference answer.",
+  "numbers_expected": [
+   "30000원"
+  ],
+  "numbers_found": [
+   "30000원"
+  ],
+  "gold_docs": [
+   "finance_expense_settlement.md"
+  ],
+  "retrieved_docs": [
+   "finance_expense_settlement.md",
+   "hr_business_trip.md"
+  ],
+  "cited_docs": [
+   "finance_expense_settlement.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4802.223300000151,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "Says a 20,000 won expense can be settled with a simple receipt since it is under 30,000 won."
+ },
+ {
+  "question_id": "q059",
+  "question_type": "fact",
+  "answerable": true,
+  "question": "6월 12일 API 장애 근본원인이 뭐였어?",
+  "reference": "v4.9.0 '대시보드 공유 링크' 기능이 예외 시 트랜잭션을 종료하지 않아 DB 커넥션을 반환하지 않음(커넥션 누수) → 9시 배치로 요청이 몰려 커넥션 풀(최대 200개) 고갈",
+  "answer": "2026년 6월 12일 API 장애의 근본 원인은 **v4.9.0 버전에서 추가된 '대시보드 공유 링크' 기능** 때문이었습니다. 이 기능은 예외 발생 시 트랜잭션을 종료하지 않아 DB 커넥션을 반환하지 못하는 문제가 있었고, 이로 인해 커넥션 누수가 발생했습니다. 특히, 당일 오전 9시에 시작된 일일 집계 배치 작업으로 요청이 몰리면서 최대 200개의 커넥션 풀이 고갈되어 API 요청이 실패하는 상황이 발생했습니다. 이 문제를 해결하기 위해 이전 버전인 v4.8.2로 롤백하여 복구했습니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states the root cause of the API outage as described in the reference answer.",
+  "numbers_expected": [
+   "9시"
+  ],
+  "numbers_found": [
+   "9시"
+  ],
+  "gold_docs": [
+   "eng_postmortem_20260612.md"
+  ],
+  "retrieved_docs": [
+   "eng_incident_runbook.md",
+   "eng_postmortem_20260612.md"
+  ],
+  "cited_docs": [
+   "eng_postmortem_20260612.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 5366.701100000682,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "Identifies the v4.9.0 share-link connection leak exhausting the 200-connection pool during the 9am batch."
+ },
+ {
+  "question_id": "q061",
+  "question_type": "paraphrase",
+  "answerable": true,
+  "question": "입사할 때 받은 랩탑 퇴근하면서 들고 가서 집에서 써도 되는 거지?",
+  "reference": "가능. 지급 시 '상시 반출 등록'이 되어 있으면 재택·국내 출장·외근 시 별도 신청 없이 가지고 나갈 수 있음",
+  "answer": "입사 시 받은 랩탑을 퇴근 후 집에서 사용할 수 있는지에 대해서는 제공된 자료에서 명시적으로 언급된 내용이 없습니다. 집에서 회사 모니터를 사용하는 경우에 한해 \"노트북 외의 장비\"에 대해 자산 반출 신청과 팀장 승인이 필요하다는 점만 확인되며, 랩탑 자체에 대한 규정은 포함되어 있지 않습니다. 따라서 해당 사항은 추가로 확인이 필요합니다.",
+  "verdict": "incorrect",
+  "judge_reason": "The assistant answer contradicts the reference answer by stating there is no information, while the reference provides a clear rule about '상시 반출 등록' allowing the laptop to be taken home.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [
+   "security_laptop_export.md"
+  ],
+  "retrieved_docs": [
+   "hr_remote_work_2024.md"
+  ],
+  "cited_docs": [
+   "hr_remote_work_2024.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4074.4988999995257,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says the materials do not explicitly cover taking the laptop home and it needs checking."
+ },
+ {
+  "question_id": "q062",
+  "question_type": "paraphrase",
+  "answerable": true,
+  "question": "내가 안 들어갔는데 누가 내 아이디로 접속했다는 메시지가 왔어 어떡해",
+  "reference": "계정 탈취 의심 보안사고로 즉시(30분 이내) 신고",
+  "answer": "해당 상황은 계정 보안 문제로, 제공된 자료에서 관련 내용을 확인할 수 없습니다. 즉시 비밀번호를 변경하고, 사용 중인 플랫폼의 고객 지원팀에 문의하여 계정 보호 조치를 요청하는 것이 좋습니다. 자료에는 이러한 보안 이슈에 대한 설명이 없으므로, 추가 조언은 해당 서비스의 공식 가이드라인을 참고해야 합니다.",
+  "verdict": "partial",
+  "judge_reason": "The answer mentions changing the password and contacting customer support, but does not explicitly state the need to report the security incident within 30 minutes as in the reference answer.",
+  "numbers_expected": [
+   "30분"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "security_account_management.md",
+   "security_incident_report.md"
+  ],
+  "retrieved_docs": [
+   "eng_branch_strategy.md"
+  ],
+  "cited_docs": [],
+  "answer_scope": "course_pack",
+  "latency_ms": 3864.3137999997634,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says the materials do not cover this and only offers generic advice."
+ },
+ {
+  "question_id": "q063",
+  "question_type": "paraphrase",
+  "answerable": true,
+  "question": "감기 때문에 하루 못 나가는데 병원 서류 내야 돼?",
+  "reference": "아니요. 연 3일 유급 병가는 진단서 없이 사용 가능",
+  "answer": "병원에 다녀오려면 재택근무일에도 사무실 근무와 동일하게 반차 또는 연차를 신청하면 됩니다. 다만, 감기로 인한 병원 방문 시 병원 서류 제출 여부는 제공된 자료에 명시되지 않았습니다. 병원 방문이 필요한 경우 회사의 병가 정책이나 추가 사전 안내를 확인하는 것이 좋습니다.",
+  "verdict": "incorrect",
+  "judge_reason": "The assistant answer contradicts the reference answer by suggesting that a medical certificate may be required, whereas the reference clearly states that it is not required.",
+  "numbers_expected": [
+   "3일"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "hr_leave_policy_2026.md"
+  ],
+  "retrieved_docs": [
+   "hr_remote_work_2024.md",
+   "eng_code_review.md",
+   "hr_business_trip.md"
+  ],
+  "cited_docs": [
+   "hr_remote_work_2024.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4051.0342999996283,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says whether documents are needed is not stated in the materials."
+ },
+ {
+  "question_id": "q065",
+  "question_type": "paraphrase",
+  "answerable": true,
+  "question": "집에서 일하는 날엔 업무 시작했다는 걸 어디다 남겨?",
+  "reference": "한빛워크 [근태] 화면의 '재택 출근' 버튼 (마칠 때 '재택 퇴근')",
+  "answer": "집에서 일하는 날에 업무 시작했다는 것을 어디에 남기는지에 대한 구체적인 방법은 제공된 자료에 명시되어 있지 않습니다. 재택근무는 1일 단위로 신청하는 것만 언급되어 있고, 병가나 외근 관련 절차는 있으나 업무 시작을 알리는 방법은 확인할 수 없습니다.",
+  "verdict": "incorrect",
+  "judge_reason": "The assistant answer contradicts the reference answer by stating that the information is not provided, while the reference answer clearly specifies the method.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [
+   "hr_attendance.md"
+  ],
+  "retrieved_docs": [
+   "hr_remote_work_2024.md",
+   "hr_leave_policy_2025.md"
+  ],
+  "cited_docs": [
+   "hr_remote_work_2024.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4428.537499999948,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says how to record the start of remote work is not stated in the materials."
+ },
+ {
+  "question_id": "q069",
+  "question_type": "paraphrase",
+  "answerable": true,
+  "question": "코드 올렸는데 하루 넘게 아무도 안 봐줌..",
+  "reference": "리뷰 요청받은 사람은 1영업일 이내 첫 코멘트를 남겨야 하며, 어려우면 PR에 알리고 review-roulette에 재배정 요청",
+  "answer": "",
+  "verdict": "abstained",
+  "judge_reason": "empty answer: nothing was retrieved, so the UI shows a no-answer message",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [
+   "eng_code_review.md"
+  ],
+  "retrieved_docs": [],
+  "cited_docs": [],
+  "answer_scope": "none",
+  "latency_ms": 310.26720000045316,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Empty answer."
+ },
+ {
+  "question_id": "q071",
+  "question_type": "paraphrase",
+  "answerable": true,
+  "question": "가입 끊은 사람 데이터는 얼마나 갖고 있어도 돼?",
+  "reference": "탈퇴일로부터 30일 이내 파기",
+  "answer": "강의 자료에 따르면, 가입을 해지한 사람의 데이터 보관 기간에 대한 구체적인 규정은 확인되지 않습니다. 개인정보 처리 지침에서는 접근 기록은 2년간 보관해야 하지만, 이는 데이터 접근 내역을 말하며 해지한 사용자의 데이터 자체 보관 기간은 명시되어 있지 않습니다. 따라서 해당 내용은 강의 자료에서 확인할 수 없습니다.",
+  "verdict": "incorrect",
+  "judge_reason": "The assistant answer contradicts the reference answer by stating that the data retention period is not specified, while the reference answer clearly states that data must be deleted within 30 days of withdrawal.",
+  "numbers_expected": [
+   "30일"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "security_privacy_handling.md"
+  ],
+  "retrieved_docs": [
+   "security_privacy_handling.md",
+   "security_policy_v2_2026.md"
+  ],
+  "cited_docs": [
+   "security_privacy_handling.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 5275.031000000126,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says the retention period for withdrawn users is not found in the materials."
+ },
+ {
+  "question_id": "q075",
+  "question_type": "paraphrase",
+  "answerable": true,
+  "question": "한 번에 몇 라인 정도까지 고쳐서 올리는 게 좋아?",
+  "reference": "PR 하나당 변경 400줄 이하 권장",
+  "answer": "해당 내용은 제공된 자료에서 확인할 수 없습니다. 보안 정책 문서에는 코드 수정 또는 파일 업로드와 관련된 구체적인 라인 수 제한이나 절차에 대한 정보가 포함되어 있지 않습니다.",
+  "verdict": "abstained",
+  "judge_reason": "The assistant correctly stated that the information is not available in the provided documents.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [
+   "eng_code_review.md"
+  ],
+  "retrieved_docs": [
+   "security_policy_v2_2026.md"
+  ],
+  "cited_docs": [
+   "security_policy_v2_2026.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 3632.098500000211,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says the information is not in the provided materials."
+ },
+ {
+  "question_id": "q080",
+  "question_type": "paraphrase",
+  "answerable": true,
+  "question": "미팅룸 잡아두고 안 가면 페널티 있어?",
+  "reference": "시작 후 10분 내 체크인 안 하면 자동 취소, 한 달 3회 이상 노쇼 시 2주 동안 예약 제한",
+  "answer": "",
+  "verdict": "abstained",
+  "judge_reason": "empty answer: nothing was retrieved, so the UI shows a no-answer message",
+  "numbers_expected": [
+   "10분",
+   "3회",
+   "2주"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "facilities_meeting_rooms.md"
+  ],
+  "retrieved_docs": [],
+  "cited_docs": [],
+  "answer_scope": "none",
+  "latency_ms": 305.3995999998733,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Empty answer."
+ },
+ {
+  "question_id": "q083",
+  "question_type": "paraphrase",
+  "answerable": true,
+  "question": "인쇄 눌렀는데 프린터에서 아무것도 안 나와요",
+  "reference": "보안 출력 방식이라 'Hanbit-SecurePrint'로 보낸 뒤 복합기에 사원증을 태깅해야 출력됨",
+  "answer": "강의 자료에는 프린터 관련 문제 해결 방법이나 담당 부서에 대한 정보가 확인되지 않습니다. IT지원팀(#it-helpdesk)에 문의해 보시거나, 회사 내부 지원 채널을 통해 확인해 주세요.",
+  "verdict": "incorrect",
+  "judge_reason": "The assistant answer contradicts the reference answer by not mentioning the 'Hanbit-SecurePrint' method or the need to tag the employee ID card at the copier.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [
+   "it_helpdesk_faq.md"
+  ],
+  "retrieved_docs": [
+   "org_team_rnr.md"
+  ],
+  "cited_docs": [
+   "org_team_rnr.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4205.058600000484,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says the materials have no information and suggests asking IT support."
+ },
+ {
+  "question_id": "q084",
+  "question_type": "paraphrase",
+  "answerable": true,
+  "question": "우리 애 내년에 1학년 되는데 회사에서 챙겨주는 거 있어?",
+  "reference": "초등학교 입학 축하금 30만원",
+  "answer": "",
+  "verdict": "abstained",
+  "judge_reason": "empty answer: nothing was retrieved, so the UI shows a no-answer message",
+  "numbers_expected": [
+   "300000원"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "hr_benefits.md"
+  ],
+  "retrieved_docs": [],
+  "cited_docs": [],
+  "answer_scope": "none",
+  "latency_ms": 289.45759999987786,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Empty answer."
+ },
+ {
+  "question_id": "q087",
+  "question_type": "numeric",
+  "answerable": true,
+  "question": "유럽 출장 일비 하루 얼마임?",
+  "reference": "1일 US$60",
+  "answer": "유럽 출장 일비는 하루 **60달러**입니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states the daily allowance for a European business trip as 60 dollars.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [
+   "hr_business_trip.md"
+  ],
+  "retrieved_docs": [
+   "hr_business_trip.md"
+  ],
+  "cited_docs": [
+   "hr_business_trip.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 2782.6991000001726,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States the Europe daily allowance is 60 dollars."
+ },
+ {
+  "question_id": "q091",
+  "question_type": "numeric",
+  "answerable": true,
+  "question": "디스크 사용률 몇 % 넘으면 크리티컬 알람 울려?",
+  "reference": "90% 이상 (Warning은 80%)",
+  "answer": "디스크 사용률이 **90% 이상**이 되면 크리티컬 알람이 울립니다. 이 기준은 \"표준 알람 기준\" 섹션에서 명시되어 있으며, 서비스 전반에 적용되는 기본 기준입니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states the critical alarm threshold as 90%.",
+  "numbers_expected": [
+   "90%",
+   "80%"
+  ],
+  "numbers_found": [
+   "90%"
+  ],
+  "gold_docs": [
+   "eng_monitoring_alerts.md"
+  ],
+  "retrieved_docs": [
+   "eng_monitoring_alerts.md",
+   "eng_postmortem_20260612.md"
+  ],
+  "cited_docs": [
+   "eng_monitoring_alerts.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 3583.4467000004224,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States the disk critical threshold is 90%."
+ },
+ {
+  "question_id": "q092",
+  "question_type": "numeric",
+  "answerable": true,
+  "question": "온콜 알람 오탐 비율 몇 퍼 넘으면 기준 다시 잡아?",
+  "reference": "30% 초과 시 SRE팀이 기준 재조정",
+  "answer": "온콜 알람의 오탐(false alarm) 비율이 **30%를 넘는 경우** SRE팀이 기준을 재조정합니다. 이는 매월 첫째 주에 열리는 엔지니어링 주간 회의에서 검토되며, 개선이 필요한 알람에 대해 기준 변경을 결정합니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states the 30% threshold and mentions SRE team involvement as in the reference answer.",
+  "numbers_expected": [
+   "30%"
+  ],
+  "numbers_found": [
+   "30%"
+  ],
+  "gold_docs": [
+   "eng_oncall.md"
+  ],
+  "retrieved_docs": [
+   "eng_monitoring_alerts.md",
+   "eng_oncall.md",
+   "meeting_notes_eng_weekly_20260826.md"
+  ],
+  "cited_docs": [
+   "eng_oncall.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4504.895999999462,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States SRE recalibrates thresholds when false alarms exceed 30%."
+ },
+ {
+  "question_id": "q093",
+  "question_type": "numeric",
+  "answerable": true,
+  "question": "VPN 켜놓고 아무것도 안 하면 몇 분 뒤에 끊겨?",
+  "reference": "30분",
+  "answer": "",
+  "verdict": "abstained",
+  "judge_reason": "empty answer: nothing was retrieved, so the UI shows a no-answer message",
+  "numbers_expected": [
+   "30분"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "it_helpdesk_faq.md",
+   "security_policy_v2_2026.md"
+  ],
+  "retrieved_docs": [],
+  "cited_docs": [],
+  "answer_scope": "none",
+  "latency_ms": 289.6906999994826,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Empty answer."
+ },
+ {
+  "question_id": "q095",
+  "question_type": "numeric",
+  "answerable": true,
+  "question": "배우자 출산 휴가 몇일 줘요?",
+  "reference": "20일 (출산일로부터 120일 이내, 최대 3회 분할 사용)",
+  "answer": "배우자 출산 휴가는 **20일** 주어집니다. 이 휴가는 출산일로부터 120일 이내에 최대 3회로 나누어 사용할 수 있으며, 경조휴가 규정에 따릅니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states the 20-day paternity leave, the 120-day period, and the option to split into 3 parts.",
+  "numbers_expected": [
+   "20일",
+   "120일",
+   "3회"
+  ],
+  "numbers_found": [
+   "20일",
+   "120일",
+   "3회"
+  ],
+  "gold_docs": [
+   "hr_leave_policy_2026.md"
+  ],
+  "retrieved_docs": [
+   "hr_benefits.md",
+   "hr_leave_policy_2025.md",
+   "hr_leave_policy_2026.md",
+   "release_notes_hanbitwork.md"
+  ],
+  "cited_docs": [
+   "hr_leave_policy_2026.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 6612.399900000128,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States 20 days usable within 120 days of birth in up to 3 parts."
+ },
+ {
+  "question_id": "q098",
+  "question_type": "numeric",
+  "answerable": true,
+  "question": "자기계발비 1년에 얼마까지 쓸 수 있어?",
+  "reference": "연 100만원",
+  "answer": "자기계발비는 직무와 관련된 도서 구입, 온라인 강의, 자격증 응시료 등을 **연 100만원** 한도로 지원합니다. 30만원 이하 항목은 사후 영수증 제출로 처리하고, 30만원을 초과하는 항목은 사전에 팀장 승인을 받아야 합니다. 다만, 업무상 필수로 지정된 외부 교육은 자기계발비가 아닌 교육 예산으로 처리됩니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states the annual limit of 100 million won for self-development expenses.",
+  "numbers_expected": [
+   "1000000원"
+  ],
+  "numbers_found": [
+   "1000000원"
+  ],
+  "gold_docs": [
+   "hr_benefits.md"
+  ],
+  "retrieved_docs": [
+   "hr_benefits.md",
+   "training_program.md"
+  ],
+  "cited_docs": [
+   "hr_benefits.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 5681.847100000596,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States the 1,000,000 won annual self-development limit."
+ },
+ {
+  "question_id": "q099",
+  "question_type": "numeric",
+  "answerable": true,
+  "question": "추석 때 배포 동결 언제부터 언제까지였지?",
+  "reference": "2026년 9월 22일(화) 18:00 ~ 9월 29일(화) 10:00",
+  "answer": "추석 배포 동결 기간은 **2026년 9월 22일(화) 오후 6시부터 9월 29일(화) 오전 10시까지**였습니다. 이 기간 동안 정기 배포는 중단되었고, 긴급 핫픽스는 CTO 승인을 받은 경우에만 진행할 수 있습니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states the exact dates and times from the reference answer.",
+  "numbers_expected": [
+   "2026년",
+   "22일",
+   "29일"
+  ],
+  "numbers_found": [
+   "2026년",
+   "22일",
+   "29일"
+  ],
+  "gold_docs": [
+   "meeting_notes_eng_weekly_20260826.md"
+  ],
+  "retrieved_docs": [
+   "meeting_notes_eng_weekly_20260826.md",
+   "eng_deploy_rollback.md"
+  ],
+  "cited_docs": [
+   "meeting_notes_eng_weekly_20260826.md",
+   "eng_deploy_rollback.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 5603.3752000003005,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "Gives the exact freeze window Sep 22 6pm to Sep 29 10am."
+ },
+ {
+  "question_id": "q102",
+  "question_type": "numeric",
+  "answerable": true,
+  "question": "법정 의무교육 언제까지 다 들어야 함?",
+  "reference": "매년 11월 30일",
+  "answer": "법정 의무교육은 매년 **11월 30일**까지 이수해야 합니다. 이 교육은 직장 내 성희롱 예방, 개인정보보호, 장애인 인식개선, 퇴직연금, 산업안전보건 등 여러 항목으로 구성되며, 모두 임직원이 연 1회(또는 분기 1회) 반드시 이수해야 하는 법령에 따른 의무 교육입니다. 기한까지 이수하지 않으면 연말 평가 시스템에 '필수교육 미이수'로 표시됩니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states the key fact from the reference answer and provides additional context without contradiction.",
+  "numbers_expected": [
+   "30일"
+  ],
+  "numbers_found": [
+   "30일"
+  ],
+  "gold_docs": [
+   "training_program.md"
+  ],
+  "retrieved_docs": [
+   "training_program.md",
+   "onboarding_checklist.md"
+  ],
+  "cited_docs": [
+   "training_program.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 5223.122699999294,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States the November 30 annual deadline."
+ },
+ {
+  "question_id": "q103",
+  "question_type": "numeric",
+  "answerable": true,
+  "question": "500만원짜리 장비 사려면 누구 승인까지 받아야 해?",
+  "reference": "CFO 승인, 견적서 2부 이상 (300만원 이상 1,000만원 미만 구간)",
+  "answer": "500만원짜리 장비 구매 시, 해당 요청은 일반적인 구매 절차에 따라 진행됩니다. 다만, **긴급 구매**가 아닌 경우에도 **팀장의 승인**이 필요한지에 대해서는 제공된 자료에서 명확히 언급되지 않았습니다. 다만, **긴급한 경우**에는 팀장의 구두 승인을 받은 후 3영업일 이내에 구매 요청서를 작성하여 사후 승인을 받는 절차가 있습니다. 일반적인 경우의 승인 절차는 자료에 명시되지 않았으므로, **구체적인 승인 권한은 추가 확인이 필요**합니다.",
+  "verdict": "incorrect",
+  "judge_reason": "The assistant answer contradicts the reference answer by not mentioning the required CFO approval and the specific requirement of 2 or more quotations for purchases between 300 million and 1,000 million won.",
+  "numbers_expected": [
+   "3000000원",
+   "10000000원"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "finance_purchasing.md"
+  ],
+  "retrieved_docs": [
+   "org_team_rnr.md",
+   "finance_purchasing.md"
+  ],
+  "cited_docs": [
+   "finance_purchasing.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 9390.888800000539,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says the approval authority for this amount is not stated and needs further checking."
+ },
+ {
+  "question_id": "q104",
+  "question_type": "numeric",
+  "answerable": true,
+  "question": "PC 안 만지고 있으면 몇 분 뒤에 화면 잠겨?",
+  "reference": "5분",
+  "answer": "코스 자료는 화면 잠금 시간에 대한 정보를 확인할 수 없습니다. 제공된 자료는 VPN 연결 유지 시간(30분)이나 보안 출력 대기 시간(24시간) 등 다른 시간 관련 정보만 포함하고 있습니다.",
+  "verdict": "abstained",
+  "judge_reason": "The answer states that the documents do not contain the information.",
+  "numbers_expected": [
+   "5분"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "security_policy_v2_2026.md"
+  ],
+  "retrieved_docs": [
+   "it_helpdesk_faq.md"
+  ],
+  "cited_docs": [
+   "it_helpdesk_faq.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4028.1723999996757,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says the materials do not contain the screen lock time."
+ },
+ {
+  "question_id": "q106",
+  "question_type": "version_conflict",
+  "answerable": true,
+  "question": "비번 몇 달마다 바꿔야 돼? 90일이었나?",
+  "reference": "180일마다 (정보보안 정책 v2.0, 2026-04-01 시행)",
+  "answer": "비밀번호는 180일마다 변경해야 합니다. 90일이 아니라 180일이죠. 정보보안 정책에 따라 180일 주기로 변경하도록 되어 있고, 만료 14일 전부터 안내가 표시됩니다. 새 비밀번호는 12자 이상으로 설정해야 합니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states the 180-day password change requirement and references the information security policy.",
+  "numbers_expected": [
+   "180일",
+   "01시"
+  ],
+  "numbers_found": [
+   "180일"
+  ],
+  "gold_docs": [
+   "security_policy_v2_2026.md"
+  ],
+  "retrieved_docs": [
+   "it_helpdesk_faq.md"
+  ],
+  "cited_docs": [
+   "it_helpdesk_faq.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 3488.2683999994697,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States passwords must be changed every 180 days, not 90."
+ },
+ {
+  "question_id": "q107",
+  "question_type": "version_conflict",
+  "answerable": true,
+  "question": "예전에 쓰던 비밀번호 몇 개까지 다시 못 써?",
+  "reference": "최근 5개",
+  "answer": "해당 코스 자료에는 이전에 사용했던 비밀번호를 몇 개까지 다시 사용할 수 없는지에 대한 명시적인 정보가 포함되어 있지 않습니다. 비밀번호 정책이나 보안 관련 규정에 대해서는 「정보보안 정책」 최신 버전을 따르라고만 언급되어 있을 뿐, 구체적인 비밀번호 재사용 제한 수는 확인할 수 없습니다.",
+  "verdict": "abstained",
+  "judge_reason": "The answer states that the documents do not contain the information.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [
+   "security_policy_v2_2026.md"
+  ],
+  "retrieved_docs": [
+   "eng_branch_strategy.md",
+   "it_helpdesk_faq.md",
+   "onboarding_checklist.md",
+   "security_account_management.md",
+   "security_policy_v1_2025.md"
+  ],
+  "cited_docs": [
+   "eng_branch_strategy.md",
+   "security_account_management.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 6281.756200000018,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says the materials do not state the password reuse limit."
+ },
+ {
+  "question_id": "q109",
+  "question_type": "version_conflict",
+  "answerable": true,
+  "question": "올해 못쓴 연차 내년으로 몇개까지 넘어가? 언제까지 써야 해?",
+  "reference": "최대 10일 이월, 다음 해 6월 30일까지 사용 (2026-07-01 개정 규정)",
+  "answer": "",
+  "verdict": "abstained",
+  "judge_reason": "empty answer: nothing was retrieved, so the UI shows a no-answer message",
+  "numbers_expected": [
+   "10일",
+   "30일"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "hr_leave_policy_2026.md"
+  ],
+  "retrieved_docs": [],
+  "cited_docs": [],
+  "answer_scope": "none",
+  "latency_ms": 289.98179999962304,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Empty answer."
+ },
+ {
+  "question_id": "q111",
+  "question_type": "version_conflict",
+  "answerable": true,
+  "question": "리프레시 휴가는 몇 년 다니면 나와? 휴가비도 줘?",
+  "reference": "근속 3년마다 5일 + 휴가비 70만원",
+  "answer": "리프레시 휴가는 근속 기간에 따라 달라집니다. 2025년 규정에 따르면 **근속 5년마다 5일의 리프레시 휴가**를 부여하고, **휴가비 50만원**을 지급하며, 해당 근속 기념일로부터 1년 이내에 사용해야 합니다. 반면 2026년 개정 규정에서는 **근속 3년마다 5일의 리프레시 휴가**와 **휴가비 70만원**을 지급하며, 사용 기한도 동일하게 근속 기념일로부터 1년 이내입니다. 두 규정 모두 리프레시 휴가 사용 시 휴가비를 지급한다고 명시되어 있습니다.",
+  "verdict": "partial",
+  "judge_reason": "The assistant answer includes correct information about the 2026 regulation but incorrectly references the 2025 regulation, which is not mentioned in the reference answer.",
+  "numbers_expected": [
+   "700000원",
+   "3년",
+   "5일"
+  ],
+  "numbers_found": [
+   "700000원",
+   "3년",
+   "5일"
+  ],
+  "gold_docs": [
+   "hr_leave_policy_2026.md"
+  ],
+  "retrieved_docs": [
+   "hr_leave_policy_2025.md",
+   "hr_leave_policy_2026.md",
+   "org_team_rnr.md"
+  ],
+  "cited_docs": [
+   "hr_leave_policy_2025.md",
+   "hr_leave_policy_2026.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 11038.513200000125,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States the 2026 revised rule of 5 days every 3 years with a 700,000 won allowance, labeling the 5-year rule as the 2025 version."
+ },
+ {
+  "question_id": "q112",
+  "question_type": "version_conflict",
+  "answerable": true,
+  "question": "재택 일주일에 몇 번까지 가능함?",
+  "reference": "주 3회까지 (매주 화요일은 전사 팀 출근일), 2026년 말까지 유지",
+  "answer": "",
+  "verdict": "abstained",
+  "judge_reason": "empty answer: nothing was retrieved, so the UI shows a no-answer message",
+  "numbers_expected": [
+   "3회",
+   "2026년"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "hr_remote_work_2026.md",
+   "meeting_notes_allhands_2026q3.md"
+  ],
+  "retrieved_docs": [],
+  "cited_docs": [],
+  "answer_scope": "none",
+  "latency_ms": 323.14380000025267,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Empty answer."
+ },
+ {
+  "question_id": "q114",
+  "question_type": "version_conflict",
+  "answerable": true,
+  "question": "API p95 레이턴시 warning 알람 기준 지금 몇 ms야?",
+  "reference": "1,000ms 이상 10분 지속 (2026-09-01부터, Critical은 2,000ms 5분 유지)",
+  "answer": "현재 API p95 레이턴시 warning 알람 기준은 **1,000ms 이상 10분 지속**입니다. 이 기준은 2026년 9월 1일부터 적용된 것으로, 기존의 800ms에서 상향 조정되었습니다. Critical 기준(2,000ms 이상 5분 지속)은 변경되지 않았습니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states the current warning threshold and includes the correct date and critical threshold as per the reference answer.",
+  "numbers_expected": [
+   "1000ms",
+   "10분",
+   "2000ms",
+   "5분"
+  ],
+  "numbers_found": [
+   "1000ms",
+   "10분",
+   "2000ms",
+   "5분"
+  ],
+  "gold_docs": [
+   "meeting_notes_eng_weekly_20260826.md"
+  ],
+  "retrieved_docs": [
+   "eng_monitoring_alerts.md",
+   "meeting_notes_eng_weekly_20260826.md"
+  ],
+  "cited_docs": [
+   "eng_monitoring_alerts.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 6588.131800000156,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States 1,000ms sustained for 10 minutes effective Sep 1, 2026."
+ },
+ {
+  "question_id": "q115",
+  "question_type": "version_conflict",
+  "answerable": true,
+  "question": "복지포인트 올해 얼마야? 150 된다던데",
+  "reference": "2026년은 연 120만원 (150만원 인상은 2027년 1월 1일부터)",
+  "answer": "2026년 복지포인트는 기존과 같이 연 120만원이며, 사용 기한(12월 15일)도 변경되지 않았습니다. 150만원 인상분은 **2027년 1월 1일부터** 적용되며, 2027년 1월 1일 기준 재직자 모두에게 지급됩니다. 2027년에 입사하는 경우 입사월부터 월할 단위로 지급됩니다. 따라서 올해(2026년)는 120만원이 맞습니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states the 2026 welfare points amount and the 2027 increase date as per the reference.",
+  "numbers_expected": [
+   "1200000원",
+   "1500000원",
+   "2026년",
+   "2027년"
+  ],
+  "numbers_found": [
+   "1200000원",
+   "1500000원",
+   "2026년",
+   "2027년"
+  ],
+  "gold_docs": [
+   "hr_benefits.md",
+   "meeting_notes_allhands_2026q3.md"
+  ],
+  "retrieved_docs": [
+   "meeting_notes_allhands_2026q3.md",
+   "onboarding_checklist.md",
+   "hr_benefits.md"
+  ],
+  "cited_docs": [
+   "meeting_notes_allhands_2026q3.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 6724.790999999641,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States 1,200,000 won for 2026 with the 1,500,000 won increase from Jan 1, 2027."
+ },
+ {
+  "question_id": "q116",
+  "question_type": "multi_hop",
+  "answerable": true,
+  "question": "출장 중에 회사 노트북 잃어버리면 누구한테 언제까지 신고하고, 비용은 어떻게 처리돼?",
+  "reference": "인지 즉시(늦어도 1시간 이내) 정보보호팀 핫라인(내선 7119/외부 02-6789-7119)에 신고. 도난이면 24시간 내 경찰 신고·확인서 제출. 출장비 정산과는 별개로 처리되며, 고의·중과실이면 잔존가액을 본인에게 청구할 수 있음",
+  "answer": "회사 노트북을 잃어버렸을 경우, **출장 중 즉시 「보안사고 신고 및 대응 절차」에 따라 정보보호팀 핫라인에 신고**해야 합니다. 비용 처리는 명시적으로 언급되지 않았으나, 회사 자산 분실 시 보안사고 절차에 따라 별도로 처리되며, 보험 또는 내부 규정에 따라 다를 수 있습니다. 구체적인 비용 관련 사항은 정보보호팀에 문의해야 합니다.",
+  "verdict": "partial",
+  "judge_reason": "The answer mentions the need to report immediately to the information protection team but does not specify the 1-hour deadline or the 24-hour police report requirement. It also does not mention the cost handling as per the reference answer.",
+  "numbers_expected": [
+   "24시간"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "hr_business_trip.md",
+   "security_incident_report.md",
+   "security_laptop_export.md"
+  ],
+  "retrieved_docs": [
+   "hr_business_trip.md",
+   "hr_remote_work_2024.md",
+   "it_helpdesk_faq.md",
+   "manual_hanbitwork.md",
+   "org_team_rnr.md"
+  ],
+  "cited_docs": [
+   "hr_business_trip.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 6026.506399999562,
+  "support_revised": false,
+  "claude_verdict": "partial",
+  "claude_reason": "Says to report immediately to the security hotline but omits the 1-hour limit, police report and residual value charge, calling cost handling unspecified."
+ },
+ {
+  "question_id": "q117",
+  "question_type": "multi_hop",
+  "answerable": true,
+  "question": "미국 출장 잡혔는데 노트북도 가져가야 해. 언제까지 뭐뭐 신청해야 돼?",
+  "reference": "출장 신청은 출발 10영업일 전까지(본부장 승인), 노트북은 상시 반출 등록과 관계없이 출국 5영업일 전까지 해외 반출 신청(정보보호팀장 승인)",
+  "answer": "미국 출장이 확정되었다면, 회사 노트북을 가져가기 위해 **출국 5영업일 전까지** 「전산장비 반출입 관리 지침」에 따른 **해외 반출 신청**을 별도로 해야 합니다. 출장 신청과는 별도로 진행해야 하며, 이 절차를 빠뜨리면 노트북 반출이 불가능합니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states the 5 business days before departure for laptop export application.",
+  "numbers_expected": [
+   "10영업일",
+   "5영업일"
+  ],
+  "numbers_found": [
+   "5영업일"
+  ],
+  "gold_docs": [
+   "hr_business_trip.md",
+   "security_laptop_export.md"
+  ],
+  "retrieved_docs": [
+   "hr_business_trip.md",
+   "onboarding_checklist.md",
+   "security_laptop_export.md",
+   "facilities_meeting_rooms.md"
+  ],
+  "cited_docs": [
+   "hr_business_trip.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 5956.41809999961,
+  "support_revised": false,
+  "claude_verdict": "partial",
+  "claude_reason": "Gives the 5-business-day laptop export request but omits the 10-business-day trip request deadline and the approvers."
+ },
+ {
+  "question_id": "q118",
+  "question_type": "multi_hop",
+  "answerable": true,
+  "question": "신입 개발자인데 온콜은 언제부터 들어가? 조건 같은 거 있어?",
+  "reference": "입사 3개월 경과 + 장애 대응 모의훈련(Game Day) 1회 이상 이수 후 정식 투입, 그 전에 섀도 on-call 1회 이상. 스타트업 캠프 3주차의 Game Day 참관이 모의훈련 이수로 인정됨",
+  "answer": "",
+  "verdict": "abstained",
+  "judge_reason": "empty answer: nothing was retrieved, so the UI shows a no-answer message",
+  "numbers_expected": [
+   "3개월",
+   "3주"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "eng_oncall.md",
+   "training_program.md"
+  ],
+  "retrieved_docs": [],
+  "cited_docs": [],
+  "answer_scope": "none",
+  "latency_ms": 286.98569999960455,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Empty answer."
+ },
+ {
+  "question_id": "q119",
+  "question_type": "multi_hop",
+  "answerable": true,
+  "question": "야근하다 밤 11시 반에 퇴근하는데 저녁값이랑 택시비 어떻게 처리해? 법카 밤에 긁어도 되나",
+  "reference": "오후 8시 이후 근무 시 저녁 식대 1인 1만 2천원 한도 법인카드, 밤 11시 이후 퇴근 택시비는 실비 지원. 23시~06시 법인카드 결제는 원칙 금지지만 야근 귀가 택시 등 업무상 사유는 정산 시 사유 기재. 다음 달 5영업일까지 정산",
+  "answer": "야근으로 밤 11시 반에 퇴근한 경우, **저녁값은 오후 8시 이후 근무 시 1인 1만 2천원 한도 내에서 법인카드로 결제**할 수 있습니다. 또한, **밤 11시 이후 퇴근 시 귀가 택시비는 실비로 지원**받을 수 있습니다.  \n\n**법카 밤에 사용 가능 여부**는 다음과 같습니다. 법인카드는 **밤 11시부터 오전 6시 사이 결제 시 업무상 사유(예: 야근 귀가 택시비)가 명시된 경우에만 정산**이 가능합니다. 개인 용도나 유흥 관련 결제는 금지되며, 택시비는 업무상 사유로 인정되어 법인카드로 결제할 수 있습니다.  \n\n따라서 저녁값과 택시비 모두 규정에 따라 처리 가능합니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states the key facts from the reference answer, including the evening meal allowance, taxi reimbursement, and the rule about corporate card usage during late hours.",
+  "numbers_expected": [
+   "12000원",
+   "8시",
+   "11시",
+   "23시",
+   "06시",
+   "5영업일"
+  ],
+  "numbers_found": [
+   "12000원",
+   "8시",
+   "11시"
+  ],
+  "gold_docs": [
+   "finance_expense_settlement.md",
+   "hr_attendance.md"
+  ],
+  "retrieved_docs": [
+   "hr_attendance.md",
+   "hr_remote_work_2024.md",
+   "finance_expense_settlement.md"
+  ],
+  "cited_docs": [
+   "hr_attendance.md",
+   "finance_expense_settlement.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 7681.86070000047,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States the 12,000 won dinner limit after 8pm, actual-cost taxi after 11pm and late-night card use allowed with a stated business reason."
+ },
+ {
+  "question_id": "q120",
+  "question_type": "multi_hop",
+  "answerable": true,
+  "question": "새벽 2시에 pagerduty 호출 받고 1시간 반 동안 장애 대응했어. 다음날 쉴 수 있어? 일한 시간은 따로 신청해야 해?",
+  "reference": "22시~06시에 1시간 이상 대응했으므로 다음 날 오전 반차(4시간) 보상휴가(발생일로부터 1개월 이내 사용). 실제 근무 시간은 다음 영업일까지 연장·야간근로로 사후 신청",
+  "answer": "PagerDuty 호출로 인한 야간 대응 시간(22시~06시 사이 1시간 이상)은 다음 날 오전 반차(4시간) 보상휴가를 받을 수 있습니다. 따라서 1시간 반 동안 대응한 경우, 다음 날 반차 휴가를 사용할 수 있습니다.  \n\n또한, 실제 근무한 시간은 「근태 관리 규정」에 따라 연장·야간·휴일근로로 사후 신청해야 합니다. 따라서 일한 시간을 별도로 신청해야 합니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly reflects the reference answer's key points about the compensation leave and the need to apply for actual working hours.",
+  "numbers_expected": [
+   "22시",
+   "06시",
+   "4시간"
+  ],
+  "numbers_found": [
+   "22시",
+   "06시",
+   "4시간"
+  ],
+  "gold_docs": [
+   "eng_oncall.md",
+   "hr_attendance.md"
+  ],
+  "retrieved_docs": [
+   "eng_incident_runbook.md",
+   "eng_monitoring_alerts.md",
+   "eng_oncall.md",
+   "facilities_meeting_rooms.md",
+   "facilities_parking_access.md"
+  ],
+  "cited_docs": [
+   "eng_oncall.md",
+   "facilities_parking_access.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 5616.220500000054,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States next-morning 4-hour compensatory half-day and that actual hours must be applied for afterward."
+ },
+ {
+  "question_id": "q122",
+  "question_type": "multi_hop",
+  "answerable": true,
+  "question": "고객사 분들이 차 끌고 미팅 오는데 내가 미리 할 거 있어? 3시간 있으면 주차비는?",
+  "reference": "방문 전날까지 한빛워크 [방문객 등록]에 이름·소속·연락처·방문 시간과 차량번호 입력. 2시간 무료, 초과분은 30분당 1,500원(3시간이면 3,000원)이며 업무상 미팅은 초청 부서가 부담 후 경비 정산 가능",
+  "answer": "고객사 분들이 차량으로 미팅 오실 경우, 미리 방문객 등록 시 차량번호를 입력해 주시면 됩니다. 방문객 주차 관련 기준은 「주차 및 출입 안내」 규정을 따르게 되며, 해당 규정에 따라 주차가 가능합니다. 다만, 3시간 주차에 따른 비용에 대해서는 제공된 자료에서 명시된 내용이 없어 확인이 어렵습니다.",
+  "verdict": "partial",
+  "judge_reason": "The answer mentions the need to register the vehicle number but does not specify the 2-hour free parking and the 3,000 won charge for 3 hours as in the reference answer.",
+  "numbers_expected": [
+   "1500원",
+   "3000원",
+   "2시간",
+   "30분",
+   "3시간"
+  ],
+  "numbers_found": [
+   "3시간"
+  ],
+  "gold_docs": [
+   "facilities_meeting_rooms.md",
+   "facilities_parking_access.md"
+  ],
+  "retrieved_docs": [
+   "hr_remote_work_2024.md",
+   "hr_business_trip.md",
+   "hr_benefits.md",
+   "meeting_notes_allhands_2026q3.md",
+   "facilities_meeting_rooms.md"
+  ],
+  "cited_docs": [
+   "facilities_meeting_rooms.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4876.839199999267,
+  "support_revised": false,
+  "claude_verdict": "partial",
+  "claude_reason": "Mentions registering the visitor with the car number but omits the day-before deadline and says the 3-hour parking fee cannot be confirmed."
+ },
+ {
+  "question_id": "q126",
+  "question_type": "multi_hop",
+  "answerable": true,
+  "question": "업무에 유료 SaaS 툴(연 200만원) 쓰고 싶은데 어떻게 진행해야 돼?",
+  "reference": "유료 소프트웨어는 구매 절차를 먼저 밟아야 하며 IT지원팀을 통해 구매. 연간 구독은 1년 총액 기준이므로 200만원 → 본부장 승인 + 견적서 1부. 신규 SaaS는 정보보호팀 보안 검토(보통 5영업일) 필요",
+  "answer": "유료 SaaS 툴 사용을 위해 다음과 같은 절차를 따라야 합니다:  \n\n1. **구매 요청서 작성**: 한빛워크의 [구매] > [구매 요청]에서 품목(예: SaaS 툴명), 수량, 예상 금액(연 200만원), 구매 사유, 희망 납기를 입력합니다.  \n2. **견적서 첨부**: 해당 SaaS의 견적서를 첨부합니다.  \n3. **승인 요청**: 금액 기준에 따라 승인권자가 결정됩니다. 연 200만원은 **50만원 이상 300만원 미만** 범주에 해당하므로 **본부장 승인**이 필요합니다.  \n4. **정보보호팀 검토**: IT지원팀을 통해 구매 요청 후, **정보보호팀의 보안 검토**를 받습니다. 이 검토는 일반적으로 5영업일이 소요되며, 고객 데이터를 다루는 경우 더 오래 걸릴 수 있습니다.  \n5. **구매 진행**: 승인과 보안 검토가 완료되면 IT지원팀이 SaaS 구독을 일괄 관리합니다.  \n\n추가로, **라이선스는 IT지원팀이 관리**하며, 퇴사 시 자동 회수됩니다. 요청서 작성 후 7일 이내에 검수 완료를 처리해야 하며, 재무팀은 다음 달 10일에 대금을 일괄 지급합니다.  \n\n참고로, **개인적으로 직접 구매**하거나 **표준 사양 외 장비**를 요청하는 경우 별도 협의가 필요합니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly aligns with the reference answer, including the approval process, security review, and involvement of IT and finance teams.",
+  "numbers_expected": [
+   "2000000원",
+   "5영업일"
+  ],
+  "numbers_found": [
+   "2000000원",
+   "5영업일"
+  ],
+  "gold_docs": [
+   "finance_purchasing.md",
+   "it_helpdesk_faq.md"
+  ],
+  "retrieved_docs": [
+   "it_helpdesk_faq.md",
+   "finance_purchasing.md",
+   "hr_leave_policy_2025.md"
+  ],
+  "cited_docs": [
+   "finance_purchasing.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 14842.179100000067,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States division head approval for the 2,000,000 won purchase with a quote, IT support purchasing and 5-business-day security review."
+ },
+ {
+  "question_id": "q128",
+  "question_type": "multi_hop",
+  "answerable": true,
+  "question": "6월 12일 장애 때 처음 울린 알람이 무슨 등급이었고, 그 등급 기준이랑 전달 경로는 뭐야?",
+  "reference": "API 5xx 에러율 Critical 알람. Critical 기준은 5xx 에러율 5% 이상 3분 지속이며 PagerDuty로 on-call 호출 + Slack #alerts-crit",
+  "answer": "6월 12일 장애 때 처음 울린 알람은 **P1 등급**이었습니다.  \n\n**P1 등급 기준**은 서비스 전체 중단, 데이터 유실, 보안 침해로 인한 서비스 중단으로, 예시로는 \"전 고객 로그인 불가, 데이터 손상\"이 포함됩니다. 이 장애는 데이터허브 API 전면 장애로, 약 64%의 고객이 대시보드 조회와 API 호출에서 오류를 겪었기 때문에 P1에 해당합니다.  \n\n**알람 전달 경로**는 **PagerDuty(호출)와 Slack(#alerts-crit 채널)**을 통해 이루어졌습니다. 이는 알람 등급 기준에서 Critical 등급의 전달 방식으로 명시되어 있으며, 해당 장애의 경우 09:07에 API 5xx 에러율이 Critical 기준에 도달해 PagerDuty가 1차 on-call을 호출하고, Slack에 알림이 전달되었습니다.",
+  "verdict": "incorrect",
+  "judge_reason": "The assistant answer incorrectly states the alarm was P1, whereas the reference answer specifies it was a Critical alarm related to API 5xx error rate.",
+  "numbers_expected": [
+   "5%",
+   "3분"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "eng_monitoring_alerts.md",
+   "eng_postmortem_20260612.md"
+  ],
+  "retrieved_docs": [
+   "eng_incident_runbook.md",
+   "eng_monitoring_alerts.md",
+   "eng_postmortem_20260612.md",
+   "meeting_notes_eng_weekly_20260826.md"
+  ],
+  "cited_docs": [
+   "eng_postmortem_20260612.md",
+   "eng_incident_runbook.md",
+   "eng_monitoring_alerts.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 7562.309899999491,
+  "support_revised": false,
+  "claude_verdict": "incorrect",
+  "claude_reason": "Calls the first alarm a P1 grade and gives incident severity criteria instead of the Critical 5xx >=5% for 3 minutes alarm threshold."
+ },
+ {
+  "question_id": "q129",
+  "question_type": "multi_hop",
+  "answerable": true,
+  "question": "입사 첫날 받은 임시 비번 언제까지 바꿔야 하고 새 비번은 어떻게 만들어야 돼?",
+  "reference": "임시 비밀번호는 24시간 유효, 첫 로그인 시 반드시 변경. 새 비밀번호는 12자 이상, 대문자·소문자·숫자·특수문자 중 3종류 이상 조합",
+  "answer": "입사 첫날 받은 임시 비밀번호는 **24시간 동안 유효**하며, **첫 로그인 시 반드시 변경**해야 합니다. 새 비밀번호는 **12자 이상**이어야 하며, 복잡한 조합(대소문자, 숫자, 특수문자 등)을 사용하는 것이 좋습니다. 비밀번호 변경은 SSO 셀프서비스 포털(https://sso.hanbit.internal/reset)에서 Okta Verify 인증 후 직접 설정할 수 있습니다.",
+  "verdict": "partial",
+  "judge_reason": "The assistant answer includes extra details not in the reference answer.",
+  "numbers_expected": [
+   "24시간",
+   "12자"
+  ],
+  "numbers_found": [
+   "24시간",
+   "12자"
+  ],
+  "gold_docs": [
+   "security_account_management.md",
+   "security_policy_v2_2026.md"
+  ],
+  "retrieved_docs": [
+   "it_helpdesk_faq.md",
+   "onboarding_checklist.md",
+   "security_account_management.md",
+   "eng_branch_strategy.md"
+  ],
+  "cited_docs": [
+   "security_account_management.md",
+   "it_helpdesk_faq.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 6926.442699999825,
+  "support_revised": false,
+  "claude_verdict": "partial",
+  "claude_reason": "Gives 24-hour validity, change at first login and 12+ characters but only vaguely recommends mixing character types instead of the 3-of-4 rule."
+ },
+ {
+  "question_id": "q131",
+  "question_type": "multi_hop",
+  "answerable": true,
+  "question": "다음 달 퇴사하는데 내 메일이랑 컨플루언스 문서는 어떻게 돼? 장비는 언제까지 반납해?",
+  "reference": "메일함은 퇴사일로부터 30일 보존 후 삭제, Google Drive·Confluence 문서는 팀장에게 소유권 이전. 전산장비는 퇴사일까지 IT지원팀에 반납",
+  "answer": "퇴사일 오후 6시에 계정이 비활성화되므로, 그 전에 노트북, 모니터 등 지급받은 IT 장비는 7층 IT 데스크에 반납해 주세요. 사원증은 총무팀에 반납합니다. 노트북에 있는 개인 파일은 미리 정리하고, 업무 파일은 팀 공유 드라이브로 옮겨 주세요.  \n\n메일과 컨플루언스 문서에 대한 구체적인 처리 방법은 제공된 자료에 명시되어 있지 않습니다. IT지원팀에 문의하여 확인하시기 바랍니다.",
+  "verdict": "incorrect",
+  "judge_reason": "The assistant answer contradicts the reference answer regarding mail and Confluence document handling, and does not mention the 30-day preservation period for emails or the transfer of ownership for Confluence documents.",
+  "numbers_expected": [
+   "30일"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "security_account_management.md",
+   "security_laptop_export.md"
+  ],
+  "retrieved_docs": [
+   "it_helpdesk_faq.md",
+   "hr_remote_work_2024.md",
+   "security_policy_v1_2025.md"
+  ],
+  "cited_docs": [
+   "it_helpdesk_faq.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 5873.893199999657,
+  "support_revised": false,
+  "claude_verdict": "partial",
+  "claude_reason": "Gives equipment return to IT by the last day but says mail and Confluence handling is not in the materials."
+ },
+ {
+  "question_id": "q132",
+  "question_type": "multi_hop",
+  "answerable": true,
+  "question": "billing 모듈 고친 PR 머지하려면 승인 몇 명 필요하고 머지 방식은 뭐로 해?",
+  "reference": "2명 이상 승인(그중 1명은 CODEOWNERS 담당자), main에는 Squash and merge만 허용 (PR 제목이 커밋 메시지가 됨)",
+  "answer": "billing 모듈을 수정한 PR을 머지하려면 **2명 이상의 승인**이 필요하며, 그 중 **1명은 CODEOWNERS에 등록된 담당자**여야 합니다. 머지 방식은 **Squash and merge**만 허용되며, Rebase and merge나 Merge commit 방식은 사용할 수 없습니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer matches the reference answer exactly in terms of required approvals and merge method.",
+  "numbers_expected": [
+   "2명"
+  ],
+  "numbers_found": [
+   "2명"
+  ],
+  "gold_docs": [
+   "eng_branch_strategy.md",
+   "eng_code_review.md"
+  ],
+  "retrieved_docs": [
+   "eng_branch_strategy.md",
+   "eng_code_review.md",
+   "eng_monitoring_alerts.md",
+   "hr_remote_work_2024.md",
+   "it_helpdesk_faq.md"
+  ],
+  "cited_docs": [
+   "eng_code_review.md",
+   "eng_branch_strategy.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4322.497199999816,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States 2+ approvals including a CODEOWNERS member and Squash and merge only."
+ },
+ {
+  "question_id": "q133",
+  "question_type": "multi_hop",
+  "answerable": true,
+  "question": "금요일 밤에 P1 터져서 핫픽스 바로 내보내야 하는데 리뷰랑 배포 승인 어떻게 해?",
+  "reference": "P1·P2 핫픽스는 승인 1명으로 머지 가능(머지 후 2영업일 이내 사후 리뷰). 금요일은 배포 금지라 CTO 승인을 받은 경우에만 배포 가능",
+  "answer": "금요일 밤에 P1 긴급 핫픽스를 배포해야 하는 경우, 다음 절차를 따릅니다:  \n\n1. **리뷰 프로세스**:  \n   - 핫픽스 PR을 생성한 후, `review-roulette` 봇이 자동으로 2명의 리뷰어를 지정합니다. 리뷰가 1영업일 내에 어려울 경우 PR에 코멘트로 알리고 재배정을 요청해야 합니다.  \n   - **P1 핫픽스는 승인 1명만으로 머지 가능**하지만, 머지 후 **2영업일 이내에 사후 리뷰를 받아야** 합니다. 사후 리뷰에서 나온 `[must]` 코멘트는 별도 PR로 반영해야 합니다.  \n\n2. **배포 승인**:  \n   - 금요일 밤에 배포하려면 **CTO의 승인**이 필수적입니다.  \n   - 정기 배포는 금요일에 진행하지 않으므로, 긴급 핫픽스는 CTO 승인 후 즉시 배포할 수 있습니다.  \n\n3. **기타 주의사항**:  \n   - 배포 전에는 Jira DEPLOY 프로젝트에 티켓을 생성하고, QA팀의 스테이징 환경 검증 및 DBA 리뷰(필요 시)를 완료해야 합니다.  \n   - 배포 30분 전에 Slack `#deploy` 채널에 공지를 올리고, 카나리 배포 단계(5% → 25% → 100%)를 따라야 합니다.  \n\n이 절차는 긴급 상황에서도 안정적인 배포를 보장하기 위한 규정입니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states the key facts from the reference answer, including the P1 hotfix merge approval process and the CTO approval requirement for Friday deployments.",
+  "numbers_expected": [
+   "2영업일"
+  ],
+  "numbers_found": [
+   "2영업일"
+  ],
+  "gold_docs": [
+   "eng_code_review.md",
+   "eng_deploy_rollback.md"
+  ],
+  "retrieved_docs": [
+   "eng_code_review.md",
+   "eng_deploy_rollback.md",
+   "meeting_notes_eng_weekly_20260826.md",
+   "hr_remote_work_2024.md",
+   "eng_branch_strategy.md"
+  ],
+  "cited_docs": [
+   "eng_code_review.md",
+   "eng_deploy_rollback.md",
+   "meeting_notes_eng_weekly_20260826.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 13336.385999999948,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "States one-approval P1 hotfix merge with 2-business-day post-review and Friday deploy requiring CTO approval."
+ },
+ {
+  "question_id": "q135",
+  "question_type": "multi_hop",
+  "answerable": true,
+  "question": "카페에서 재택 중인데 VPN이 안 붙어. 그냥 VPN 없이 일해도 됨?",
+  "reference": "안 됨. 공용 Wi-Fi에서는 VPN 연결을 유지해야 하고 고객 개인정보 화면 열람 금지. 카페 Wi-Fi는 웹 인증(로그인 페이지)을 먼저 완료해야 VPN이 연결됨",
+  "answer": "재택근무 시 카페 등 공용 Wi-Fi 환경에서도 **VPN 연결을 유지해야 하며**, 고객 개인정보가 포함된 화면을 열람하지 않는 것이 규정입니다. 따라서 현재 VPN이 연결되지 않은 상태라면, 업무 시간 중 사내 시스템 접속 시 **VPN을 사용하지 않고 일하는 것은 허용되지 않습니다**. Wi-Fi 환경에서도 반드시 VPN을 통해 접속해야 합니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly states the need to use VPN on public Wi-Fi and prohibits viewing customer personal information.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [
+   "hr_remote_work_2026.md",
+   "it_helpdesk_faq.md"
+  ],
+  "retrieved_docs": [
+   "hr_remote_work_2026.md",
+   "hr_leave_policy_2026.md"
+  ],
+  "cited_docs": [
+   "hr_remote_work_2026.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 3104.2765000001964,
+  "support_revised": false,
+  "claude_verdict": "partial",
+  "claude_reason": "Correctly says VPN must stay on and PII must not be viewed but omits completing the cafe Wi-Fi web login first."
+ },
+ {
+  "question_id": "q136",
+  "question_type": "procedure",
+  "answerable": true,
+  "question": "한빛워크에서 휴가 신청하는 순서 알려줘",
+  "reference": "[휴가] > [휴가 신청] → 휴가 종류 선택 → 날짜·시간 선택(반차 오전/오후, 반반차 출근 직후/퇴근 직전 2시간) → 사유 입력(경조휴가는 증빙 첨부) → 결재선 확인(팀장 자동, 5일 이상 연속이면 본부장 추가) → [상신]",
+  "answer": "한빛워크에서 휴가를 신청하는 순서에 대한 정보는 제공된 자료에 명시되어 있지 않습니다. 위의 소스 청크들은 회의실 사용, 주차 절차, 구매 요청, 근태 관리, 복리후생 등과 관련된 내용을 다루고 있지만, 휴가 신청에 대한 구체적인 절차는 포함되어 있지 않습니다.",
+  "verdict": "abstained",
+  "judge_reason": "The answer does not provide the requested information.",
+  "numbers_expected": [
+   "2시간",
+   "5일"
+  ],
+  "numbers_found": [],
+  "gold_docs": [
+   "manual_hanbitwork.md"
+  ],
+  "retrieved_docs": [
+   "facilities_meeting_rooms.md",
+   "facilities_parking_access.md",
+   "finance_purchasing.md",
+   "hr_attendance.md",
+   "hr_benefits.md"
+  ],
+  "cited_docs": [
+   "hr_benefits.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 6204.078400000071,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says the leave request steps are not in the provided materials."
+ },
+ {
+  "question_id": "q140",
+  "question_type": "procedure",
+  "answerable": true,
+  "question": "회사 돈으로 물건 사려면 구매 요청 어떻게 진행돼?",
+  "reference": "한빛워크 [구매] > [구매 요청]에 품목·수량·금액·사유·희망 납기 입력 → 금액 기준 견적서 첨부 → 자동 지정 결재선 승인 → 재무팀 구매 파트가 발주(요청자 직접 발주 금지) → 도착 후 7일 이내 [검수 완료] → 다음 달 10일 대금 일괄 지급",
+  "answer": "회사 돈으로 물건을 구매하려면 **한빛워크**의 [구매] > [구매 요청] 메뉴를 통해 품목, 수량, 예상 금액, 구매 사유, 희망 납기를 입력한 후, 해당 금액에 맞는 견적서를 첨부해야 합니다. 이후 금액에 따라 자동으로 지정된 결재선의 승인을 받고, 최종 승인 후 재무팀 구매 파트가 공급업체에 발주합니다. 물품이 도착하면 요청자는 7일 이내에 한빛워크에서 [검수 완료]를 처리해야 하며, 재무팀은 검수 완료 건의 대금을 다음 달 10일에 일괄 지급합니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer matches the reference answer accurately without contradictions or errors.",
+  "numbers_expected": [
+   "7일",
+   "10일"
+  ],
+  "numbers_found": [
+   "7일",
+   "10일"
+  ],
+  "gold_docs": [
+   "finance_purchasing.md"
+  ],
+  "retrieved_docs": [
+   "hr_remote_work_2024.md",
+   "it_helpdesk_faq.md",
+   "finance_purchasing.md"
+  ],
+  "cited_docs": [
+   "finance_purchasing.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 6474.4739999996455,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "Lists the 한빛워크 purchase request, quotes, auto approval line, finance ordering, 7-day inspection and payment on the 10th."
+ },
+ {
+  "question_id": "q142",
+  "question_type": "procedure",
+  "answerable": true,
+  "question": "사원증 잃어버렸어 ㅠ 뭐부터 해야 돼?",
+  "reference": "정보보호팀 핫라인(내선 7119)에 신고해 카드 즉시 정지 → 총무팀(#ga-help)에 재발급 신청(1만원 본인 부담, 다음 달 급여 공제) → 재발급까지 2영업일 동안 임시 출입증 사용",
+  "answer": "사원증을 잃어버렸을 경우 다음 단계를 따르세요:  \n\n1. **즉시 보안사고 신고**: 정보보호팀 핫라인(내선 7119)에 연락해 사원증 분실을 신고하고, 카드 사용을 즉시 중지시켜야 합니다.  \n2. **재발급 신청**: 총무팀에 재발급을 요청하세요(#ga-help). 재발급 비용은 1만원이며, 다음 달 급여에서 공제됩니다.  \n3. **임시 출입증 사용**: 재발급 처리가 완료될 때까지 1층 안내데스크에서 임시 출입증을 받아 사용하세요. 임시 출입증은 당일 오후 7시까지 반납하고, 신분증을 돌려받아야 합니다.  \n4. **재발급 소요 시간**: 재발급은 2영업일이 소요됩니다.  \n\n이 외에 추가로 확인할 사항은 없습니다.",
+  "verdict": "partial",
+  "judge_reason": "The assistant answer includes an extra detail about returning the temporary access card by 7 PM and receiving the ID card back, which is not in the reference answer.",
+  "numbers_expected": [
+   "10000원",
+   "2영업일"
+  ],
+  "numbers_found": [
+   "10000원",
+   "2영업일"
+  ],
+  "gold_docs": [
+   "facilities_parking_access.md"
+  ],
+  "retrieved_docs": [
+   "facilities_parking_access.md",
+   "onboarding_checklist.md",
+   "it_helpdesk_faq.md"
+  ],
+  "cited_docs": [
+   "facilities_parking_access.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 6592.723299999307,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "Gives report to hotline 7119, reissue via 총무팀 at 10,000 won payroll deduction and temporary pass during the 2-business-day reissue."
+ },
+ {
+  "question_id": "q145",
+  "question_type": "procedure",
+  "answerable": true,
+  "question": "release 브랜치에서 버그 찾으면 어떻게 고쳐?",
+  "reference": "release 브랜치에서 hotfix/<Jira키>-<요약> 브랜치를 따서 수정 → 릴리스 브랜치에 머지 → 같은 수정을 main에도 cherry-pick → 배포 후 릴리스 커밋에 v<major>.<minor>.<patch> 태그",
+  "answer": "릴리스 브랜치에서 버그를 발견하면 `hotfix/` 브랜치를 생성해 수정한 후, 해당 수정을 릴리스 브랜치에 머지하고 **같은 수정을 `main`에도 cherry-pick** 합니다. 예를 들어, `release/2026.10.08` 브랜치에서 버그를 수정할 경우, `hotfix/DH-1234-버그수정` 브랜치를 생성해 수정 작업을 수행한 후, 릴리스 브랜치와 `main`에 반영합니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly describes the process of fixing a bug in the release branch as per the reference answer.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [
+   "eng_branch_strategy.md"
+  ],
+  "retrieved_docs": [
+   "eng_branch_strategy.md",
+   "eng_code_review.md"
+  ],
+  "cited_docs": [
+   "eng_branch_strategy.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4648.187499999949,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "Describes hotfix branch from release, merge into release and cherry-pick to main."
+ },
+ {
+  "question_id": "q146",
+  "question_type": "procedure",
+  "answerable": true,
+  "question": "회의실 예약 어떡게 하는거야?",
+  "reference": "한빛워크 [예약] > [회의실] → 층·날짜 선택 → 시간대 드래그(1회 최대 2시간) → 회의 제목·참석자 추가(Outlook 초대 자동 발송) → [예약] (9층 누리는 총무팀 승인 후 확정)",
+  "answer": "회의실 예약은 **한빛워크** 앱이나 웹에서 할 수 있어요.  \n\n1. **접속**: PC는 크롬/엣지 브라우저에서 [https://work.hanbit.internal](https://work.hanbit.internal)에 접속해 SSO 계정으로 로그인하고, MFA(Okta Verify) 인증을 받으세요. 모바일은 '한빛워크' 앱을 설치하고, MDM 앱이 설치된 개인 휴대폰에서 사용 가능해요.  \n2. **예약 메뉴**: 로그인 후 [예약] > [회의실]을 클릭해요.  \n3. **예약 조건**:  \n   - 오늘부터 **최대 4주 뒤**까지 예약 가능 (2025년 11월 3일 이후 기준).  \n   - **한 번에 2시간**까지 예약 가능. 2시간 이상의 회의는 다른 사람이 예약하지 않은 경우 이어서 예약할 수 있어요.  \n   - **9층 '누리' 대회의실**은 사용일 **3영업일 전**까지 예약 신청해야 하며, 총무팀 승인 후 확정됩니다.  \n4. **체크인**: 회의 시작 후 **10분 이내**에 회의실 입구의 태블릿에서 체크인을 해야 해요. 체크인하지 않으면 예약이 자동 취소되고, **한 달에 3회 이상 노쇼** 시 2주간 예약이 제한됩니다.  \n\n추가로, **10층 포커스룸**은 예약 없이 선착순으로 사용 가능하지만, **1시간 이내**로 이용해 주세요. 외부 손님과의 회의는 방문 전날까지 [예약] > [방문객 등록]에 정보를 입력해야 해요.",
+  "verdict": "partial",
+  "judge_reason": "The assistant answer includes extra details not in the reference answer and mentions dates that are not in the reference.",
+  "numbers_expected": [
+   "2시간"
+  ],
+  "numbers_found": [
+   "2시간"
+  ],
+  "gold_docs": [
+   "manual_hanbitwork.md"
+  ],
+  "retrieved_docs": [
+   "manual_hanbitwork.md",
+   "org_team_rnr.md",
+   "facilities_meeting_rooms.md",
+   "release_notes_hanbitwork.md"
+  ],
+  "cited_docs": [
+   "facilities_meeting_rooms.md",
+   "manual_hanbitwork.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 9640.126800000871,
+  "support_revised": false,
+  "claude_verdict": "partial",
+  "claude_reason": "Gives the 한빛워크 [예약]>[회의실] path, 2-hour limit and 누리 approval but omits the floor/date, time-slot and attendee steps."
+ },
+ {
+  "question_id": "q147",
+  "question_type": "procedure",
+  "answerable": true,
+  "question": "정기 배포 전에 준비할 거 순서대로 알려줘",
+  "reference": "Jira DEPLOY 티켓 생성(PR·변경 내용·롤백 방법) → 팀장 승인 → QA팀 스테이징 검증 후 QA sign-off → DB 스키마 변경 시 배포 전 영업일까지 DBA 리뷰 → 배포 30분 전 Slack #deploy 공지",
+  "answer": "정기 배포 전에는 아래 순서로 준비해야 해요:  \n1. **Jira DEPLOY 프로젝트**에 배포 요청 티켓을 생성하고, 포함된 PR(파일럿 리퀘스트), 변경 내용, 롤백 방법을 명시합니다.  \n2. **팀장의 승인**을 받습니다.  \n3. **QA팀**이 스테이징 환경에서 검증을 완료한 후, 티켓에 **QA sign-off**을 남깁니다.  \n4. **DB 스키마 변경**이 필요한 경우, 배포 전 영업일까지 **DBA 리뷰**를 완료해야 하며, 스키마 변경은 이전 버전 애플리케이션과 호환되어야 합니다.  \n5. 배포 30분 전에 **Slack #deploy 채널**에 배포 예정 공지를 올립니다.  \n\n이 순서를 따르면 정기 배포 준비가 완료됩니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer accurately follows the reference answer's order and details without contradictions.",
+  "numbers_expected": [
+   "30분"
+  ],
+  "numbers_found": [
+   "30분"
+  ],
+  "gold_docs": [
+   "eng_deploy_rollback.md"
+  ],
+  "retrieved_docs": [
+   "facilities_parking_access.md",
+   "eng_deploy_rollback.md"
+  ],
+  "cited_docs": [
+   "eng_deploy_rollback.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 5706.927000000178,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "Lists the DEPLOY ticket, team lead approval, QA sign-off, DBA review and 30-minute #deploy notice in order."
+ },
+ {
+  "question_id": "q148",
+  "question_type": "procedure",
+  "answerable": true,
+  "question": "온콜 주간에 개인 일정 생겼는데 다른 사람이랑 바꾸려면?",
+  "reference": "교대 대상자와 합의 → 교대 시작 24시간 전까지 PagerDuty override 설정 → #oncall 채널 공지 (갑작스러운 질병 등은 팀장에게 즉시 알리면 팀장이 대체자 지정)",
+  "answer": "온콜 주간에 개인 일정으로 교대가 필요하면, 교대 대상자와 먼저 합의한 후 **교대 시작 24시간 전까지 PagerDuty에서 override를 설정**하고 **#oncall 채널에 공지**해야 합니다. 갑작스러운 질병 등으로 교대가 불가능한 경우 **즉시 팀장에게 알리고**, 팀장이 대체 담당자를 지정하도록 해야 합니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer matches the reference answer accurately.",
+  "numbers_expected": [
+   "24시간"
+  ],
+  "numbers_found": [
+   "24시간"
+  ],
+  "gold_docs": [
+   "eng_oncall.md"
+  ],
+  "retrieved_docs": [
+   "eng_monitoring_alerts.md",
+   "eng_oncall.md",
+   "eng_incident_runbook.md"
+  ],
+  "cited_docs": [
+   "eng_oncall.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 3783.690100000058,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "Describes agreeing with the swap partner, PagerDuty override 24 hours ahead, #oncall notice and the sudden-illness exception."
+ },
+ {
+  "question_id": "q149",
+  "question_type": "procedure",
+  "answerable": true,
+  "question": "폰 바꿨더니 okta 인증이 안 돼요. 다시 등록 어떻게 해요?",
+  "reference": "헬프데스크 포털에 'MFA 재등록' 티켓 등록 → 담당자가 화상 통화로 신분 확인 → 재등록 링크 받아 새 기기 등록",
+  "answer": "새로운 휴대폰으로 바꾸었는데 Okta 인증이 안 되는 경우, MFA(Multi-Factor Authentication) 기기는 기기와 묶여 있기 때문에 **재등록**이 필요합니다.  \n\n**해결 방법:**  \n1. **헬프데스크 포털**에 접속한 후, 'MFA 재등록'으로 티켓을 올리세요.  \n2. 담당자는 화상 통화로 신분을 확인한 후, 재등록 링크를 보내드립니다.  \n3. 기존 휴대폰을 아직 보유하고 있다면, 교체 전에 미리 요청하는 것이 가장 빠릅니다.  \n\n이 과정을 통해 다시 인증을 등록할 수 있습니다.",
+  "verdict": "correct",
+  "judge_reason": "The answer correctly follows the reference answer's procedure without contradictions.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [
+   "it_helpdesk_faq.md",
+   "security_policy_v2_2026.md"
+  ],
+  "retrieved_docs": [
+   "it_helpdesk_faq.md",
+   "hr_remote_work_2024.md"
+  ],
+  "cited_docs": [
+   "it_helpdesk_faq.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 5738.350999999966,
+  "support_revised": false,
+  "claude_verdict": "correct",
+  "claude_reason": "Describes the MFA re-registration ticket, video identity check and re-registration link."
+ },
+ {
+  "question_id": "q151",
+  "question_type": "unanswerable",
+  "answerable": false,
+  "question": "온콜 수당 언제부터 오르는 거야?",
+  "reference": "문서에 없음",
+  "answer": "",
+  "verdict": "abstained",
+  "judge_reason": "empty answer: nothing was retrieved, so the UI shows a no-answer message",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [],
+  "retrieved_docs": [],
+  "cited_docs": [],
+  "answer_scope": "none",
+  "latency_ms": 283.2251999998334,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Empty answer."
+ },
+ {
+  "question_id": "q152",
+  "question_type": "unanswerable",
+  "answerable": false,
+  "question": "12층으로 옮기는 팀 어디야?",
+  "reference": "문서에 없음",
+  "answer": "12층으로 이전하는 팀은 아직 정해지지 않았습니다. 11월에 공유할 때 함께 안내하겠습니다.",
+  "verdict": "abstained",
+  "judge_reason": "The answer states that the information is not yet decided and will be shared later, without presenting a definitive answer.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [],
+  "retrieved_docs": [
+   "meeting_notes_allhands_2026q3.md"
+  ],
+  "cited_docs": [
+   "meeting_notes_allhands_2026q3.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 3085.658799999692,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says the team has not been decided and will be shared in November."
+ },
+ {
+  "question_id": "q153",
+  "question_type": "unanswerable",
+  "answerable": false,
+  "question": "내년(2027년) 재택근무 정책 어떻게 바뀌어?",
+  "reference": "문서에 없음",
+  "answer": "2027년 재택근무 정책에 대한 구체적인 내용은 아직 공개되지 않았습니다. 다만, 2026년 3분기 전사 타운홀 회의록에 따르면, 현재 적용 중인 재택근무 운영 지침(주 3회 허용, 화요일은 팀 출근일)은 2026년 말까지 그대로 유지되며, 2027년 정책은 2026년 하반기 설문 결과를 반영해 2026년 12월 중에 공지할 예정이라고 밝혔습니다. 따라서 2027년 정책의 세부 사항은 2026년 12월 이후에 확인할 수 있을 것으로 보입니다.",
+  "verdict": "incorrect",
+  "judge_reason": "The answer presents specific details about the 2027 policy as if they are confirmed facts.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [],
+  "retrieved_docs": [
+   "hr_remote_work_2024.md",
+   "hr_remote_work_2026.md",
+   "manual_hanbitwork.md",
+   "meeting_notes_allhands_2026q3.md",
+   "onboarding_checklist.md"
+  ],
+  "cited_docs": [
+   "meeting_notes_allhands_2026q3.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 5660.791899999822,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says the 2027 policy has not been announced yet and will be shared in December, without stating the policy."
+ },
+ {
+  "question_id": "q154",
+  "question_type": "unanswerable",
+  "answerable": false,
+  "question": "2027년에 온보딩 프로그램 개편되면 뭐가 달라져?",
+  "reference": "문서에 없음",
+  "answer": "2027년 상반기에 온보딩 프로그램 개편이 검토 중이지만, 구체적인 내용은 확정된 후에 공지할 예정입니다. 현재까지는 개편에 대한 세부 사항이 명시되어 있지 않아, 기존 온보딩 프로그램의 진행 방식(예: 첫날 출근 시간, 노트북 지급, 교육 일정 등)은 변경되지 않았습니다. 개편 내용은 확정 시 별도로 안내될 것입니다.",
+  "verdict": "abstained",
+  "judge_reason": "The answer states that documents do not contain the information and mentions that details are not yet confirmed.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [],
+  "retrieved_docs": [
+   "meeting_notes_allhands_2026q3.md",
+   "onboarding_checklist.md",
+   "it_helpdesk_faq.md"
+  ],
+  "cited_docs": [
+   "meeting_notes_allhands_2026q3.md",
+   "onboarding_checklist.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 5401.9375999996555,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says the 2027 revamp details are not yet confirmed and will be announced later."
+ },
+ {
+  "question_id": "q155",
+  "question_type": "unanswerable",
+  "answerable": false,
+  "question": "올해 연봉 인상률 몇 퍼센트야?",
+  "reference": "문서에 없음",
+  "answer": "",
+  "verdict": "abstained",
+  "judge_reason": "empty answer: nothing was retrieved, so the UI shows a no-answer message",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [],
+  "retrieved_docs": [],
+  "cited_docs": [],
+  "answer_scope": "none",
+  "latency_ms": 282.69430000000284,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Empty answer."
+ },
+ {
+  "question_id": "q157",
+  "question_type": "unanswerable",
+  "answerable": false,
+  "question": "육아휴직은 최대 몇 년까지 쓸 수 있어?",
+  "reference": "문서에 없음",
+  "answer": "해당 자료에는 육아휴직의 최대 사용 기간에 대한 구체적인 정보가 포함되어 있지 않습니다. 제공된 내용은 육아기 근로시간 단축, 자녀 입학 축하금, 협약 어린이집 지원 등 육아 관련 복지 정책을 다루고 있으나, 휴직 기간에 대한 명시는 없습니다.",
+  "verdict": "abstained",
+  "judge_reason": "The answer correctly states that the documents do not contain the information.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [],
+  "retrieved_docs": [
+   "hr_benefits.md",
+   "hr_leave_policy_2025.md"
+  ],
+  "cited_docs": [
+   "hr_benefits.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4707.764800000405,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says the materials do not specify the maximum parental leave period."
+ },
+ {
+  "question_id": "q158",
+  "question_type": "unanswerable",
+  "answerable": false,
+  "question": "부산 R&D센터에는 회의실 몇 개 있어?",
+  "reference": "문서에 없음",
+  "answer": "부산 R&D센터의 회의실 수에 대한 구체적인 정보는 제공된 자료에 명시되어 있지 않습니다. 센터 공지 게시판을 참고해 주세요.",
+  "verdict": "abstained",
+  "judge_reason": "The answer correctly states that the documents do not contain the information and directs the user to the appropriate source.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [],
+  "retrieved_docs": [
+   "facilities_meeting_rooms.md",
+   "org_team_rnr.md",
+   "onboarding_checklist.md",
+   "hr_benefits.md"
+  ],
+  "cited_docs": [
+   "facilities_meeting_rooms.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 4184.972000000016,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says the meeting room count is not in the provided materials."
+ },
+ {
+  "question_id": "q159",
+  "question_type": "unanswerable",
+  "answerable": false,
+  "question": "출장 때 렌터카 빌리면 비용 처리돼?",
+  "reference": "문서에 없음",
+  "answer": "",
+  "verdict": "abstained",
+  "judge_reason": "empty answer: nothing was retrieved, so the UI shows a no-answer message",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [],
+  "retrieved_docs": [],
+  "cited_docs": [],
+  "answer_scope": "none",
+  "latency_ms": 284.06119999999646,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Empty answer."
+ },
+ {
+  "question_id": "q166",
+  "question_type": "unanswerable",
+  "answerable": false,
+  "question": "7층 Bit Cafe 몇 시까지 해?",
+  "reference": "문서에 없음",
+  "answer": "코스 자료에는 7층 Bit Cafe의 운영 시간에 대한 정보가 포함되어 있지 않습니다.",
+  "verdict": "abstained",
+  "judge_reason": "The answer correctly states that the documents do not contain the information.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [],
+  "retrieved_docs": [
+   "hr_leave_policy_2026.md",
+   "hr_remote_work_2026.md",
+   "onboarding_checklist.md",
+   "release_notes_hanbitwork.md",
+   "hr_attendance.md"
+  ],
+  "cited_docs": [
+   "release_notes_hanbitwork.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 3580.7851999998093,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says the materials do not contain the cafe hours."
+ },
+ {
+  "question_id": "q168",
+  "question_type": "unanswerable",
+  "answerable": false,
+  "question": "운영 쿠버네티스 클러스터 몇 개 돌려?",
+  "reference": "문서에 없음",
+  "answer": "",
+  "verdict": "abstained",
+  "judge_reason": "empty answer: nothing was retrieved, so the UI shows a no-answer message",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [],
+  "retrieved_docs": [],
+  "cited_docs": [],
+  "answer_scope": "none",
+  "latency_ms": 283.68479999971896,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Empty answer."
+ },
+ {
+  "question_id": "q170",
+  "question_type": "unanswerable",
+  "answerable": false,
+  "question": "추석 상여금은 얼마 나와?",
+  "reference": "문서에 없음",
+  "answer": "",
+  "verdict": "abstained",
+  "judge_reason": "empty answer: nothing was retrieved, so the UI shows a no-answer message",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [],
+  "retrieved_docs": [],
+  "cited_docs": [],
+  "answer_scope": "none",
+  "latency_ms": 284.3053000005966,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Empty answer."
+ },
+ {
+  "question_id": "q172",
+  "question_type": "unanswerable",
+  "answerable": false,
+  "question": "야간근로 수당은 통상임금의 몇 % 가산돼?",
+  "reference": "문서에 없음",
+  "answer": "코스메터리얼에 따르면 야간근로 수당이 통상임금의 몇 퍼센트로 가산되는지에 대한 구체적인 비율은 명시되어 있지 않습니다. 다만, 야간근로(22시~06시)에 대한 수당은 \"수당을 지급하거나, 직원이 원하는 경우 보상휴가로 대체할 수 있다\"는 점만 언급되어 있을 뿐, 구체적인 비율이나 계산 방식은 확인할 수 없습니다.",
+  "verdict": "abstained",
+  "judge_reason": "The answer correctly states that the documents do not contain the specific information requested.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [],
+  "retrieved_docs": [
+   "hr_attendance.md",
+   "meeting_notes_eng_weekly_20260826.md",
+   "eng_oncall.md"
+  ],
+  "cited_docs": [
+   "hr_attendance.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 5425.590499999998,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says the specific premium rate is not stated in the materials."
+ },
+ {
+  "question_id": "q175",
+  "question_type": "unanswerable",
+  "answerable": false,
+  "question": "판교 사옥 흡연 구역 어디야?",
+  "reference": "문서에 없음",
+  "answer": "",
+  "verdict": "abstained",
+  "judge_reason": "empty answer: nothing was retrieved, so the UI shows a no-answer message",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [],
+  "retrieved_docs": [],
+  "cited_docs": [],
+  "answer_scope": "none",
+  "latency_ms": 290.9729000002699,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Empty answer."
+ },
+ {
+  "question_id": "q179",
+  "question_type": "unanswerable",
+  "answerable": false,
+  "question": "포스트모템 템플릿 파일 어디 있어?",
+  "reference": "문서에 없음",
+  "answer": "포스트모템 템플릿 파일의 위치에 대한 정보는 제공된 자료에 명시되어 있지 않습니다. 다만, P1·P2 장애 발생 시 상태 페이지 공지 템플릿은 CS팀이 사전에 작성했다는 내용이 있습니다(예: 2026년 6월 30일 완료된 \"P1용 상태 페이지 공지 템플릿 사전 작성\" 항목). 하지만 이는 상태 페이지 공지용 템플릿이며, 포스트모템 문서 작성에 사용되는 일반적인 템플릿 파일의 위치는 자료에서 확인할 수 없습니다.",
+  "verdict": "abstained",
+  "judge_reason": "The answer correctly states that the documents do not contain the information and mentions related facts without presenting a definitive answer.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [],
+  "retrieved_docs": [
+   "eng_incident_runbook.md",
+   "eng_postmortem_20260612.md",
+   "meeting_notes_eng_weekly_20260826.md"
+  ],
+  "cited_docs": [
+   "eng_postmortem_20260612.md",
+   "eng_incident_runbook.md"
+  ],
+  "answer_scope": "course_pack",
+  "latency_ms": 5544.212600000719,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says the template location is not in the provided materials."
+ },
+ {
+  "question_id": "q180",
+  "question_type": "unanswerable",
+  "answerable": false,
+  "question": "재택하는 날 집 근처 식당에서 식대카드 써도 돼?",
+  "reference": "문서에 없음",
+  "answer": "재택근무일에 식대카드를 사용해도 되는지에 대한 내용은 제공된 자료에 명시되어 있지 않습니다. 관련 규정이나 정책이 따로 있을 수 있으나, 현재 제공된 소스는 이를 확인할 수 없습니다.",
+  "verdict": "abstained",
+  "judge_reason": "The answer correctly states that the documents do not contain the information.",
+  "numbers_expected": [],
+  "numbers_found": [],
+  "gold_docs": [],
+  "retrieved_docs": [
+   "hr_remote_work_2024.md"
+  ],
+  "cited_docs": [],
+  "answer_scope": "course_pack",
+  "latency_ms": 3479.729700000462,
+  "support_revised": false,
+  "claude_verdict": "abstained",
+  "claude_reason": "Says the provided materials do not specify this."
+ }
+]
