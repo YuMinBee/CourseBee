@@ -274,20 +274,22 @@ class OllamaProvider:
 
     def check_support(self, question: str, chunks: list[Chunk], answer: str) -> tuple[str, str]:
         """답변 초안이 질문의 핵심에 근거를 갖췄는지 판정한다. ("supported" | "not_supported", 이유)"""
+        # 짧은 분류라 사고 과정은 끈다. 켜 두면 JSON 응답이 비어 검사가 조용히 무력화됐다.
         raw = self._generate(
             support_check_prompt(question, chunks, answer),
             max_tokens=200,
             stream=False,
             json_format=True,
             temperature=0.1,
+            think=False,
         )
         try:
             data = json.loads(raw)
-        except json.JSONDecodeError:
-            return "supported", "support check returned invalid JSON"
+        except json.JSONDecodeError as exc:
+            raise OllamaProviderError(f"Support check returned invalid JSON: {raw[:120]!r}") from exc
         verdict = str(data.get("verdict", "")).strip().lower()
         if verdict not in {"supported", "not_supported"}:
-            verdict = "supported"
+            raise OllamaProviderError(f"Support check returned an unknown verdict: {verdict!r}")
         return verdict, str(data.get("reason", ""))[:300]
 
     def _generate(
@@ -298,13 +300,14 @@ class OllamaProvider:
         stream: bool | None = None,
         json_format: bool = False,
         temperature: float = 0.4,
+        think: bool | None = None,
     ) -> str:
         streaming = self.stream_callback is not None and stream is not False
         payload = {
             "model": self.model,
             "prompt": prompt,
             "stream": streaming,
-            "think": self.think,
+            "think": self.think if think is None else think,
             "options": {
                 "num_predict": max_tokens,
                 "temperature": temperature,
