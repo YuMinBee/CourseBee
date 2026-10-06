@@ -57,6 +57,10 @@ RELATION_HINTS: dict[str, list[tuple[str, str]]] = {
 }
 
 STRUCTURAL_RELATIONS = {"contains", "mentions", "introduces", "appears_in", "evidence_in"}
+# 문장 안에서 나란히 나온 개념끼리 잇는 약한 관계. 그래프 경로 탐색에는 쓰지 않는다.
+CO_OCCURRENCE_RELATION = "related_in_context"
+PREREQUISITE_RELATIONS = frozenset({"prerequisite_of"})
+CONTRAST_RELATIONS = frozenset({"contrasts_with"})
 KOREAN_STOPWORDS = {
     "그리고", "그러나", "하지만", "따라서", "때문", "통해", "대한", "위한", "있는", "없는",
     "한다", "된다", "있다", "없다", "같다", "사용", "설명", "내용", "자료", "문서", "강의",

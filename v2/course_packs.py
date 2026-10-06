@@ -30,7 +30,13 @@ from v2.course_pack_store import (
 )
 from v2.course_summary import generate_course_pack_summary
 from v2.documents import load_chunks
-from v2.graph.concept_map import build_concept_map
+from v2.graph.concept_map import (
+    CO_OCCURRENCE_RELATION,
+    CONTRAST_RELATIONS as GRAPH_CONTRAST_RELATIONS,
+    PREREQUISITE_RELATIONS,
+    STRUCTURAL_RELATIONS,
+    build_concept_map,
+)
 from v2.hierarchical_retrieval import build_hierarchical_summary_index, retrieve_hierarchical_summary
 from v2.ingest import ingest_local_document
 from v2.io_utils import atomic_write_json
@@ -1292,27 +1298,14 @@ def _ask_course_pack_with_hierarchical_summary(
     }
     return payload
 
-COURSE_GRAPH_PATH_RELATIONS = {
-    "prerequisite_of",
-    "explains",
-    "contrasts",
-    "used_in",
-    "is_a",
-    "reduces",
-    "handles",
-    "improves",
-    "captures",
-    "supports",
-    "uses",
-    "extends",
-    "grounds",
-    "augments",
-    "builds",
-    "related_to",
-}
-PREREQUISITE_RELATIONS = {"prerequisite_of"}
-CONTRAST_RELATIONS = {"contrasts"}
-STRUCTURAL_RELATIONS = {"contains", "mentions", "evidence_in", "appears_in", "introduces"}
+# 관계 이름은 그래프를 만드는 concept_map이 정한다. 여기서 따로 목록을 두면 이름이 어긋난다
+# (이전에는 추출기가 "contrasts_with"를 쓰는데 검색은 "contrasts"를 찾아 대조 검색이 한 번도 걸리지 않았다).
+# "contrasts"는 이전 버전으로 저장된 그래프를 위해 남긴다.
+CONTRAST_RELATIONS = GRAPH_CONTRAST_RELATIONS | {"contrasts"}
+
+
+def _is_path_relation(relation: str) -> bool:
+    return relation not in STRUCTURAL_RELATIONS and relation != CO_OCCURRENCE_RELATION
 
 
 def _ask_course_pack_with_graph(
@@ -1506,7 +1499,7 @@ def _find_shortest_graph_path(source: str, target: str, graph: dict, max_depth: 
     adjacency: dict[str, list[tuple[str, dict, str]]] = {}
     for edge in graph.get("edges", []):
         relation = str(edge.get("relation", ""))
-        if relation not in COURSE_GRAPH_PATH_RELATIONS:
+        if not _is_path_relation(relation):
             continue
         left = str(edge.get("source", ""))
         right = str(edge.get("target", ""))
