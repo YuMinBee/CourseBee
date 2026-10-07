@@ -8,7 +8,13 @@ from v2 import course_packs
 from v2.providers.base import IndexProvider
 from v2.providers.semantic import reciprocal_rank_fusion
 from v2.rag.answering import generate_source_grounded_answer
-from v2.rag.grounded_prompt import cited_indices, grounded_answer_prompt, source_block, unsupported_answer
+from v2.rag.grounded_prompt import (
+    cited_indices,
+    grounded_answer_prompt,
+    source_block,
+    support_check_prompt,
+    unsupported_answer,
+)
 from v2.schemas import AnswerWithSources, Chunk
 
 
@@ -53,6 +59,13 @@ class GroundedPromptTest(unittest.TestCase):
     def test_prompt_carries_reference_date(self) -> None:
         with mock.patch.dict(os.environ, {"COURSEBEE_TODAY": "2026-10-06"}):
             self.assertIn("오늘 날짜는 2026-10-06", grounded_answer_prompt("연차 언제 신청?", [LEAVE]))
+
+    def test_support_check_knows_the_reference_date(self) -> None:
+        # 날짜가 없으면 "올해" 질문에서 구·신 규정이 함께 보일 때 맞는 답도 근거 없음으로 판정했다.
+        with mock.patch.dict(os.environ, {"COURSEBEE_TODAY": "2026-10-06"}):
+            prompt = support_check_prompt("올해 연차 언제 신청?", [LEAVE], "1영업일 전까지 [1].")
+        self.assertIn("오늘 날짜는 2026-10-06", prompt)
+        self.assertIn("오늘 시행 중인 버전", prompt)
 
     def test_cited_indices(self) -> None:
         self.assertEqual(cited_indices("1영업일 전 [1]. 정산은 10영업일 [2, 1]."), [1, 2])
