@@ -16,10 +16,14 @@ services:
       COURSEBEE_EMBEDDING_MODEL: ${COURSEBEE_EMBEDDING_MODEL:-intfloat/multilingual-e5-small}
       COURSEBEE_RERANKER_MODEL: ${COURSEBEE_RERANKER_MODEL:-cross-encoder/mmarco-mMiniLMv2-L12-H384-v1}
       COURSEBEE_EMBEDDING_CACHE_SIZE: ${COURSEBEE_EMBEDDING_CACHE_SIZE:-4096}
+      COURSEBEE_RETRIEVAL: ${COURSEBEE_RETRIEVAL:-lexical}
+      COURSEBEE_SUPPORT_CHECK: ${COURSEBEE_SUPPORT_CHECK:-on}
+      COURSEBEE_TODAY: ${COURSEBEE_TODAY:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5.4-mini}
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:14b}
+      OLLAMA_THINK: ${OLLAMA_THINK:-false}
     volumes:
       - ./outputs:/app/outputs
     restart: unless-stopped

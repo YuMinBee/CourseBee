@@ -183,6 +183,23 @@ RetrieverProvider
 
 ## Evaluation
 
+### Korean RAG Benchmark (blind)
+
+기존 fixture는 대부분 100%라 차이를 보여 주지 못해서, CourseBee 코드를 보지 않은 작성자가 만든 가상 회사 문서 32개·질문 180개(답이 없는 질문 30개 포함)로 따로 측정했습니다. 설정은 dev 90문항으로만 정했고 아래는 test 90문항 결과입니다. 답변은 여러 설정의 답을 섞고 설정 이름을 가린 블라인드 검토로 채점했습니다.
+
+| test 90문항 | v3 | 현재 권장 설정 (KURE-v1 + 근거 프롬프트 + 답변 검증) |
+| --- | ---: | ---: |
+| 검색 Hit@5 (답 있는 질문) | 58.7%¹ | 94.7% |
+| 답 있는 질문 정답 | 50.7% | 85.3% |
+| 답 있는 질문 거절 | 33.3% | 8.0% |
+| 틀린 말 (90문항 중) | 2 | 3 |
+| 답 없는 질문에 지어낸 답 | 0 / 15 | 1 / 15 |
+| 답변 지연 p50 (로컬 qwen3:14b) | 4.4 s | 3.0 s |
+
+¹ v3 검색은 dev/test를 나누기 전 150문항 전체로 잰 값입니다.
+
+v3는 틀린 말을 거의 하지 않았지만 답 있는 질문의 3분의 1에 답하지 못했습니다. 개선의 대부분은 한국어 검색(Kiwi BM25 색인, KURE-v1 dense)과 번호 인용 근거 프롬프트에서 나왔습니다. 처음에는 로컬 LLM 심판 결과로 "틀린 단정 감소"를 주장했다가, 블라인드 검토로 그 심판이 거절을 오답으로 세고 있었다는 것을 확인하고 정정했습니다. 방법, 구성 요소별 기여, 한계는 [RAG Benchmark](docs/RAG_BENCHMARK.md)에 정리했습니다.
+
 ### Semantic Retrieval
 
 한국어 의역과 영문 질문이 포함된 6개 synthetic case에서 동일한 top-3 조건으로 비교했습니다.
@@ -285,7 +302,10 @@ Semantic 모델을 이미지에 포함하려면 빌드 전에 `COURSEBEE_INSTALL
 | `COURSEBEE_MAX_UPLOAD_BYTES` | 파일당 업로드 제한 | 25 MB |
 | `COURSEBEE_MAX_UPLOAD_BATCH_BYTES` | 요청당 전체 업로드 제한 | 100 MB |
 | `COURSEBEE_MAX_UPLOAD_FILES` | 요청당 파일 수 제한 | 20 |
-| `COURSEBEE_EMBEDDING_MODEL` | semantic embedding model | `intfloat/multilingual-e5-small` |
+| `COURSEBEE_RETRIEVAL` | 질문 답변 검색: `lexical`(Kiwi BM25) 또는 `semantic`(dense) | `lexical` |
+| `COURSEBEE_EMBEDDING_MODEL` | semantic embedding model (한국어 벤치마크 권장: `nlpai-lab/KURE-v1`) | `intfloat/multilingual-e5-small` |
+| `COURSEBEE_SUPPORT_CHECK` | 근거가 받쳐 주지 않는 답을 "문서에서 확인되지 않습니다"로 바꾸는 검사 | `on` |
+| `COURSEBEE_TODAY` | "현재 시행 중인 규정" 판단 기준일 (평가 재현용) | 오늘 |
 | `COURSEBEE_RERANKER_MODEL` | Cross-Encoder reranker | `cross-encoder/mmarco-mMiniLMv2-L12-H384-v1` |
 | `OLLAMA_BASE_URL` / `OLLAMA_MODEL` / `OLLAMA_THINK` | local LLM provider | local Ollama / `qwen3:14b` / `false` |
 | `OPENAI_API_KEY` / `OPENAI_MODEL` | optional managed LLM provider | empty / `gpt-5.4-mini` |
@@ -373,6 +393,8 @@ python eval/run_generalization_eval.py
 python eval/run_robustness_eval.py
 python eval/run_audio_grounding_eval.py
 python eval/run_onboarding_report_eval.py
+python eval/run_ragbench_retrieval.py              # 한국어 RAG 벤치마크 검색 (CI 게이트)
+python eval/run_ragbench_answers.py --split test   # 답변 end-to-end, 로컬 Ollama 필요
 python -m pip install -e ".[e2e]"
 python -m playwright install chromium
 python -m unittest tests.test_browser_demo -v
@@ -385,6 +407,7 @@ GitHub Actions는 push와 pull request마다 동일한 검사와 wheel/container
 - [Architecture](docs/ARCHITECTURE.md)
 - [Semantic Retrieval](docs/SEMANTIC_RETRIEVAL.md)
 - [Evaluation](docs/EVALUATION.md)
+- [Korean RAG Benchmark (KO)](docs/RAG_BENCHMARK.md)
 - [Citation and Grounding](docs/CITATION_GROUNDING.md)
 - [Providers](docs/PROVIDERS.md)
 - [Production Readiness](docs/PRODUCTION_READINESS.md)

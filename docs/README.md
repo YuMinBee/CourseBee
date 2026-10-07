@@ -21,6 +21,7 @@ Documentation is split by purpose:
 - `GRAPH_RAG_EVALUATION.md`: case-based comparison of vector vs graph retrieval
 - `CLOUD_READY_PLAN.md`: future cloud migration path
 - `EVALUATION.md`: executable NLP, multi-domain, robustness, audio-grounding, and report-grounding evaluation harnesses
+- `RAG_BENCHMARK.md`: blind Korean company-documents benchmark (32 documents, 180 questions) for retrieval and end-to-end answers, with judge reliability and limits
 - `diagrams/coursebee-v3-architecture.html`: renderable 1920x1080 v3 technical block diagram source
 - `demo-assets/`: Playwright screenshots and the synthetic, validated audio demo bundle
 - `SEMANTIC_RETRIEVAL.md`: optional E5, RRF, and Cross-Encoder retrieval design and benchmark

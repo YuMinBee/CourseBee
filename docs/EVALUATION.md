@@ -30,6 +30,8 @@ eval/
 
 The fixture used by `run_eval.py` is synthetic and public. It does not depend on private lecture materials.
 
+The small fixtures above mostly score 100%, so they cannot rank retrieval or answer changes. The blind Korean benchmark in `eval/ragbench/` (32 company documents, 180 questions, dev/test split) does that; see [RAG_BENCHMARK.md](RAG_BENCHMARK.md). `run_ragbench_retrieval.py` runs in CI as a Hit@5 gate; `run_ragbench_answers.py` and `run_support_check_replay.py` need a local Ollama model.
+
 ## Run
 
 ```bash
